@@ -1,0 +1,232 @@
+# Rokugan Cozy Village
+
+A small, cosy isometric 3D sandbox set in Rokugan (the feudal-Japan-inspired world of *Legend of the Five Rings*). It plays a bit like a tiny Animal Crossing or Minecraft. You live on a little island village surrounded by the sea, with a river and a pond. You can farm rice, daikon and tea, fish in fresh water and in the sea, sell your harvest to Hana at her stall, and decorate the village with minka houses, torii gates, stone lanterns, trees and more.
+
+**There is no energy, stamina or fatigue system.** Every action is free and unlimited.
+
+Under the hood, the art comes from a real pipeline:
+
+1. Every prop starts as a grey **blockout** made of three.js primitives.
+2. The blockout is rendered from the game's fixed isometric camera.
+3. **Codex CLI** repaints each render by hand in one consistent style.
+4. The game **projection-maps** those paintings back onto the 3D blockouts.
+
+![grey blockouts vs Codex paintings](pipeline/out/contact_sheet.jpg)
+
+## Play / deploy
+
+The site is plain static files served from the **repository root**: `index.html`, `style.css`, `src/`, `assets/`, plus a `.nojekyll` file. There is no build step. three.js is pinned at `three@0.170.0` and loaded from unpkg through an import map. All paths are relative, so it works under a GitHub Pages project sub-path such as `/rokugan-cozy-village/`.
+
+* **GitHub Pages:** Settings → Pages → "Deploy from a branch" → `main` / `(root)`.
+* **Locally:** run `npm run serve`, then open http://127.0.0.1:8080/rokugan-cozy-village/. Any static server works, but `file://` does not, because ES modules need HTTP.
+
+Progress auto-saves to `localStorage` every 10 seconds, and also when you hide or leave the tab. To start over, open **?** and click "Start a new village".
+
+## Controls
+
+| Action | Keyboard / mouse | Touch |
+|---|---|---|
+| Walk | WASD / arrow keys, or click a tile | on-screen d-pad, or tap a tile |
+| Use tool on the tile in front of you | Space / E / Enter | **Use** button |
+| Use tool on a specific tile (walks there first) | click the tile | tap the tile |
+| Select tool / seed | 1–7, or click the hotbar | tap the hotbar |
+| Build mode | B or 8, or the **Build** button | **Build** button |
+| Rotate prop (build mode) | R | ⟳ button |
+| Place / pick up (build mode) | click a tile | tap a tile |
+| Bag (inventory) | I or 9 | **Bag** button |
+| Shop | walk up to Hana or her stall and press Space, or click them | tap |
+| Zoom | mouse wheel, or the ＋/－ buttons | ＋/－ buttons |
+| Close panel / leave build mode | Esc | ✕ |
+
+## Features
+
+* **Island and camera:** a 40×40 tile island. The sea, beaches, cliffs, a river and a pond come from a deterministic generator (`src/game/world.js`). The camera is a fixed isometric orthographic one (azimuth 45°, elevation 35.264°). It follows the player smoothly and zooms with the mouse wheel, with no free rotation.
+* **Player and movement:** a low-poly villager in a straw *kasa* hat with walk, idle and tool-swing animations. Movement collides with props and water.
+  * Clicking a tile walks there using A* pathfinding.
+  * Clicking a tile with a tool walks next to it and uses the tool.
+  * Bridges are walkable, and the player climbs the arch of the deck.
+* **Build mode:** a ghost preview with green/red validity tint and footprint squares. Placement snaps to the grid and rotates in 90° steps. Picking a prop up returns it to the inventory.
+  * Placeable props: crate, clay pot, stone lantern (*tōrō*), fence, minka house, torii gate, well, arched bridge (must go over water), sakura, pine and bamboo.
+  * The torii's middle tile stays walkable.
+* **Farming:**
+  * The hoe tills grass (or sand) into soil. Seeds (rice, daikon, tea) plant on tilled soil.
+  * Crops grow through 3 stages in real time, using timestamps, so growth catches up after the tab was closed. Per stage: rice takes 1 minute, daikon 1.5 and tea 2.
+  * The watering can doubles the speed of the current stage, and wet soil is drawn darker.
+  * Harvesting puts the crop in your inventory. Tea bushes regrow after harvest.
+* **Fishing:**
+  * Face water with the rod and cast. A bobber, line and ripples appear.
+  * After a random wait the fish bites: a **!** bubble appears and the bobber dips. Press Space or click within the bite window to catch it. Pressing too early scares the fish; too late and it gets away.
+  * Fresh water (river/pond) has ayu and koi. The sea has tai and fugu. Each fish has its own bite window.
+* **Economy:** koku money. At Hana's stall you can sell produce and fish (sell one, sell all, or sell everything) and buy seeds and decorations. Small toast messages appear as feedback.
+* **UI:** hotbar with painted icons, bag panel, help card, and touch controls (d-pad and Use/Rotate buttons on touch devices).
+* **Look:** painted props via projection mapping, and instanced billboard vegetation with vertex-shader sway. Also:
+  * a painted-tile ground shader with noisy, brush-like borders between terrain types
+  * an animated sea with shallows and foam
+  * a warm sun with soft PCF shadows plus a hemisphere light
+  * drifting sakura petals and small particle puffs
+  * a full-screen "paper" pass: ink edges from depth, paper fibre and grain, a warm grade and a vignette
+
+## Art pipeline
+
+Every step is a real script in this repo:
+
+* `pipeline/render.mjs` → `pipeline/out/renders/`
+* `pipeline/paint.mjs` → `pipeline/out/painted_raw/` and `pipeline/out/log/`
+* `pipeline/postprocess.py` → `assets/painted/`, `pipeline/out/manifest.json` and `contact_sheet.jpg`
+
+```bash
+npm install                 # playwright-core (uses system Chrome, no browser download) + three (for node-side imports)
+npm run pipeline:render     # step 2: blockout renders + camera JSON + sheet guides
+npm run pipeline:paint      # step 3: Codex paints (idempotent; --force to redo, --only minka_a45,vegetation)
+npm run pipeline:post       # step 3b: align / key / downscale -> assets/painted
+npm run pipeline            # all three
+npm test                    # smoke test (tests/smoke.mjs)
+```
+
+Requirements:
+
+* Node 20+
+* Chrome at `/usr/bin/google-chrome`, or set `CHROME_PATH`
+* Codex CLI at `~/.local/bin/codex`, or set `CODEX_BIN`
+* Python 3 with Pillow and numpy
+
+### 1. Blockouts (`src/assets/blockouts.js`)
+
+Each prop is defined once as data: boxes, cylinders, cones, spheres, gable prisms and hipped roofs. Each primitive is tagged with a material "part" from the shared palette (`src/assets/palette.js`). `buildBlockoutGeometry()` merges a blockout into one asset-space geometry, with a vertex colour for each part. The **game and the pipeline both import this same module.**
+
+### 2. Render (`pipeline/render.mjs` + `pipeline/render.html` / `render-page.js`)
+
+Node starts a tiny static server and launches the system Chrome through playwright-core. It uses the flags `--no-sandbox --use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist`. The pipeline page then renders every blockout with the **game's isometric camera** at azimuths **45° and 225°**, using an orthographic frustum fitted to the asset (`src/render/paintCamera.js`). Each render writes these 1024² passes:
+
+* `*_grey.png`: neutral shaded render on a #FF00FF background. This is what Codex repaints.
+* `*_outline.png`: ink lines from depth and normal discontinuities. Also sent to Codex.
+* `*_normal.png`: view-space normals.
+* `*_depth.png`: depth packed into R and G (16 bit). B = 0 marks the background.
+* `*_mask.png`: alpha mask.
+* `*_color.png`: flat palette colours, used by the procedural fallback.
+* `*_camera.json`: the exact view, projection and view-projection matrices, plus view direction, frustum and bounds.
+
+The page also draws a **guide image** for each sprite sheet: a grid layout with rough coloured canvas sketches in each cell.
+
+### 3. Paint with Codex (`pipeline/paint.mjs`, prompts in `pipeline/jobs.mjs`)
+
+Each asset and angle gets one non-interactive Codex call:
+
+```
+codex exec --skip-git-repo-check -s workspace-write -C pipeline/out/painted_raw -i <grey.png> -i <outline.png>   (prompt on stdin)
+```
+
+The prompt goes through stdin because `-i` is variadic and would swallow a trailing prompt argument. The script runs up to 4 calls in parallel, with 3 attempts per job and an 8-minute timeout. It skips outputs that already exist. If Codex generates an image but forgets to copy it, the script recovers it from `~/.codex/generated_images/<session>/`.
+
+Every call is appended to `pipeline/out/log/codex_calls.jsonl`. A full transcript of each attempt, including the prompt, is saved as `pipeline/out/log/<job>_attemptN.txt`.
+
+All calls share one **style prompt**: hand-painted cosy Rokugan, soft gouache and watercolor brushwork, Ghibli-like warmth, and a palette of vermilion, indigo, moss green, cream and soft gold. The prompt also tells Codex to keep the exact silhouette, framing and camera, and to paint on a flat #FF00FF background.
+
+Codex also paints five sheets from the guide images:
+
+* **vegetation**: grass ×2, flowers ×2, bamboo, bush, reeds, fern
+* **crops**: rice, daikon and tea × 3 growth stages
+* **canopy**: sakura ×2 and pine ×2 foliage clumps
+* **tiles**: grass, sand, path, tilled soil, water, cliff
+* **icons**: tools, seeds, produce, 4 fish, a koku coin and a basket
+
+### 3b. Post-process (`pipeline/postprocess.py`)
+
+For each painted asset and angle, the script:
+
+1. Keys out the magenta.
+2. Fits the painting's bounding box to the render mask's bounding box. It keeps the raw framing instead if that already overlaps the mask better, and records IoU before and after.
+3. Fills any holes inside the mask, and bleeds colour outside it, with a push-pull fill.
+4. Downscales to 512² WebP.
+5. Min-pools the packed depth to 512², so occluders stay conservative.
+6. Cuts a 128² RGBA icon.
+
+If a painting is missing, or its silhouette IoU is below 0.55, a **procedural brushy texture** is made instead from the colour and outline passes, and the manifest flags it as procedural.
+
+For sheets, the script keys the magenta and finds connected components across the whole sheet, so sprites that overflow their cell stay whole. It then re-anchors each sprite (bottom-centre, or centred for icons) and packs it into an atlas. Codex is asked for seamless tile textures, and the script also cross-fades each tile with a half-offset copy to make sure it tiles.
+
+Outputs:
+
+* `assets/painted/manifest.json`: the game-facing file, with cameras, textures and atlas UVs.
+* `pipeline/out/manifest.json`: per asset and angle, whether Codex painted it, the alignment stats and the file paths, plus Codex call statistics.
+
+### 4. Projection (`src/render/materials.js`)
+
+Props use a `MeshLambertMaterial` patched with `onBeforeCompile`:
+
+* Each fragment's **asset-space** position goes through each painting camera's stored view-projection matrix to get a UV.
+* That painting is weighted by `smoothstep(dot(normal, -viewDir))`, times a **depth-visibility test** against that camera's stored depth pass. The depth test stops self-occluded parts from picking up the occluder's paint.
+* Because the projection works in asset space, props can be moved and rotated freely. With two opposite angles (45° and 225°), all four sides of a prop are covered at any 90° rotation.
+* Faces that neither painting camera sees fall back to the part's palette colour with brush noise.
+* Scene lighting and shadows are only partly blended in (`uLightMix`), because the paintings already contain light.
+
+### 5. Vegetation (`src/render/vegetation.js`)
+
+Instanced, camera-facing quads in three layers: grass and flowers, crops, and tree canopies. They sample the painted atlases with alpha-tested cut-outs and sway gently in the vertex shader. Trees are a painted trunk mesh plus three canopy billboards. Bamboo is billboard-only. Blob shadows sit under trees.
+
+### 6. Unify (`src/render/postfx.js`, `src/render/ground.js`)
+
+The whole scene shares one palette, a warm `HemisphereLight` plus a directional sun with soft shadows, and the painted ground tiles. A full-screen pass then adds ink edges from depth, paper fibre and grain, a warm grade and a vignette.
+
+## What Codex painted
+
+The latest full pipeline run (`pipeline/out/manifest.json`, `pipeline/out/log/codex_calls.jsonl`) made **25 Codex image calls: 25 succeeded, 0 failed**, with no retries and no procedural fallbacks.
+
+| Asset | Angles | Painted by |
+|---|---|---|
+| minka, crate, pot, toro (stone lantern), torii, fence, trunk (sakura/pine), well, stall, bridge | 45°, 225° | **Codex** (20 calls) |
+| vegetation sheet (grass, flowers, bamboo, bush, reeds, fern) | — | **Codex** |
+| crops sheet (rice/daikon/tea × 3 stages) | — | **Codex** |
+| canopy sheet (sakura/pine clumps) | — | **Codex** |
+| tiles (grass, sand, path, soil, water, cliff) | — | **Codex** |
+| icons (tools, seeds, produce, fish, koku, basket) | — | **Codex** |
+
+**Not painted by Codex (procedural):**
+
+* the player and merchant characters (brush-noise Lambert shader)
+* the hotbar "pick up" and "build" buttons, which reuse painted icons
+* palette fallback colours on faces neither paint camera sees
+* the water shader, particles and paper-grain texture
+
+The procedural brush fallback and the canvas guide sketches exist in the pipeline, but this run did not need them.
+
+> Note: the first 3 invocations during development exited instantly with a CLI usage error. The prompt was passed after the variadic `-i` flag, so the call never reached the model. The fix was to pipe the prompt via stdin. Those log lines were cleared before the real run, so the log only contains the 25 real calls.
+
+## Tests
+
+`npm test` runs `tests/smoke.mjs`. It serves the repo under `/rokugan-cozy-village/` and drives headless Chrome (SwiftShader) with **real keyboard and mouse input**. It covers:
+
+* new game and welcome card
+* WASD walking, and click-to-move with pathfinding
+* build mode: select a lantern, rotate it, place it with the mouse, ghost preview of a minka, pick the lantern back up
+* tilling a grass tile by clicking it with the hoe, planting rice with Space, watering
+* harvesting a ripe daikon by clicking it
+* casting at the nearest water with the rod, waiting for the bite and pressing Space to catch the fish
+* selling at the shop
+* a save → reload round trip
+
+It also fails on any console error, page error, failed request or HTTP 4xx/5xx. Screenshots are written to `/workspace/screens/` (`01-village.png`, `02-build.png`, `03-farm-fish.png`, plus `04-catch.png`); you can change the folder with `SCREENS_DIR`.
+
+## Project layout
+
+```
+index.html, style.css      game page (deploy root)
+src/main.js                renderer, camera, lights, input, loop
+src/game/                  world, props/build, game logic, data, UI, pathfinding
+src/render/                projection materials, ground/water, billboards, post FX, characters, particles
+src/assets/                blockouts (shared), palette, sprite-sheet specs
+assets/painted/            committed pipeline output (WebP paintings, packed depth, atlases, tiles, icons, manifest) ~2.5 MB
+pipeline/                  render / paint / post-process scripts; out/ has manifest, Codex logs, contact sheet
+tests/smoke.mjs            end-to-end smoke test
+tools/serve.mjs            zero-dependency static server (sub-path aware)
+```
+
+## Known gaps
+
+* Only two paint angles per asset. Faces seen edge-on from both, such as diagonal faces of round objects, show more of the palette fallback and stretched paint.
+* The shading baked into the paintings doesn't change when a prop is rotated, so its lit side doesn't always match the sun.
+* The characters are procedural, not painted. No villagers wander around, there is no day/night cycle, and there is no audio.
+* Coastlines follow the tile grid, so they look stair-stepped.
+* Placing a prop on top of decorative grass removes the grass. Tilled soil can't be turned back into grass.
+* three.js comes from the unpkg CDN, so the game needs internet access on first load.
+* The full pipeline needs Codex CLI with image generation. The committed `assets/painted/` lets the site run without it.

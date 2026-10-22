@@ -1,0 +1,540 @@
+{
+ "generated": "2026-10-22T20:14:13+00:00",
+ "codexCalls": {
+  "total": 25,
+  "succeeded": 25,
+  "failed": 0
+ },
+ "assets": {
+  "minka": {
+   "label": "Minka house",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.988,
+     "iouAfterAlign": 0.988,
+     "alignApplied": false,
+     "alignScale": [
+      0.9922,
+      0.9986
+     ],
+     "alignOffsetPx": [
+      3,
+      1
+     ],
+     "note": null,
+     "texture": "assets/painted/minka_a45.webp",
+     "depth": "assets/painted/minka_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.991,
+     "iouAfterAlign": 0.991,
+     "alignApplied": false,
+     "alignScale": [
+      0.9935,
+      1.0028
+     ],
+     "alignOffsetPx": [
+      3,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/minka_a225.webp",
+     "depth": "assets/painted/minka_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/minka.png"
+  },
+  "crate": {
+   "label": "Wooden crate",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.997,
+     "iouAfterAlign": 0.997,
+     "alignApplied": true,
+     "alignScale": [
+      1.0,
+      1.0
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/crate_a45.webp",
+     "depth": "assets/painted/crate_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.993,
+     "iouAfterAlign": 0.994,
+     "alignApplied": true,
+     "alignScale": [
+      1.003,
+      1.0
+     ],
+     "alignOffsetPx": [
+      -1,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/crate_a225.webp",
+     "depth": "assets/painted/crate_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/crate.png"
+  },
+  "pot": {
+   "label": "Clay pot",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.994,
+     "iouAfterAlign": 0.997,
+     "alignApplied": true,
+     "alignScale": [
+      1.0021,
+      1.0044
+     ],
+     "alignOffsetPx": [
+      0,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/pot_a45.webp",
+     "depth": "assets/painted/pot_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.993,
+     "iouAfterAlign": 0.997,
+     "alignApplied": true,
+     "alignScale": [
+      0.9979,
+      1.0044
+     ],
+     "alignOffsetPx": [
+      1,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/pot_a225.webp",
+     "depth": "assets/painted/pot_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/pot.png"
+  },
+  "toro": {
+   "label": "Stone lantern",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.986,
+     "iouAfterAlign": 0.986,
+     "alignApplied": false,
+     "alignScale": [
+      0.991,
+      1.0068
+     ],
+     "alignOffsetPx": [
+      2,
+      -4
+     ],
+     "note": null,
+     "texture": "assets/painted/toro_a45.webp",
+     "depth": "assets/painted/toro_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.978,
+     "iouAfterAlign": 0.978,
+     "alignApplied": false,
+     "alignScale": [
+      0.9955,
+      1.0122
+     ],
+     "alignOffsetPx": [
+      1,
+      -8
+     ],
+     "note": null,
+     "texture": "assets/painted/toro_a225.webp",
+     "depth": "assets/painted/toro_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/toro.png"
+  },
+  "torii": {
+   "label": "Torii gate",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.986,
+     "iouAfterAlign": 0.99,
+     "alignApplied": true,
+     "alignScale": [
+      1.0015,
+      1.0
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/torii_a45.webp",
+     "depth": "assets/painted/torii_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.987,
+     "iouAfterAlign": 0.987,
+     "alignApplied": false,
+     "alignScale": [
+      1.0,
+      0.9988
+     ],
+     "alignOffsetPx": [
+      0,
+      1
+     ],
+     "note": null,
+     "texture": "assets/painted/torii_a225.webp",
+     "depth": "assets/painted/torii_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/torii.png"
+  },
+  "fence": {
+   "label": "Fence",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.988,
+     "iouAfterAlign": 0.988,
+     "alignApplied": false,
+     "alignScale": [
+      1.0,
+      0.9988
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/fence_a45.webp",
+     "depth": "assets/painted/fence_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.985,
+     "iouAfterAlign": 0.985,
+     "alignApplied": false,
+     "alignScale": [
+      1.0071,
+      1.0035
+     ],
+     "alignOffsetPx": [
+      -4,
+      -3
+     ],
+     "note": null,
+     "texture": "assets/painted/fence_a225.webp",
+     "depth": "assets/painted/fence_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/fence.png"
+  },
+  "trunk": {
+   "label": "Tree trunk",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.98,
+     "iouAfterAlign": 0.98,
+     "alignApplied": false,
+     "alignScale": [
+      1.0,
+      1.0028
+     ],
+     "alignOffsetPx": [
+      0,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/trunk_a45.webp",
+     "depth": "assets/painted/trunk_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.971,
+     "iouAfterAlign": 0.98,
+     "alignApplied": true,
+     "alignScale": [
+      1.0067,
+      1.0027
+     ],
+     "alignOffsetPx": [
+      0,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/trunk_a225.webp",
+     "depth": "assets/painted/trunk_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/trunk.png"
+  },
+  "well": {
+   "label": "Village well",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.996,
+     "iouAfterAlign": 0.996,
+     "alignApplied": false,
+     "alignScale": [
+      0.9936,
+      0.9987
+     ],
+     "alignOffsetPx": [
+      1,
+      1
+     ],
+     "note": null,
+     "texture": "assets/painted/well_a45.webp",
+     "depth": "assets/painted/well_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.991,
+     "iouAfterAlign": 0.991,
+     "alignApplied": false,
+     "alignScale": [
+      0.9968,
+      1.0026
+     ],
+     "alignOffsetPx": [
+      1,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/well_a225.webp",
+     "depth": "assets/painted/well_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/well.png"
+  },
+  "stall": {
+   "label": "Merchant stall",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.993,
+     "iouAfterAlign": 0.993,
+     "alignApplied": false,
+     "alignScale": [
+      0.9972,
+      1.0064
+     ],
+     "alignOffsetPx": [
+      0,
+      -5
+     ],
+     "note": null,
+     "texture": "assets/painted/stall_a45.webp",
+     "depth": "assets/painted/stall_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.943,
+     "iouAfterAlign": 0.943,
+     "alignApplied": false,
+     "alignScale": [
+      0.9986,
+      1.0318
+     ],
+     "alignOffsetPx": [
+      0,
+      -24
+     ],
+     "note": null,
+     "texture": "assets/painted/stall_a225.webp",
+     "depth": "assets/painted/stall_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/stall.png"
+  },
+  "bridge": {
+   "label": "Arched bridge",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.975,
+     "iouAfterAlign": 0.975,
+     "alignApplied": false,
+     "alignScale": [
+      1.0011,
+      1.0073
+     ],
+     "alignOffsetPx": [
+      0,
+      -4
+     ],
+     "note": null,
+     "texture": "assets/painted/bridge_a45.webp",
+     "depth": "assets/painted/bridge_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.973,
+     "iouAfterAlign": 0.976,
+     "alignApplied": true,
+     "alignScale": [
+      0.9989,
+      1.0059
+     ],
+     "alignOffsetPx": [
+      1,
+      -3
+     ],
+     "note": null,
+     "texture": "assets/painted/bridge_a225.webp",
+     "depth": "assets/painted/bridge_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/bridge.png"
+  }
+ },
+ "sheets": {
+  "vegetation": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/vegetation_atlas.png",
+   "cells": [
+    "grass_a",
+    "grass_b",
+    "flowers_pink",
+    "flowers_white",
+    "bamboo",
+    "bush",
+    "reeds",
+    "fern"
+   ]
+  },
+  "crops": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/crops_atlas.png",
+   "cells": [
+    "rice_1",
+    "rice_2",
+    "rice_3",
+    "daikon_1",
+    "daikon_2",
+    "daikon_3",
+    "tea_1",
+    "tea_2",
+    "tea_3"
+   ]
+  },
+  "canopy": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/canopy_atlas.png",
+   "cells": [
+    "sakura_a",
+    "sakura_b",
+    "pine_a",
+    "pine_b"
+   ]
+  },
+  "tiles": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": null,
+   "cells": [
+    "grass",
+    "sand",
+    "path",
+    "soil",
+    "water",
+    "cliff"
+   ]
+  },
+  "icons": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/icons_atlas.png",
+   "cells": [
+    "hand",
+    "hoe",
+    "can",
+    "rod",
+    "seed_rice",
+    "seed_daikon",
+    "seed_tea",
+    "rice",
+    "daikon",
+    "tea",
+    "koi",
+    "ayu",
+    "tai",
+    "fugu",
+    "koku",
+    "basket"
+   ]
+  }
+ }
+}

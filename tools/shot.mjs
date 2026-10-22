@@ -1,0 +1,21 @@
+// Dev helper: load the game, print console errors, save a screenshot.
+import { startServer } from './serve.mjs';
+import { launchChrome } from '../pipeline/chrome.mjs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const out = process.argv[2] || '/tmp/shot.png';
+const script = process.argv[3];
+const srv = await startServer({ root: ROOT });
+const browser = await launchChrome();
+const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) console.log('[console.' + m.type() + ']', m.text()); });
+page.on('pageerror', (e) => console.log('[pageerror]', e.message));
+await page.goto(srv.url);
+await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 3, null, { timeout: 90000 });
+await page.evaluate(() => document.getElementById('help').classList.add('hidden'));
+if (script) console.log(JSON.stringify(await page.evaluate(script)));
+await page.waitForTimeout(1500);
+console.log('frames', await page.evaluate(() => window.__game.frames));
+await page.screenshot({ path: out });
+await browser.close(); await srv.close();

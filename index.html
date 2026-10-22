@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Rokugan Cozy Village</title>
+<meta name="description" content="A cosy hand-painted isometric village sandbox in Rokugan: farm, fish, decorate.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='8' width='22' height='4' fill='%23c8452f'/%3E%3Crect x='3' y='5' width='26' height='3' fill='%232a2420'/%3E%3Crect x='8' y='8' width='3' height='20' fill='%23c8452f'/%3E%3Crect x='21' y='8' width='3' height='20' fill='%23c8452f'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud-top">
+  <div class="purse-box"><span class="coin"></span><b id="koku">0</b><small>koku</small></div>
+  <div id="mode-label"></div>
+  <div class="top-buttons">
+    <button id="btn-zoom-in" title="Zoom in">＋</button>
+    <button id="btn-zoom-out" title="Zoom out">－</button>
+    <button id="btn-build" title="Build mode (B)">Build</button>
+    <button id="btn-bag" title="Bag (I)">Bag</button>
+    <button id="btn-help" title="Controls">?</button>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div id="bubble" class="hidden"></div>
+
+<div id="bottom">
+  <div id="tool-hint"></div>
+  <div id="hotbar"></div>
+</div>
+
+<div id="touch">
+  <div class="dpad">
+    <button data-dir="up" aria-label="up">▲</button>
+    <button data-dir="left" aria-label="left">◀</button>
+    <button data-dir="right" aria-label="right">▶</button>
+    <button data-dir="down" aria-label="down">▼</button>
+  </div>
+  <div class="actions">
+    <button id="btn-rotate" title="Rotate (R)">⟳</button>
+    <button id="btn-action" title="Use tool (Space)">Use</button>
+  </div>
+</div>
+
+<div id="panel" class="hidden"></div>
+
+<div id="help" class="hidden">
+  <div class="card">
+    <div class="card-head"><h2>Welcome to the village</h2><button id="help-close" class="close">✕</button></div>
+    <p>A quiet island in Rokugan. Grow rice, daikon and tea, fish in the river and the sea, and decorate as you like. There is no energy bar — take your time.</p>
+    <ul class="controls">
+      <li><kbd>WASD</kbd>/<kbd>Arrows</kbd> walk · <b>click/tap</b> to walk or use a tool on a tile</li>
+      <li><kbd>1</kbd>–<kbd>7</kbd> hand, hoe, watering can, rod, seeds · <kbd>Space</kbd>/<kbd>E</kbd> use tool</li>
+      <li><kbd>B</kbd> build mode · <kbd>R</kbd> rotate · click to place / pick up</li>
+      <li><kbd>I</kbd> bag · talk to Hana at the stall to sell and buy · mouse wheel to zoom</li>
+      <li>Fishing: face water with the rod, press <kbd>Space</kbd> when the <b>!</b> appears</li>
+    </ul>
+    <p class="muted">Progress is saved automatically in this browser. <button id="btn-reset" class="link">Start a new village</button></p>
+  </div>
+</div>
+
+<div id="loading"><div class="loading-inner"><div class="title">Rokugan Cozy Village</div><div class="bar"><div id="loading-bar"></div></div></div></div>
+
+<noscript>This game needs JavaScript and WebGL.</noscript>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

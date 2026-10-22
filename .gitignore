@@ -1,0 +1,6 @@
+node_modules/
+pipeline/out/renders/
+pipeline/out/painted_raw/
+pipeline/out/post/
+pipeline/out/tmp/
+*.log.tmp
