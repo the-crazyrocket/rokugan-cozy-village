@@ -16,6 +16,10 @@ const SAVE_KEY = 'rokugan-cozy-village/save/v1';
 const SPEED = 3.6;
 const RADIUS = 0.24;
 const DIRS = { up: [-1, -1], down: [1, 1], left: [-1, 1], right: [1, -1] }; // screen -> world (camera at +x+z)
+const SIN_EL = Math.sin((35.264 * Math.PI) / 180); // screen-vertical foreshortening of the ground
+const ACTIONS = new Set(['shop', 'harvest', 'water', 'plant', 'till', 'fish']);
+const QUEUE_MAX = 8;
+const cheb = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.z - b.z));
 
 export class Game {
   constructor({ scene, painted, ui, now = () => Date.now() }) {
@@ -47,6 +51,13 @@ export class Game {
     this.fishing = null;
     this.dirty = { veg: true, crops: true, ground: false };
     this.keys = new Set();
+    this.analog = null; // touch joystick: screen-space unit vector + magnitude
+    this.queue = []; // queued smart-tap actions
+    this.actionCooldown = 0;
+    this.lastSeed = null;
+    this.touchInput = false; // last input came from a touch screen
+    this.buildCursor = null; // touch build preview tile
+    this.moving = null; // prop being moved (touch build mode), restored on cancel
 
     this.player = {
       pos: new THREE.Vector3(17.5, 0, 22.5), facing: Math.PI * 0.25, path: null, pending: null,
@@ -91,6 +102,11 @@ export class Game {
       new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.85 }));
     this.cursor.renderOrder = 3;
     this.scene.add(this.cursor);
+    this.destMarker = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.32, 28).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.9, depthWrite: false }));
+    this.destMarker.renderOrder = 3;
+    this.destMarker.visible = false;
+    this.scene.add(this.destMarker);
   }
 
   makeFishingGear() {
@@ -227,77 +243,201 @@ export class Game {
   // ------------------------------------------------------------------ input-driven
   setKey(code, down) { if (down) this.keys.add(code); else this.keys.delete(code); }
 
+  /** Analog stick input from the touch joystick (screen space: x right, y down, m 0..1). */
+  setAnalog(a) { this.analog = a; }
+
   moveInput() {
     let x = 0, z = 0;
     const k = this.keys;
     const add = ([dx, dz]) => { x += dx; z += dz; };
-    if (k.has('KeyW') || k.has('ArrowUp') || k.has('touch-up')) add(DIRS.up);
-    if (k.has('KeyS') || k.has('ArrowDown') || k.has('touch-down')) add(DIRS.down);
-    if (k.has('KeyA') || k.has('ArrowLeft') || k.has('touch-left')) add(DIRS.left);
-    if (k.has('KeyD') || k.has('ArrowRight') || k.has('touch-right')) add(DIRS.right);
-    const l = Math.hypot(x, z);
-    return l ? { x: x / l, z: z / l } : null;
+    if (k.has('KeyW') || k.has('ArrowUp')) add(DIRS.up);
+    if (k.has('KeyS') || k.has('ArrowDown')) add(DIRS.down);
+    if (k.has('KeyA') || k.has('ArrowLeft')) add(DIRS.left);
+    if (k.has('KeyD') || k.has('ArrowRight')) add(DIRS.right);
+    let l = Math.hypot(x, z);
+    if (l) return { x: x / l, z: z / l, speed: 1 };
+    const a = this.analog;
+    if (!a || a.m <= 0) return null;
+    // screen right = world (1,-1), screen down = world (1,1) foreshortened by sin(elevation)
+    const sy = a.y / SIN_EL;
+    x = a.x + sy; z = -a.x + sy;
+    l = Math.hypot(x, z);
+    return l ? { x: x / l, z: z / l, speed: a.m } : null;
   }
 
-  /** Space / action button: use the current tool on the tile in front of the player. */
+  // ------------------------------------------------------------------ smart actions
+  /** First seed we can plant: the selected one, the last used one, then any. */
+  pickSeed() {
+    if (ITEMS[this.tool].kind === 'seed' && this.count(this.tool) > 0) return this.tool;
+    if (this.lastSeed && this.count(this.lastSeed) > 0) return this.lastSeed;
+    return ['seed_rice', 'seed_daikon', 'seed_tea'].find((s) => this.count(s) > 0) || null;
+  }
+
+  /**
+   * What tapping / using tile t should do, by context. The selected tool only
+   * matters where it clearly applies (hoe on grass, can on soil, a chosen seed).
+   */
+  resolve(t) {
+    const { x, z } = t;
+    const p = this.props.at(x, z), c = this.crop(x, z), tile = this.world.get(x, z), tool = this.tool;
+    if (this.isMerchant(x, z) || (p && p.type === 'stall')) return { kind: 'shop', t, icon: 'icons:koku', label: 'Shop' };
+    if (c) {
+      if (this.stage(c) >= RIPE) return { kind: 'harvest', t, icon: ITEMS[c.type].icon, label: 'Harvest' };
+      if (!c.wet) return { kind: 'water', t, icon: 'icons:can', label: 'Water' };
+      return { kind: 'inspect', t, crop: c };
+    }
+    if (tile === T.SOIL) {
+      if (tool === 'can') return { kind: 'water', t, icon: 'icons:can', label: 'Water' };
+      const seed = this.pickSeed();
+      if (seed) return { kind: 'plant', t, seed, icon: ITEMS[seed].icon, label: 'Plant' };
+      return { kind: 'noseed', t };
+    }
+    if (tile === T.WATER && !this.props.isBridge(x, z)) return { kind: 'fish', t, icon: 'icons:rod', label: 'Fish' };
+    if (p) return { kind: 'inspect', t, prop: p };
+    if ((tile === T.GRASS || tile === T.SAND) && tool === 'hoe') return { kind: 'till', t, icon: 'icons:hoe', label: 'Till' };
+    return { kind: 'walk', t };
+  }
+
+  isBusy() { return !!this.player.pending || !!this.fishing || this.actionCooldown > 0 || this.queue.length > 0; }
+
+  /** Space / action button: smart action on the tile in front of the player. */
   action() {
     if (this.ui.modalOpen()) return;
     if (this.fishing) { this.reel(); return; }
-    if (this.mode === 'build') { const t = this.hoverTile || this.targetTile(); this.buildAt(t.x, t.z); return; }
-    this.useTool(this.targetTile());
+    if (this.mode === 'build') {
+      if (this.buildCursor && this.buildSel !== 'pickup') { this.confirmBuild(); return; }
+      const t = this.hoverTile || this.targetTile(); this.buildAt(t.x, t.z); return;
+    }
+    const t = this.targetTile();
+    const a = this.resolve(t);
+    if (ACTIONS.has(a.kind)) { this.queue.length = 0; this.player.path = null; this.face(t); this.perform(a); return; }
+    if (a.kind === 'inspect' || a.kind === 'noseed') { this.inspect(a); return; }
+    this.useTool(t);
   }
 
-  /** Click / tap on a tile. */
-  clickTile(t) {
-    if (this.ui.modalOpen()) return;
-    if (this.fishing) { this.reel(); return; }
-    if (this.mode === 'build') { this.buildAt(t.x, t.z); return; }
-    const p = this.props.at(t.x, t.z);
-    const c = this.crop(t.x, t.z);
-    const tool = this.tool;
-    const acts = (p && (p.type === 'stall' || p.type === 'well')) || this.isMerchant(t.x, t.z)
-      || (c && this.stage(c) >= RIPE)
-      || (tool === 'hoe' && [T.GRASS, T.SAND].includes(this.world.get(t.x, t.z)) && !p)
-      || (ITEMS[tool].kind === 'seed' && this.world.get(t.x, t.z) === T.SOIL && !c)
-      || (tool === 'can' && this.world.get(t.x, t.z) === T.SOIL)
-      || (tool === 'rod' && this.world.isWater(t.x, t.z) && !this.props.isBridge(t.x, t.z))
-      || (tool === 'hand' && c);
-    if (acts) { this.goAndAct(t); return; }
-    if (this.walkable(t.x, t.z)) this.walkTo(t);
+  /** Click / tap on a tile: do the obvious thing there (walking over first). */
+  clickTile(t) { return this.tap(t); }
+
+  tap(t) {
+    if (this.ui.modalOpen()) return null;
+    if (this.fishing) { this.reel(); return null; }
+    if (this.mode === 'build') { this.buildAt(t.x, t.z); return null; }
+    const a = this.resolve(t);
+    if (a.kind === 'walk') {
+      this.queue.length = 0;
+      this.player.pending = null;
+      if (this.walkable(t.x, t.z)) this.walkTo(t); else this.walkNear(t);
+    } else if (a.kind === 'inspect' || a.kind === 'noseed') this.inspect(a);
+    else this.enqueue(a);
+    this.ui.refreshQueue?.();
+    return a;
   }
 
-  walkTo(t, pending = null) {
+  enqueue(a) {
+    if (!this.isBusy()) { this.startAction(a); return; }
+    const same = (b) => b.t.x === a.t.x && b.t.z === a.t.z;
+    if ((this.player.pending && same(this.player.pending)) || this.queue.some(same)) return;
+    if (this.queue.length >= QUEUE_MAX) { this.ui.toast('That’s plenty to do for now!'); return; }
+    this.queue.push(a);
+  }
+
+  inspect(a) {
+    const { x, z } = a.t;
+    if (a.kind === 'noseed') { this.ui.floatLabel('No seeds — Hana sells them', x, z); return; }
+    const c = a.crop || this.crop(x, z);
+    if (c) {
+      const s = this.stage(c), def = CROPS[c.type];
+      if (s >= RIPE) { this.ui.floatLabel(`${def.name} · ready!`, x, z); return; }
+      const pct = Math.floor(((c.growth % def.stageMs) / def.stageMs) * 100);
+      this.ui.floatLabel(`${def.name} · stage ${s}/${RIPE} · ${pct}%${c.wet ? ' · watered' : ''}`, x, z);
+      return;
+    }
+    const p = a.prop || this.props.at(x, z);
+    if (p) {
+      const msg = p.type === 'well' ? 'The well water is cool and clear.' : PROPS[p.type].name;
+      this.ui.floatLabel(msg, x, z);
+      return;
+    }
+    const names = { [T.GRASS]: 'Soft grass', [T.SAND]: 'Warm sand', [T.PATH]: 'Village path', [T.SOIL]: 'Tilled soil', [T.WATER]: this.world.isFresh(x, z) ? 'Fresh water' : 'The sea' };
+    this.ui.floatLabel(names[this.world.get(x, z)] || '', x, z);
+  }
+
+  /** Tile to stand on for an action (fishing can be done from a little further away). */
+  standTiles(a) {
+    const pc = this.playerCell(), t = a.t;
+    const r = a.kind === 'fish' ? 2 : 1;
+    const out = [];
+    for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) {
+      if (!dx && !dz) continue;
+      const x = t.x + dx, z = t.z + dz;
+      if (!this.walkable(x, z)) continue;
+      const d = cheb({ x, z }, t) * 2 + Math.hypot(x - pc.x, z - pc.z) * 0.15 + (dx && dz ? 0.3 : 0);
+      out.push({ x, z, d });
+    }
+    return out.sort((p, q) => p.d - q.d);
+  }
+
+  startAction(a) {
+    const pc = this.playerCell();
+    const range = a.kind === 'fish' ? 2 : 1;
+    const d = cheb(pc, a.t);
+    if (d <= range && d > 0) { this.player.path = null; this.face(a.t); this.perform(a); return; }
+    for (const s of this.standTiles(a).slice(0, 10)) {
+      if (this.walkTo(s, a, { quiet: true })) return;
+    }
+    this.ui.toast("Can't reach that spot.");
+  }
+
+  perform(a) {
+    const { x, z } = a.t;
+    switch (a.kind) {
+      case 'shop': this.ui.openShop(); break;
+      case 'harvest': { const c = this.crop(x, z); if (c && this.stage(c) >= RIPE) this.harvest(c); break; }
+      case 'water': this.useTool(a.t, 'can'); break;
+      case 'plant': this.lastSeed = a.seed; this.useTool(a.t, a.seed); break;
+      case 'till': this.useTool(a.t, 'hoe'); break;
+      case 'fish':
+        if (this.tool !== 'rod') { this.slot = HOTBAR.indexOf('rod'); this.ui.refresh(); }
+        this.startFishing(a.t);
+        break;
+      default: break;
+    }
+    this.actionCooldown = 0.3;
+  }
+
+  walkTo(t, pending = null, { quiet = false } = {}) {
     const start = this.playerCell();
     const path = findPath(start, t, (x, z) => this.walkable(x, z), W, H);
+    if (!path) { if (pending && !quiet) this.ui.toast("Can't reach that spot."); return false; }
     this.player.pending = pending;
-    if (!path) { if (pending) this.ui.toast("Can't reach that spot."); return false; }
     this.player.path = path.slice(1).map((c) => new THREE.Vector2(c.x + 0.5, c.z + 0.5));
-    if (!this.player.path.length) this.arrive();
+    this.player.dest = { x: t.x, z: t.z };
+    if (!this.player.path.length) { this.player.path = null; this.arrive(); }
     return true;
   }
 
-  goAndAct(t) {
+  /** Tapped somewhere blocked: walk to the closest reachable tile next to it. */
+  walkNear(t) {
     const pc = this.playerCell();
-    if (Math.max(Math.abs(pc.x - t.x), Math.abs(pc.z - t.z)) <= 1 && !(pc.x === t.x && pc.z === t.z)) {
-      this.face(t); this.useTool(t); return;
+    const cands = [];
+    for (let r = 1; r <= 4 && !cands.length; r++) {
+      for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) {
+        if (cheb({ x: dx, z: dz }, { x: 0, z: 0 }) !== r) continue;
+        const x = t.x + dx, z = t.z + dz;
+        if (this.walkable(x, z)) cands.push({ x, z, d: Math.hypot(dx, dz) + Math.hypot(x - pc.x, z - pc.z) * 0.1 });
+      }
     }
-    // pick the reachable neighbour tile closest to the player
-    let best = null, bd = Infinity;
-    for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) {
-      if (!dx && !dz) continue;
-      const nx = t.x + dx, nz = t.z + dz;
-      if (!this.walkable(nx, nz)) continue;
-      const d = Math.hypot(nx - pc.x, nz - pc.z) + (dx && dz ? 0.3 : 0);
-      if (d < bd) { bd = d; best = { x: nx, z: nz }; }
-    }
-    if (!best) { this.ui.toast("Can't reach that spot."); return; }
-    this.walkTo(best, t);
+    cands.sort((a, b) => a.d - b.d);
+    for (const c of cands.slice(0, 8)) if (this.walkTo(c)) return true;
+    return false;
   }
 
+  goAndAct(t) { this.startAction(this.resolve(t)); }
+
   arrive() {
-    const t = this.player.pending;
+    const a = this.player.pending;
     this.player.pending = null;
-    if (t) { this.face(t); this.useTool(t); }
+    if (a) { this.face(a.t); this.perform(a); }
   }
 
   face(t) {
@@ -307,9 +447,8 @@ export class Game {
 
   swing() { this.player.swingT = 0.35; }
 
-  useTool(t) {
+  useTool(t, tool = this.tool) {
     const { x, z } = t;
-    const tool = this.tool;
     const p = this.props.at(x, z);
     const c = this.crop(x, z);
     const tile = this.world.get(x, z);
@@ -406,11 +545,11 @@ export class Game {
     // look for water in front (up to 3 tiles)
     let spot = null;
     const pc = this.playerCell();
-    const dx = t.x - pc.x, dz = t.z - pc.z;
-    for (let k = 1; k <= 3; k++) {
+    const dx = Math.sign(t.x - pc.x), dz = Math.sign(t.z - pc.z);
+    if (this.world.isWater(t.x, t.z) && !this.props.isBridge(t.x, t.z) && cheb(pc, t) <= 3) spot = { x: t.x, z: t.z };
+    for (let k = 1; k <= 3 && !spot; k++) {
       const x = pc.x + dx * k, z = pc.z + dz * k;
-      if (this.world.isWater(x, z) && !this.props.isBridge(x, z)) { spot = { x, z }; if (k >= 2) break; }
-      else if (spot) break;
+      if (this.world.isWater(x, z) && !this.props.isBridge(x, z)) spot = { x, z };
     }
     if (!spot) { this.ui.toast('Face the water to cast your line.'); return; }
     const fresh = this.world.isFresh(spot.x, spot.z);
@@ -420,6 +559,7 @@ export class Game {
     for (const [k, f] of pool) { r -= f.weight; if (r <= 0) { fish = k; break; } }
     const wait = 1500 + Math.random() * 3000;
     this.fishing = { phase: 'wait', t0: performance.now(), biteAt: performance.now() + wait, fish, spot, x: spot.x + 0.5 + d.x * 0.1, z: spot.z + 0.5 + d.z * 0.1 };
+    this.face(spot);
     this.player.path = null;
     this.swing();
     this.bobber.visible = this.line.visible = true;
@@ -458,13 +598,15 @@ export class Game {
     const bob = Math.sin(t * 3) * 0.015;
     let dip = 0;
     if (f.phase === 'wait' && now >= f.biteAt) {
-      f.phase = 'bite'; f.biteEnd = now + FISH[f.fish].window;
+      // touch screens get a little grace for tap latency
+      f.phase = 'bite'; f.window = FISH[f.fish].window + (this.touchInput ? 150 : 0); f.biteEnd = now + f.window;
       this.ui.bubble('!');
+      if (this.touchInput && navigator.vibrate) { try { navigator.vibrate(40); } catch { /* not allowed */ } }
       this.particles.burst(f.x, WATER_Y + 0.05, f.z, { color: '#ffffff', n: 8, up: 0.5 });
     }
     if (f.phase === 'bite') {
       dip = -0.07 - Math.abs(Math.sin(t * 22)) * 0.04;
-      const k = 1 - (f.biteEnd - now) / FISH[f.fish].window;
+      const k = 1 - (f.biteEnd - now) / f.window;
       this.ripple.material.opacity = 0.7 * (1 - k);
       this.ripple.scale.setScalar(1 + k * 3);
       if (now > f.biteEnd) { this.ui.toast('It got away...'); this.cancelFishing(); return; }
@@ -485,9 +627,12 @@ export class Game {
   // ------------------------------------------------------------------ build mode
   toggleBuild(on = this.mode !== 'build') {
     this.cancelFishing();
+    if (!on) this.cancelBuildPreview();
     this.mode = on ? 'build' : 'play';
     if (!on) this.ghost.hide();
-    this.player.path = null;
+    this.player.path = null; this.player.pending = null; this.queue.length = 0;
+    this.buildCursor = null;
+    this.ui.closePropMenu?.();
     this.ui.refresh();
   }
   rotate() {
@@ -496,33 +641,84 @@ export class Game {
     this.ui.toast(`Rotated ${this.buildRot * 90}°`);
   }
 
+  /** Store a placed prop back into the inventory. */
+  pickUp(p, { quiet = false } = {}) {
+    if (PROPS[p.type].fixed) { this.ui.toast('The merchant would miss their stall!'); return false; }
+    const pc = this.playerCell();
+    if (p.type === 'bridge' && p.cells.some((c) => c.x === pc.x && c.z === pc.z)) { this.ui.toast('Step off the bridge first.'); return false; }
+    this.props.remove(p);
+    this.give(`prop_${p.type}`);
+    this.particles.burst(p.cx, 0.4, p.cz, { color: '#f4ead2', n: 14, up: 0.8 });
+    if (!quiet) this.ui.toast(`Picked up ${PROPS[p.type].name.toLowerCase()}.`, ITEMS[`prop_${p.type}`].icon);
+    return true;
+  }
+
+  /** Rotate a placed prop in place (if it still fits). */
+  rotateProp(p) {
+    if (PROPS[p.type].fixed) { this.ui.toast('Hana likes her stall just where it is.'); return false; }
+    const rot = (p.rot + 1) % 4;
+    if (!this.props.canPlace(p.type, p.x, p.z, rot, { ignoreId: p.id, playerCell: this.playerCell(), farm: this.farm })) {
+      this.ui.toast('No room to rotate it here.'); return false;
+    }
+    const { type, x, z, id } = p;
+    this.props.remove(p);
+    return this.props.add(type, x, z, rot, id);
+  }
+
+  /** Pick a prop up and keep previewing it where it was, ready to be dragged (touch). */
+  moveProp(p) {
+    const orig = { type: p.type, x: p.x, z: p.z, rot: p.rot, id: p.id };
+    if (!this.pickUp(p, { quiet: true })) return false;
+    this.moving = orig;
+    this.buildSel = `prop_${p.type}`;
+    this.buildRot = p.rot;
+    this.buildCursor = { x: p.x, z: p.z };
+    this.ui.refresh();
+    return true;
+  }
+
+  /** ✕ on the touch build bar: drop the preview (and put a moved prop back). */
+  cancelBuildPreview() {
+    const m = this.moving;
+    this.moving = null;
+    this.buildCursor = null;
+    if (m && this.count(`prop_${m.type}`) > 0 && this.props.canPlace(m.type, m.x, m.z, m.rot, { playerCell: this.playerCell(), farm: this.farm })) {
+      this.take(`prop_${m.type}`);
+      this.props.add(m.type, m.x, m.z, m.rot, m.id);
+    }
+    this.ui.refresh();
+  }
+
+  /** ✓ on the touch build bar / tapping the preview again. */
+  confirmBuild() {
+    const c = this.buildCursor;
+    if (!c) return false;
+    const ok = this.buildAt(c.x, c.z);
+    if (ok) { this.moving = null; this.buildCursor = null; this.ui.refresh(); }
+    return ok;
+  }
+
   buildAt(x, z) {
     if (this.buildSel === 'pickup') {
       const p = this.props.at(x, z);
-      if (!p) { this.ui.toast('Nothing to pick up here.'); return; }
-      if (PROPS[p.type].fixed) { this.ui.toast('The merchant would miss their stall!'); return; }
-      const pc = this.playerCell();
-      if (p.type === 'bridge' && p.cells.some((c) => c.x === pc.x && c.z === pc.z)) { this.ui.toast("Step off the bridge first."); return; }
-      this.props.remove(p);
-      this.give(`prop_${p.type}`);
-      this.particles.burst(p.cx, 0.4, p.cz, { color: '#f4ead2', n: 14, up: 0.8 });
-      this.ui.toast(`Picked up ${PROPS[p.type].name.toLowerCase()}.`, ITEMS[`prop_${p.type}`].icon);
-      return;
+      if (!p) { this.ui.toast('Nothing to pick up here.'); return false; }
+      return this.pickUp(p);
     }
     const id = this.buildSel;
     const type = ITEMS[id]?.prop;
-    if (!type || this.count(id) <= 0) { this.ui.toast('You have none left. Buy more at the stall.'); return; }
-    if (!this.props.canPlace(type, x, z, this.buildRot, { playerCell: this.playerCell(), farm: this.farm })) { this.ui.toast("Can't place that here."); return; }
+    if (!type || this.count(id) <= 0) { this.ui.toast('You have none left. Buy more at the stall.'); return false; }
+    if (!this.props.canPlace(type, x, z, this.buildRot, { playerCell: this.playerCell(), farm: this.farm })) { this.ui.toast("Can't place that here."); return false; }
     this.take(id);
     const p = this.props.add(type, x, z, this.buildRot);
     this.particles.burst(p.cx, 0.2, p.cz, { color: '#fff1c4', n: 16, up: 0.7 });
     this.ui.toast(`Placed ${PROPS[type].name.toLowerCase()}.`);
     if (this.count(id) <= 0) { this.buildSel = 'pickup'; this.ui.refresh(); }
+    return true;
   }
 
   updateGhost() {
     if (this.mode !== 'build') { this.ghost.hide(); return; }
-    const t = this.hoverTile || this.targetTile();
+    const t = this.buildCursor || this.hoverTile || this.targetTile();
     if (this.buildSel === 'pickup') {
       this.ghost.hide();
       const p = this.props.at(t.x, t.z);
@@ -567,7 +763,7 @@ export class Game {
     const pl = this.player;
     const input = this.ui.modalOpen() ? null : this.moveInput();
     let move = null;
-    if (input) { pl.path = null; pl.pending = null; move = input; }
+    if (input) { pl.path = null; pl.pending = null; this.queue.length = 0; move = input; }
     else if (pl.path && pl.path.length) {
       const target = pl.path[0];
       const dx = target.x - pl.pos.x, dz = target.y - pl.pos.z;
@@ -579,7 +775,7 @@ export class Game {
     if (move) {
       if (this.fishing) this.cancelFishing();
       // sub-stepped so low frame rates don't tunnel through collisions
-      const dist = Math.min(SPEED * dt, move.max ?? Infinity); // never overshoot a path node
+      const dist = Math.min(SPEED * (move.speed ?? 1) * dt, move.max ?? Infinity); // never overshoot a path node
       const n = Math.max(1, Math.ceil(dist / 0.09)), step = dist / n;
       for (let i = 0; i < n; i++) {
         const nx = pl.pos.x + move.x * step, nz = pl.pos.z + move.z * step;
@@ -607,6 +803,20 @@ export class Game {
     if (this.mode === 'play') this.cursorColor(0xffffff);
     this.updateGhost();
     this.updateFishing(t);
+
+    // smart-tap action queue
+    this.actionCooldown = Math.max(0, this.actionCooldown - dt);
+    if (!pl.pending && !pl.path && !this.fishing && this.actionCooldown <= 0 && this.queue.length && !this.ui.modalOpen()) {
+      this.startAction(this.queue.shift());
+    }
+    // destination marker while walking
+    const dm = this.destMarker;
+    dm.visible = !!(pl.path && pl.path.length && pl.dest && this.mode === 'play');
+    if (dm.visible) {
+      const goal = pl.path[pl.path.length - 1];
+      dm.position.set(goal.x, this.props.deckHeight(goal.x, goal.y) + 0.03, goal.y);
+      dm.scale.setScalar(1 + Math.sin(t * 6) * 0.08);
+    }
 
     if (!this.nextCropTick || t > this.nextCropTick) { this.tickCrops(); this.nextCropTick = t + 0.5; }
     if (this.dirty.ground) { this.ground.wet = new Set([...[...this.farm.values()].filter((c) => c.wet).map((c) => c.z * W + c.x), ...this.wetSoil.keys()]); this.ground.updateTypes(); this.dirty.ground = false; }

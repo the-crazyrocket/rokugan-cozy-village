@@ -214,6 +214,7 @@ export class Ghost {
     this.group.visible = !!type;
     if (!type) return;
     const { cells, cx, cz } = propCells(type, x, z, rot);
+    this.lastCells = cells;
     this.body.position.set(cx, 0.02, cz);
     this.body.rotation.y = rot * HALF_PI;
     const mat = ok ? this.okMat : this.badMat;
@@ -233,4 +234,6 @@ export class Ghost {
   }
 
   hide() { this.group.visible = false; }
+  /** Footprint cells of the visible preview (used to detect taps/drags on it). */
+  cellsAt() { return this.group.visible && this.lastCells ? this.lastCells : []; }
 }
