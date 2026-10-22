@@ -26,6 +26,35 @@ export class UI {
     this.touch = false;
     this.setTouch(matchMedia('(pointer: coarse)').matches);
     this.dialogResolve = null;
+    this.installFastTap();
+  }
+
+  /**
+   * Touch buttons fire on pointerup instead of waiting for the browser's click
+   * (instant, and it still works when a slow frame stretches the tap past the
+   * browser's long-press threshold). The native click that may follow is eaten.
+   */
+  installFastTap() {
+    const SEL = 'button:not(#btn-action), .row.tappable, .bag-item.clickable';
+    let down = null, eat = null, eatUntil = 0;
+    document.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') { down = null; return; }
+      const t = e.target.closest?.(SEL);
+      down = t ? { el: t, x: e.clientX, y: e.clientY, id: e.pointerId } : null;
+    }, true);
+    document.addEventListener('pointerup', (e) => {
+      const d = down; down = null;
+      if (!d || e.pointerId !== d.id || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) return;
+      const t = document.elementFromPoint(e.clientX, e.clientY)?.closest(SEL);
+      if (t !== d.el) return;
+      eat = d.el; eatUntil = performance.now() + 1500;
+      d.el.click();
+    }, true);
+    document.addEventListener('pointercancel', () => { down = null; }, true);
+    document.addEventListener('click', (e) => {
+      if (!e.isTrusted || !eat || performance.now() > eatUntil) return;
+      if (e.target === eat || eat.contains(e.target) || !eat.isConnected) { e.stopPropagation(); e.preventDefault(); eat = null; }
+    }, true);
   }
 
   attach(game) {
@@ -87,6 +116,11 @@ export class UI {
       const items = ['pickup', ...[...g.inv.keys()].filter((id) => ITEMS[id]?.kind === 'prop' && g.count(id) > 0)];
       if (g.buildSel !== 'pickup' && !items.includes(g.buildSel)) g.buildSel = 'pickup';
       this.buildItems = items;
+      // Done first: it must never scroll out of view on narrow phones
+      const done = el('button', 'slot special done', '<span class="glyph">✓</span><span class="tip">Done (B)</span>');
+      done.dataset.item = 'done';
+      done.onclick = () => g.toggleBuild(false);
+      this.hotbar.appendChild(done);
       items.slice(0, 12).forEach((id, i) => {
         const s = el('button', 'slot' + (g.buildSel === id ? ' sel' : ''));
         s.dataset.item = id;
@@ -96,10 +130,6 @@ export class UI {
         s.onclick = () => this.selectBuild(i);
         this.hotbar.appendChild(s);
       });
-      const done = el('button', 'slot special done', '<span class="glyph">✓</span><span class="tip">Done (B)</span>');
-      done.dataset.item = 'done';
-      done.onclick = () => g.toggleBuild(false);
-      this.hotbar.appendChild(done);
     } else {
       const slots = compact ? ['hand', 'hoe', 'can', 'rod', 'seeds'] : HOTBAR;
       slots.forEach((id, i) => {
@@ -121,6 +151,7 @@ export class UI {
       bag.onclick = () => { this.closeSeedPicker(); this.openBag(); };
       this.hotbar.append(b, bag);
     }
+    this.hotbar.querySelector('.slot.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     const tool = ITEMS[g.mode === 'build' ? 'hand' : HOTBAR[g.slot]];
     $('#tool-hint').textContent = g.mode === 'build'
       ? (g.buildSel === 'pickup'
@@ -333,9 +364,12 @@ export class UI {
   openBag() { this.closeSeedPicker(); this.closePropMenu(); this.modal = 'bag'; this.panel.classList.remove('hidden'); this.renderBag(); }
 
   card(title, body) {
-    const prevScroll = this.panel.querySelector('.card')?.scrollTop || 0;
+    const prev = this.panel.querySelector('.card');
+    const prevScroll = prev?.scrollTop || 0;
+    const same = prev && prev.dataset.title === title; // re-render: don't replay the slide-in
     this.panel.innerHTML = '';
-    const c = el('div', 'card sheet');
+    const c = el('div', 'card sheet' + (same ? ' static' : ''));
+    c.dataset.title = title;
     c.innerHTML = `<div class="grabber"></div><div class="card-head"><h2>${title}</h2><span class="purse">${this.iconHTML('icons:koku', 'icon small')}<b>${this.game.money}</b> koku</span><button class="close" title="Close" aria-label="Close">✕</button></div>`;
     c.querySelector('.close').onclick = () => this.closeModal();
     c.appendChild(body);

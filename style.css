@@ -22,7 +22,7 @@ button { font-family: var(--font); cursor: pointer; touch-action: manipulation; 
 #mode-label { flex: 1; text-align: center; color: var(--paper); text-shadow: 0 1px 3px rgba(0,0,0,.6); font-size: 16px; padding-top: 10px; }
 #mode-label:empty { visibility: hidden; }
 .top-buttons { display: flex; gap: 6px; margin-left: auto; }
-.top-buttons button, #touch button, #build-bar button { background: var(--paper); border: 2px solid var(--indigo); color: var(--indigo); border-radius: 12px; min-width: 44px; min-height: 44px; padding: 6px 12px; font-size: 15px; box-shadow: 0 3px 0 rgba(42,36,32,.35); }
+.top-buttons button, #touch button:not(#btn-action), #build-bar button { background: var(--paper); border: 2px solid var(--indigo); color: var(--indigo); border-radius: 12px; min-width: 44px; min-height: 44px; padding: 6px 12px; font-size: 15px; box-shadow: 0 3px 0 rgba(42,36,32,.35); }
 .top-buttons button:active, #touch button:active, #build-bar button:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(42,36,32,.35); }
 body.build-mode #btn-build { background: var(--vermilion); color: var(--paper); border-color: #7a2a1c; }
 /* on touch the hotbar already has Build + Bag, and pinch replaces the zoom buttons */
@@ -73,9 +73,10 @@ body.touch .slot .key { display: none; }
 #touch { position: fixed; right: calc(14px + var(--sar)); bottom: calc(108px + var(--sab)); display: flex; pointer-events: none; z-index: 3; }
 #touch > * { pointer-events: auto; }
 .actions { display: flex; gap: 10px; align-items: flex-end; }
-#btn-action { width: 76px; height: 76px; border-radius: 50%; padding: 0; background: var(--vermilion); color: var(--paper); border-color: #7a2a1c; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 13px; line-height: 1.1; }
+#btn-action { width: 76px; height: 76px; border-radius: 50%; padding: 0; background: var(--vermilion); color: var(--paper); border: 3px solid #7a2a1c; box-shadow: 0 4px 0 rgba(42,36,32,.4), 0 6px 14px rgba(0,0,0,.25); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 13px; line-height: 1.1; }
 #btn-action .icon.act { width: 40px; height: 40px; }
-#btn-action .lbl { font-size: 13px; font-weight: bold; }
+#btn-action .lbl { font-size: 13px; font-weight: bold; color: var(--paper); text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+#btn-action .icon.act { background-color: rgba(244,234,210,.9); border-radius: 50%; }
 #btn-action.reel { background: var(--indigo); border-color: var(--indigo); }
 #btn-action.reel .lbl { font-size: 18px; }
 #btn-action.bite { width: 96px; height: 96px; background: var(--vermilion); animation: pulse .3s infinite alternate; }
@@ -188,4 +189,5 @@ kbd { background: #fff; border: 1px solid #b9a77c; border-bottom-width: 2px; bor
   .card-head h2 { font-size: 19px; }
   #help .card { max-height: 92dvh; }
 }
+.card.sheet.static { animation: none !important; }
 @keyframes sheet-left { from { transform: translateX(100%); } to { transform: none; } }

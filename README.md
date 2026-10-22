@@ -26,17 +26,32 @@ Progress auto-saves to `localStorage` every 10 seconds, and also when you hide o
 
 | Action | Keyboard / mouse | Touch |
 |---|---|---|
-| Walk | WASD / arrow keys, or click a tile | on-screen d-pad, or tap a tile |
-| Use tool on the tile in front of you | Space / E / Enter | **Use** button |
-| Use tool on a specific tile (walks there first) | click the tile | tap the tile |
-| Select tool / seed | 1–7, or click the hotbar | tap the hotbar |
-| Build mode | B or 8, or the **Build** button | **Build** button |
-| Rotate prop (build mode) | R | ⟳ button |
-| Place / pick up (build mode) | click a tile | tap a tile |
-| Bag (inventory) | I or 9 | **Bag** button |
-| Shop | walk up to Hana or her stall and press Space, or click them | tap |
-| Zoom | mouse wheel, or the ＋/－ buttons | ＋/－ buttons |
-| Close panel / leave build mode | Esc | ✕ |
+| Walk | WASD / arrow keys, or click a tile | **drag anywhere**: a floating joystick appears under your finger (analog speed) |
+| Do the obvious thing with something | click it | **tap** it (see "smart tap" below) |
+| Use the tile in front of you | Space / E / Enter | the round context button (shows what it will do: Harvest, Water, Plant, Fish…) |
+| Inspect | — | **long-press** (crop growth %, prop names) |
+| Select tool / seed | 1–7, or click the hotbar | tap the hotbar; the Seeds slot opens a seed picker when tapped again |
+| Build mode | B or 8, or the **Build** button | Build slot in the hotbar |
+| Place a prop | click a tile | tap to preview, drag the preview (it floats above your finger), tap it again or **✓ Place** |
+| Rotate | R | ⟳ on the build bar, or **Rotate** in the prop menu |
+| Move / rotate / store a placed prop | click it with the basket ("pick up") selected | tap it: a menu offers **Move / Rotate / Store** |
+| Bag (inventory) | I or 9 | Bag slot in the hotbar |
+| Zoom | mouse wheel, or the ＋/－ buttons | **pinch** |
+| Look around | — | **two-finger drag** (drifts back to the player when you walk) |
+| Reel in a fish | Space or click when the **!** appears | **touch down anywhere** (or the big Reel! button); phones also vibrate on a bite |
+| Close panel / leave build mode | Esc | ✕, swipe the sheet away, or ✓ |
+
+**Smart tap / click.** What a tap does depends on what you tapped. The selected tool only matters where it clearly applies.
+
+* Ripe crop: harvest it.
+* Dry crop: water it. Already watered: show its growth.
+* Empty tilled soil: plant the selected seed, otherwise the last seed you used.
+* Water: switch to the rod, walk to the shore and cast.
+* Hana or her stall: open the shop.
+* Grass, with the hoe selected: till it.
+* Anywhere else: walk there, or to the nearest reachable tile.
+
+Taps made while you're busy are **queued**. Numbered chips mark them, and they run in turn, up to 8.
 
 ## Features
 
@@ -58,7 +73,16 @@ Progress auto-saves to `localStorage` every 10 seconds, and also when you hide o
   * After a random wait the fish bites: a **!** bubble appears and the bobber dips. Press Space or click within the bite window to catch it. Pressing too early scares the fish; too late and it gets away.
   * Fresh water (river/pond) has ayu and koi. The sea has tai and fugu. Each fish has its own bite window.
 * **Economy:** koku money. At Hana's stall you can sell produce and fish (sell one, sell all, or sell everything) and buy seeds and decorations. Small toast messages appear as feedback.
-* **UI:** hotbar with painted icons, bag panel, help card, and touch controls (d-pad and Use/Rotate buttons on touch devices).
+* **UI:** hotbar with painted icons, bag panel, help card.
+* **Mobile:**
+  * Gestures: floating joystick, smart tap with an action queue, long-press inspect, pinch zoom and two-finger pan.
+  * Picking: picking prefers what's actually under the finger, checking along the view ray. That includes crop and tree billboards, tall props and Hana. Taps snap to nearby ripe crops only when the tapped tile itself does nothing.
+  * Camera: framed by the short screen side, about 10 tiles across in portrait.
+  * Screen fit: notch safe areas, `100dvh` sizing and `visualViewport` resize handling.
+  * HUD: touch targets of at least 44 px, hover styles only on hover-capable devices, and a compact hotbar with a seed picker.
+  * Shop and bag open as **bottom sheets** in portrait and **side sheets** in landscape, with swipe-to-close.
+  * Buttons respond on touch release, with no click delay, and still work when a slow frame stretches a tap.
+  * There's an in-game confirm dialog and a touch-specific help card.
 * **Look:** painted props via projection mapping, and instanced billboard vegetation with vertex-shader sway. Also:
   * a painted-tile ground shader with noisy, brush-like borders between terrain types
   * an animated sea with shallows and foam
@@ -80,7 +104,7 @@ npm run pipeline:render     # step 2: blockout renders + camera JSON + sheet gui
 npm run pipeline:paint      # step 3: Codex paints (idempotent; --force to redo, --only minka_a45,vegetation)
 npm run pipeline:post       # step 3b: align / key / downscale -> assets/painted
 npm run pipeline            # all three
-npm test                    # smoke test (tests/smoke.mjs)
+npm test                    # desktop smoke test + mobile touch test
 ```
 
 Requirements:
@@ -194,7 +218,26 @@ The procedural brush fallback and the canvas guide sketches exist in the pipelin
 
 ## Tests
 
-`npm test` runs `tests/smoke.mjs`. It serves the repo under `/rokugan-cozy-village/` and drives headless Chrome (SwiftShader) with **real keyboard and mouse input**. It covers:
+`npm test` runs both suites; `npm run test:desktop` / `npm run test:mobile` run one.
+
+**Mobile (`tests/mobile.mjs`).** This drives a 390×844 portrait phone and an 844×390 landscape phone with raw CDP touch events (`Input.dispatchTouchEvent`). It checks:
+
+* the touch help card, short-side camera framing, and hotbar slots that are at least 44 px and on screen
+* drag-to-move: the joystick appears, and the player moves in the drag direction
+* tap-to-harvest on a crop billboard
+* two taps queued while busy and run in turn, with numbered chips
+* tap to plant, and long-press to inspect
+* tap water: walk to the shore, auto-select the rod, and reel on touch-down
+* pinch zoom and two-finger pan (which must not walk)
+* build mode: preview, drag the preview, ✓ to place, then the prop menu's Rotate and Store
+* tapping Hana opens a bottom sheet in portrait and a side sheet in landscape; sell all and close
+* the in-game confirm dialog
+
+It also fails on any console error. Screenshots go to `/workspace/screens/mobile-*.png`.
+
+**Desktop (`tests/smoke.mjs`):**
+
+`tests/smoke.mjs` serves the repo under `/rokugan-cozy-village/` and drives headless Chrome (SwiftShader) with **real keyboard and mouse input**. It covers:
 
 * new game and welcome card
 * WASD walking, and click-to-move with pathfinding
@@ -217,7 +260,8 @@ src/render/                projection materials, ground/water, billboards, post 
 src/assets/                blockouts (shared), palette, sprite-sheet specs
 assets/painted/            committed pipeline output (WebP paintings, packed depth, atlases, tiles, icons, manifest) ~2.5 MB
 pipeline/                  render / paint / post-process scripts; out/ has manifest, Codex logs, contact sheet
-tests/smoke.mjs            end-to-end smoke test
+tests/smoke.mjs            end-to-end desktop smoke test (keyboard + mouse)
+tests/mobile.mjs           end-to-end touch test (portrait + landscape phones, CDP touch events)
 tools/serve.mjs            zero-dependency static server (sub-path aware)
 ```
 
@@ -228,5 +272,10 @@ tools/serve.mjs            zero-dependency static server (sub-path aware)
 * The characters are procedural, not painted. No villagers wander around, there is no day/night cycle, and there is no audio.
 * Coastlines follow the tile grid, so they look stair-stepped.
 * Placing a prop on top of decorative grass removes the grass. Tilled soil can't be turned back into grass.
+* Mobile:
+  * Only tested with Chrome's touch emulation, not on a physical iPhone or Android phone.
+  * Vibration works on Android only; iOS Safari has no `navigator.vibrate`.
+  * There are no settings for joystick size or sensitivity.
+  * Rendering was left as is (no pixel-ratio or shadow tuning for phones).
 * three.js comes from the unpkg CDN, so the game needs internet access on first load.
 * The full pipeline needs Codex CLI with image generation. The committed `assets/painted/` lets the site run without it.

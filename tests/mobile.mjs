@@ -1,0 +1,318 @@
+// Mobile test: portrait (390x844) and landscape (844x390) touch phones.
+// Uses raw CDP Input.dispatchTouchEvent so drags, long-presses and two-finger
+// pinches go through the real pointer-event code paths. Asserts no console /
+// page errors. Screenshots go to /workspace/screens/mobile-*.png.
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import { startServer } from '../tools/serve.mjs';
+import { launchChrome } from '../pipeline/chrome.mjs';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const SCREENS = process.env.SCREENS_DIR || '/workspace/screens';
+fs.mkdirSync(SCREENS, { recursive: true });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const VIEWPORTS = [
+  { name: 'portrait', width: 390, height: 844 },
+  { name: 'landscape', width: 844, height: 390 },
+];
+
+async function runViewport(browser, base, vp) {
+  const log = (...a) => console.log(`[mobile:${vp.name}]`, ...a);
+  const errors = [];
+  const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+  const page = await ctx.newPage();
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(`console.error: ${m.text()}`); });
+  page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
+  page.on('requestfailed', (r) => errors.push(`requestfailed: ${r.url()}`));
+  page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()}: ${r.url()}`); });
+  const cdp = await ctx.newCDPSession(page);
+  const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map((p, i) => ({ x: p.x, y: p.y, id: p.id ?? i + 1, radiusX: 4, radiusY: 4, force: 1 })) });
+  const tap = async (x, y, hold = 60) => { await touch('touchStart', [{ x, y }]); await sleep(hold); await touch('touchEnd', []); await sleep(80); };
+  const tapEl = async (sel) => {
+    await page.locator(sel).first().scrollIntoViewIfNeeded();
+    const b = await page.locator(sel).first().boundingBox();
+    assert.ok(b, `element ${sel} visible`);
+    await tap(b.x + b.width / 2, b.y + b.height / 2);
+  };
+  const G = (fn, arg) => page.evaluate(fn, arg);
+  const screen = (x, z, y = 0) => G(([x, z, y]) => __game.tileToScreen(x, z, y), [x, z, y]);
+  const shot = (n) => page.screenshot({ path: path.join(SCREENS, `mobile-${vp.name}-${n}.png`) });
+  const onScreen = (s, m = 50) => s.x > m && s.x < vp.width - m && s.y > m + 40 && s.y < vp.height - 150;
+  const settle = () => sleep(1200);
+  /** Screen point that picks tile (x,z): tries a few heights so occluders are avoided. */
+  const aim = async (x, z, heights = [0.35, 0.2, 0.5, 0.1, 0.65, 0.02]) => {
+    await page.waitForFunction(() => !__game.game.player.moving && !__game.game.player.path, null, { timeout: 30000 });
+    await sleep(900); // let the follow-camera settle
+    for (const y of heights) {
+      const sp = await screen(x, z, y);
+      if (!onScreen(sp, 10)) continue;
+      const t = await G((p) => __game.pick(p.x, p.y, { fuzzy: true }).tile, sp);
+      if (t && t.x === x && t.z === z) return sp;
+    }
+    const dbg = [];
+    for (const y of heights) { const sp = await screen(x, z, y); dbg.push([y, sp.x | 0, sp.y | 0, onScreen(sp, 10), await G((p) => __game.pick(p.x, p.y, { fuzzy: true }).tile, sp)]); }
+    throw new Error(`tile ${x},${z} not tappable on screen ${JSON.stringify(dbg)} player ${JSON.stringify(await G(() => __game.game.playerCell()))}`);
+  };
+
+  try {
+    await steps();
+  } catch (e) {
+    await page.screenshot({ path: `/tmp/mobile-fail-${vp.name}.png` }).catch(() => {});
+    log('errors at failure:', errors);
+    log('toasts at failure:', await G(() => [...document.querySelectorAll('.toast')].map((t) => t.textContent)).catch(() => []));
+    throw e;
+  }
+  async function steps() {
+  await page.goto(base);
+  await G(() => localStorage.clear());
+  await page.reload();
+  await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 5, null, { timeout: 120000 });
+
+  if (process.env.DEBUG) {
+    page.on('console', (m) => { if (m.text().startsWith('TRACE')) log(m.text()); });
+    await G(() => {
+      const g = __game.game;
+      for (const k of ['give', 'take', 'pickUp', 'rotateProp', 'moveProp', 'sell', 'sellAll', 'newGame', 'load']) {
+        const o = g[k].bind(g); g[k] = (...a) => { console.log('TRACE', k, JSON.stringify(a.map((x) => (x && x.type ? x.type + '#' + x.id : x)))); return o(...a); };
+      }
+      const pr = g.props, rm = pr.remove.bind(pr); pr.remove = (p) => { console.log('TRACE remove', p.type, p.id, new Error().stack.split('\n').slice(2, 5).join(' | ')); return rm(p); };
+    });
+  }
+  // ---- touch help card + layout
+  assert.equal(await G(() => document.body.classList.contains('touch')), true, 'body.touch on a touch device');
+  assert.equal(await page.locator('.help-touch').isVisible(), true, 'touch help visible');
+  assert.equal(await page.locator('.help-desktop').isVisible(), false, 'keyboard help hidden');
+  await tapEl('#help-close');
+  await page.waitForSelector('#help', { state: 'hidden', timeout: 5000 }); // help closed by tap
+  assert.equal(await page.locator('.dpad').count(), 0, 'no d-pad');
+  const cam = await G(() => ({ w: __game.camera.right - __game.camera.left, h: __game.camera.top - __game.camera.bottom }));
+  const short = Math.min(cam.w, cam.h);
+  log('camera view', cam);
+  assert.ok(short > 9 && short < 11.5, `short side frames ~10 units (got ${short.toFixed(2)})`);
+  // all hotbar slots on screen and >= 44 px
+  const slots = await G(() => [...document.querySelectorAll('#hotbar .slot')].map((e) => e.getBoundingClientRect()).map((r) => ({ l: r.left, r: r.right, w: r.width, h: r.height })));
+  assert.ok(slots.length >= 7, 'compact hotbar has its slots');
+  for (const r of slots) { assert.ok(r.w >= 44 && r.h >= 44, 'slot >= 44px'); assert.ok(r.l >= 0 && r.r <= vp.width, 'slot on screen'); }
+  await settle();
+  await shot('01-village');
+
+  // ---- drag to move (floating joystick): finger goes right -> player goes right on screen
+  const p0 = await G(() => ({ x: __game.game.player.pos.x, z: __game.game.player.pos.z }));
+  const s0 = await screen(p0.x - 0.5, p0.z - 0.5);
+  const cx = vp.width / 2, cy = vp.height / 2;
+  await touch('touchStart', [{ x: cx, y: cy }]);
+  for (let i = 1; i <= 6; i++) { await touch('touchMove', [{ x: cx + i * 15, y: cy }]); await sleep(30); }
+  await page.waitForSelector('#joy:not(.hidden)', { timeout: 3000 }); // joystick visible while dragging
+  await sleep(1200);
+  await touch('touchEnd', []);
+  await sleep(150);
+  const p1 = await G(() => ({ x: __game.game.player.pos.x, z: __game.game.player.pos.z, analog: __game.game.analog }));
+  const s1 = await screen(p1.x - 0.5, p1.z - 0.5);
+  log('drag moved', p0, '->', p1);
+  assert.ok(Math.hypot(p1.x - p0.x, p1.z - p0.z) > 0.8, 'player moved by dragging');
+  assert.ok(s1.x - s0.x > Math.abs(s1.y - s0.y), 'moved in the drag direction (right on screen)');
+  assert.equal(p1.analog, null, 'joystick released');
+  assert.equal(await page.locator('#joy').isHidden(), true, 'joystick hidden after release');
+
+  // ---- smart taps at the starter field (teleport next to it for a deterministic view)
+  await G(() => { const g = __game.game; g.player.pos.set(16.5, 0, 27.5); g.player.path = null; });
+  await settle();
+  // harvest: tap the ripe daikon's leaves (billboard picking, not the ground tile)
+  const daikon0 = await G(() => __game.game.count('daikon'));
+  let s = await aim(14, 26, [0.45, 0.3, 0.6]);
+  await tap(s.x, s.y);
+  await page.waitForFunction((n) => __game.game.count('daikon') > n, daikon0, { timeout: 40000 });
+  log('tap harvested daikon');
+  // queue: tap two dry rice plants quickly -> both get watered in turn
+  // the player is busy (e.g. mid-swing): taps made now must queue up and run in turn
+  await G(() => { __game.game.actionCooldown = 4; });
+  for (const [x, z] of [[11, 26], [12, 26]]) { const a = await aim(x, z); await tap(a.x, a.y); }
+  const queued = await G(() => [__game.game.player.pending, ...__game.game.queue].filter(Boolean).length);
+  log('queued actions', queued);
+  assert.equal(queued, 2, 'both taps queued');
+  await page.waitForFunction(() => document.querySelectorAll('.chip:not(.hidden)').length === 2, null, { timeout: 5000 }); // numbered queue chips
+  await page.waitForFunction(() => __game.game.crop(11, 26)?.wet && __game.game.crop(12, 26)?.wet, null, { timeout: 60000 });
+  log('queue watered both rice plants');
+  // plant: tap empty tilled soil with the hand selected
+  s = await aim(13, 27, [0, 0.05, 0.15]);
+  await tap(s.x, s.y);
+  await page.waitForFunction(() => !!__game.game.crop(13, 27), null, { timeout: 40000 });
+  log('tap planted', await G(() => __game.game.crop(13, 27).type));
+  // long-press inspects
+  s = await aim(12, 27);
+  await tap(s.x, s.y, 650);
+  await page.waitForFunction(() => document.querySelectorAll('.float-label').length > 0, null, { timeout: 5000 });
+  log('long-press label:', await page.locator('.float-label').last().textContent());
+  await shot('02-farm');
+
+  // ---- fishing: tap water -> walk to the shore, auto-select the rod, cast; reel on touch-down
+  const water = await G(() => {
+    const g = __game.game, c = g.playerCell();
+    const out = [];
+    for (let z = 0; z < 40; z++) for (let x = 0; x < 40; x++) {
+      if (!g.world.isWater(x, z) || g.props.isBridge(x, z)) continue;
+      if (![[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => g.walkable(x + dx, z + dz))) continue;
+      out.push({ x, z, d: Math.hypot(x - c.x, z - c.z) });
+    }
+    return out.sort((a, b) => a.d - b.d).slice(0, 40);
+  });
+  let target = null;
+  for (const w of water) {
+    const sc = await screen(w.x, w.z, -0.32);
+    if (!onScreen(sc)) continue;
+    const t = await G((p) => __game.pick(p.x, p.y, { fuzzy: true }).tile, sc);
+    if (t && t.x === w.x && t.z === w.z) { target = w; break; }
+  }
+  assert.ok(target, 'a water tile on screen');
+  let caught = false;
+  for (let attempt = 1; attempt <= 4 && !caught; attempt++) {
+    const before = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
+    const sc = await aim(target.x, target.z, [-0.32]);
+    await tap(sc.x, sc.y);
+    await page.waitForFunction(() => !!__game.game.fishing, null, { timeout: 40000 });
+    assert.equal(await G(() => __game.game.tool), 'rod', 'rod auto-selected');
+    if (attempt === 1) { await sleep(400); await shot('03-fishing'); }
+    await page.waitForFunction(() => !__game.game.fishing || __game.game.fishing.phase === 'bite', null, { timeout: 15000 });
+    await touch('touchStart', [{ x: vp.width / 2, y: vp.height / 3 }]); // reel on touch-DOWN, anywhere
+    const reeledOnDown = await G(() => !__game.game.fishing);
+    await touch('touchEnd', []);
+    await sleep(200);
+    const after = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
+    caught = after > before;
+    log(`fishing attempt ${attempt}:`, caught ? `caught a ${await G(() => __game.game.lastCatch)}` : 'missed', reeledOnDown ? '(reeled on touch-down)' : '');
+    if (caught) assert.ok(reeledOnDown, 'reeled on touch-down');
+  }
+  assert.ok(caught, 'caught a fish by touch');
+
+  // ---- pinch zoom + two-finger pan
+  const z0 = await G(() => __game.view.getZoom());
+  await touch('touchStart', [{ x: cx - 40, y: cy, id: 1 }, { x: cx + 40, y: cy, id: 2 }]);
+  for (let i = 1; i <= 6; i++) { await touch('touchMove', [{ x: cx - 40 - i * 14, y: cy, id: 1 }, { x: cx + 40 + i * 14, y: cy, id: 2 }]); await sleep(30); }
+  const z1 = await G(() => __game.view.getZoom());
+  for (let i = 1; i <= 6; i++) { await touch('touchMove', [{ x: cx - 124 + i * 15, y: cy + i * 10, id: 1 }, { x: cx + 124 + i * 15, y: cy + i * 10, id: 2 }]); await sleep(30); }
+  await touch('touchEnd', []);
+  const pan = await G(() => __game.view.panOffset.length());
+  const moved = await G(() => __game.game.player.moving);
+  log('pinch zoom', z0.toFixed(2), '->', z1.toFixed(2), 'pan', pan.toFixed(2));
+  assert.ok(z1 < z0 * 0.75, 'pinch out zooms in');
+  assert.ok(pan > 0.5, 'two-finger drag pans the camera');
+  assert.equal(moved, false, 'two-finger gestures do not walk');
+  await G(() => { __game.view.setZoom(11); __game.view.panOffset.set(0, 0, 0); });
+  await settle();
+
+  // ---- build mode on touch: preview -> drag -> confirm; prop menu rotate / store
+  await tapEl('#hotbar .slot[data-item="build"]');
+  await page.waitForFunction(() => __game.game.mode === 'build', null, { timeout: 5000 });
+  await tapEl('#hotbar .slot[data-item="prop_toro"]');
+  await page.waitForFunction(() => __game.game.buildSel === 'prop_toro', null, { timeout: 5000 });
+  const free = await G(() => {
+    const g = __game.game, c = g.playerCell();
+    const out = [];
+    for (let r = 1; r < 5; r++) for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dz)) !== r) continue;
+      if (g.props.canPlace('toro', c.x + dx, c.z + dz, 0, { playerCell: c, farm: g.farm })
+        && g.props.canPlace('toro', c.x + dx + 1, c.z + dz, 0, { playerCell: c, farm: g.farm })) out.push({ x: c.x + dx, z: c.z + dz });
+    }
+    return out;
+  });
+  let spot = null;
+  for (const f of free) {
+    const sc = await screen(f.x, f.z);
+    if (!onScreen(sc, 60)) continue;
+    const pk = await G((p) => __game.pick(p.x, p.y, { fuzzy: true }), sc);
+    const hi = await G((p) => __game.pick(p.x, p.y), await screen(f.x, f.z, 0.6)); // nothing in front of the lantern
+    if (pk.ground && pk.ground.x === f.x && pk.ground.z === f.z && !pk.prop && !hi.prop) { spot = f; break; }
+  }
+  assert.ok(spot, 'free spot on screen');
+  s = await screen(spot.x, spot.z);
+  await tap(s.x, s.y);
+  const cursor = await G(() => __game.game.buildCursor);
+  assert.deepEqual(cursor, spot, 'first tap previews (no placement yet)');
+  await sleep(300);
+  assert.equal(await G(() => __game.game.ghost.group.visible), true, 'ghost preview visible');
+  assert.equal(await page.locator('#build-bar').isVisible(), true, 'confirm bar visible');
+  // drag the preview one tile along +x: the ghost follows the finger, lifted above it
+  const s2 = await screen(spot.x + 1, spot.z);
+  await touch('touchStart', [{ x: s.x, y: s.y }]);
+  for (let i = 1; i <= 5; i++) { await touch('touchMove', [{ x: s.x + ((s2.x - s.x) * i) / 5, y: s.y + ((s2.y - s.y) * i) / 5 + 70 * (i / 5) }]); await sleep(40); }
+  await touch('touchEnd', []);
+  await sleep(150);
+  const dragged = await G(() => __game.game.buildCursor);
+  log('ghost dragged to', dragged);
+  assert.notDeepEqual(dragged, spot, 'dragging the preview moves it');
+  const nProps = await G(() => __game.game.props.list.length);
+  await G(() => __game.game.rotate());
+  await tapEl('#bb-place');
+  await page.waitForFunction((n) => __game.game.props.list.length === n + 1, nProps, { timeout: 10000 });
+  const placed = await G(() => { const p = __game.game.props.list.at(-1); return { id: p.id, x: p.x, z: p.z, rot: p.rot }; });
+  log('placed lantern', placed);
+  assert.equal(placed.rot, 1);
+  await sleep(300);
+  await shot('04-build');
+  // tap the placed lantern -> prop menu -> rotate
+  s = await aim(placed.x, placed.z, [0.6, 0.9, 0.4, 0.2, 1.1]);
+  await tap(s.x, s.y);
+  await page.waitForSelector('#prop-menu:not(.hidden)', { timeout: 5000 });
+  await tapEl('#prop-menu [data-act="rotate"]');
+  await page.waitForFunction((id) => __game.game.props.list.find((p) => p.id === id)?.rot === 2, placed.id, { timeout: 5000 }); // rotated via prop menu
+  // and store it
+  const toro0 = await G(() => __game.game.count('prop_toro'));
+  await tap(s.x, s.y);
+  await page.waitForSelector('#prop-menu:not(.hidden)', { timeout: 5000 });
+  await tapEl('#prop-menu [data-act="store"]');
+  await page.waitForFunction((n) => __game.game.count('prop_toro') === n + 1, toro0, { timeout: 5000 }); // stored via prop menu
+  await tapEl('#hotbar .slot[data-item="done"]');
+  await page.waitForFunction(() => __game.game.mode === 'play', null, { timeout: 5000 });
+
+  // ---- shop sheet: tap Hana
+  await G(() => { const g = __game.game; g.player.pos.set(21.5, 0, 20.5); g.player.path = null; });
+  await settle();
+  const mc = await G(() => __game.game.merchantCell);
+  s = await aim(mc.x, mc.z, [0.6, 0.8, 0.4, 0.2]);
+  await tap(s.x, s.y);
+  await page.waitForFunction(() => __game.ui.modal === 'shop', null, { timeout: 30000 });
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running' || !a.effect?.target?.classList?.contains('card')), null, { timeout: 5000 });
+  await sleep(100);
+  const sheet = await page.locator('#panel .card').boundingBox();
+  log('shop sheet', sheet);
+  if (vp.name === 'portrait') {
+    assert.ok(Math.abs(sheet.y + sheet.height - vp.height) < 4 && sheet.width >= vp.width - 2, 'bottom sheet in portrait');
+  } else {
+    assert.ok(Math.abs(sheet.x + sheet.width - vp.width) < 4 && sheet.height >= vp.height - 2, 'side sheet in landscape');
+  }
+  await shot('05-shop');
+  const money0 = await G(() => __game.game.money);
+  await tapEl('#panel .sell-all');
+  await page.waitForFunction((m) => __game.game.money > m, money0, { timeout: 5000 }); // sold by tapping
+  if (process.env.DEBUG) log('close btn', await G(() => { const b = document.querySelector('#panel .close').getBoundingClientRect(); const e = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2); return [b.x, b.y, b.width, b.height, e.tagName + '.' + e.className]; }));
+  await tapEl('#panel .close');
+  await page.waitForFunction(() => __game.ui.modal === null, null, { timeout: 5000 }); // sheet closed
+
+  // ---- in-game confirm dialog instead of window.confirm
+  await tapEl('#btn-help');
+  await page.waitForSelector('#help:not(.hidden)', { timeout: 5000 });
+  await tapEl('#btn-reset');
+  await page.waitForSelector('#dialog:not(.hidden)', { timeout: 5000 }); // in-game confirm dialog
+  await tapEl('#dialog .dlg-cancel');
+  await page.waitForSelector('#dialog', { state: 'hidden', timeout: 5000 });
+  await tapEl('#help-close');
+
+  assert.deepEqual(errors, [], 'no console/page errors');
+  await ctx.close();
+  log('OK');
+  }
+}
+
+const srv = await startServer({ root: ROOT, base: '/rokugan-cozy-village/' });
+let ok = true;
+for (const vp of VIEWPORTS.filter((v) => !process.env.MOBILE_ONLY || v.name === process.env.MOBILE_ONLY)) {
+  const browser = await launchChrome(); // fresh browser per device keeps input timing independent
+  try { await runViewport(browser, srv.url, vp); } catch (e) { ok = false; console.error(`[mobile:${vp.name}] FAILED:`, e.message, (e.stack || '').split('\n').find((l) => l.includes('mobile.mjs')) || ''); }
+  await browser.close();
+}
+await srv.close();
+console.log('[mobile]', ok ? 'PASS' : 'FAIL');
+process.exit(ok ? 0 : 1);

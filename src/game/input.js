@@ -1,8 +1,8 @@
 // Input: keyboard, mouse and touch gestures + screen -> tile picking.
 //
 // Touch (per pointer id):
-//   tap        < 10 px movement and < 350 ms        -> smart context action
-//   long-press < 10 px, held >= 450 ms              -> inspect (play) / prop menu (build)
+//   tap        < 10 px movement and < 400 ms        -> smart context action
+//   long-press < 10 px, held >= 500 ms              -> inspect (play) / prop menu (build)
 //   drag       >= 10 px                             -> floating joystick (play), camera pan or
 //                                                      ghost drag (build)
 //   2 fingers  any time                             -> pinch zoom + two-finger pan
@@ -13,8 +13,8 @@ import { TREE_CANOPIES } from '../assets/blockouts.js';
 import { WATER_Y } from '../render/ground.js';
 
 const TAP_SLOP = 10;
-const TAP_MS = 350;
-const LONG_MS = 450;
+const TAP_MS = 400;
+const LONG_MS = 500;
 const JOY_DEAD = 10;
 const JOY_FULL = 50;
 const GHOST_LIFT = 70; // px: dragged build preview sits above the finger
@@ -56,8 +56,9 @@ export function setupInput({ canvas, camera, game, ui, view }) {
    */
   function pick(cx, cy, { fuzzy = false } = {}) {
     const ground = groundTile(cx, cy);
-    const cands = []; // { tile, depth (bigger = closer to the camera), prop? }
+    const cands = []; // { tile, dist (along the view ray, smaller = closer), prop? }
     setRay(cx, cy);
+    const rayDist = (x, y, z) => v3.set(x, y, z).sub(raycaster.ray.origin).dot(raycaster.ray.direction);
     const objs = [game.props.group];
     if (game.merchant) objs.push(game.merchant.root);
     const hit = raycaster.intersectObjects(objs, true)[0];
@@ -65,12 +66,12 @@ export function setupInput({ canvas, camera, game, ui, view }) {
       let o = hit.object;
       while (o && o.userData.propId == null && o !== game.merchant?.root && o.parent) o = o.parent;
       if (o === game.merchant?.root || (game.merchant && isChild(hit.object, game.merchant.root))) {
-        cands.push({ tile: { ...game.merchantCell }, depth: hit.point.x + hit.point.z + 0.5 });
+        cands.push({ tile: { ...game.merchantCell }, dist: hit.distance - 0.3 });
       } else if (o && o.userData.propId != null) {
         const p = game.props.list.find((q) => q.id === o.userData.propId);
         if (p) {
           const c = p.cells.reduce((b, c) => (Math.hypot(c.x + 0.5 - hit.point.x, c.z + 0.5 - hit.point.z) < Math.hypot(b.x + 0.5 - hit.point.x, b.z + 0.5 - hit.point.z) ? c : b));
-          cands.push({ tile: { x: c.x, z: c.z }, depth: hit.point.x + hit.point.z, prop: p });
+          cands.push({ tile: { x: c.x, z: c.z }, dist: hit.distance, prop: p });
         }
       }
     }
@@ -82,7 +83,8 @@ export function setupInput({ canvas, camera, game, ui, view }) {
       const base = toScreen(c.x + 0.5, 0, c.z + 0.5), top = toScreen(c.x + 0.5, h, c.z + 0.5);
       const hw = ppu * 0.42;
       if (cx > base.x - hw && cx < base.x + hw && cy > top.y - 4 && cy < base.y + ppu * 0.2) {
-        cands.push({ tile: { x: c.x, z: c.z }, depth: c.x + c.z + 1 + (s >= RIPE ? 0.2 : 0) });
+        // billboards lean toward the camera: measure at the tile's front edge
+        cands.push({ tile: { x: c.x, z: c.z }, dist: rayDist(c.x + 0.85, h * 0.4, c.z + 0.85) - (s >= RIPE ? 0.1 : 0) });
       }
     }
     // tree canopies + bamboo clumps belong to their prop tile
@@ -94,19 +96,20 @@ export function setupInput({ canvas, camera, game, ui, view }) {
       const a = toScreen(p.cx, 0, p.cz), b = toScreen(p.cx, top, p.cz);
       const hw = ppu * (def.canopy ? 0.8 : 0.4) * sc;
       if (cx > a.x - hw && cx < a.x + hw && cy > b.y - hw * 0.3 && cy < a.y + ppu * 0.15) {
-        cands.push({ tile: { x: p.x, z: p.z }, depth: p.cx + p.cz - 0.3, prop: p, foliage: true });
+        cands.push({ tile: { x: p.x, z: p.z }, dist: rayDist(p.cx, top * 0.7, p.cz), prop: p, foliage: true });
       }
     }
-    cands.sort((a, b) => b.depth - a.depth);
+    cands.sort((a, b) => a.dist - b.dist);
     let best = cands[0] || null;
     // foliage hides the ground behind it; in play mode an actionable tile back there wins
     if (best?.foliage && game.mode === 'play' && ground && !(ground.x === best.tile.x && ground.z === best.tile.z)) {
       const k = game.resolve(ground).kind;
       if (k !== 'walk' && k !== 'inspect') best = cands.find((c) => !c.foliage) || null;
     }
-    if (!best && fuzzy && ground) {
-      // fat-finger snap: ripe crops > merchant > crops within SNAP_PX
-      let bd = SNAP_PX, bt = null;
+    const groundKind = ground && game.mode === 'play' ? game.resolve(ground).kind : 'walk';
+    if (!best && fuzzy && ground && (groundKind === 'walk' || groundKind === 'inspect')) {
+      // fat-finger snap (only when the tile itself does nothing): ripe crops > merchant > crops
+      let bd = Math.min(SNAP_PX, ppu * 0.6), bt = null;
       const consider = (x, z, y, bonus) => {
         const s = toScreen(x + 0.5, y, z + 0.5);
         const d = Math.hypot(s.x - cx, s.y - cy) - bonus;
@@ -114,9 +117,9 @@ export function setupInput({ canvas, camera, game, ui, view }) {
       };
       for (const c of game.farm.values()) if (cheb(c, ground) <= 1) consider(c.x, c.z, 0.25, game.stage(c) >= RIPE ? 8 : 0);
       if (game.merchantCell && cheb(game.merchantCell, ground) <= 1) consider(game.merchantCell.x, game.merchantCell.z, 0.5, 6);
-      if (bt) best = { tile: bt, depth: 0, snapped: true };
+      if (bt) best = { tile: bt, dist: 0, snapped: true };
     }
-    return { tile: best ? best.tile : ground, ground, prop: best?.prop || (ground && game.props.at(ground.x, ground.z)) || null };
+    return { tile: best ? best.tile : ground, ground, prop: best?.prop || (ground && game.props.at(ground.x, ground.z)) || null, foliage: !!best?.foliage };
   }
 
   // ------------------------------------------------------------------ keyboard
@@ -191,7 +194,9 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     ui.closePropMenu();
     if (game.buildSel !== 'pickup') {
       if (game.buildCursor && (inGhost(pk.ground) || (pk.prop && inGhost(pk.tile)))) { game.confirmBuild(); return; }
-      if (pk.prop && !inGhost(pk.ground)) { ui.openPropMenu(pk.prop, x, y); return; }
+      // placing: a tap on foliage means the ground behind it; a tap on a solid prop edits that prop
+      const solid = pk.prop && !pk.foliage ? pk.prop : (pk.ground && game.props.at(pk.ground.x, pk.ground.z));
+      if (solid && !inGhost(pk.ground)) { ui.openPropMenu(solid, x, y); return; }
       if (pk.ground) { game.buildCursor = pk.ground; ui.refresh(); }
       return;
     }
@@ -219,7 +224,8 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     if (touch && game.fishing && game.fishing.phase === 'bite' && !ui.modalOpen()) {
       game.reel(); g = { type: 'dead', id: e.pointerId }; return;
     }
-    g = { type: 'pending', id: e.pointerId, touch, x0: e.clientX, y0: e.clientY, lx: e.clientX, ly: e.clientY, t0: performance.now() };
+    // timings use the events' own timestamps: a slow frame must not turn a tap into a hold
+    g = { type: 'pending', id: e.pointerId, touch, x0: e.clientX, y0: e.clientY, lx: e.clientX, ly: e.clientY, t0: e.timeStamp };
     if (touch) {
       const gg = g;
       g.timer = setTimeout(() => {
@@ -287,8 +293,10 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     if (g.type === 'pinch') { if (pointers.size < 2) g = { type: 'dead' }; }
     else if (e.pointerId === g.id) {
       clearTimeout(g.timer);
-      const dt = performance.now() - g.t0;
-      if (g.type === 'pending' && !cancelled && (dt < TAP_MS || !g.touch)) onTap(e.clientX, e.clientY, g.touch);
+      const dt = e.timeStamp - g.t0;
+      // 'long' with a short real duration = the hold timer fired during a stalled frame
+      const isTap = (g.type === 'pending' || (g.type === 'long' && dt < TAP_MS)) && !cancelled && (dt < TAP_MS || !g.touch);
+      if (isTap) onTap(e.clientX, e.clientY, g.touch);
       if (g.type === 'joy') endJoystick();
       if (g.type === 'ghost') ui.refresh();
       g = { type: 'dead' };
