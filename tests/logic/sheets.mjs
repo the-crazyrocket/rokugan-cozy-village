@@ -7,7 +7,7 @@ import { LAZY, loadSheet } from '../../src/ui/sheets/index.js';
 export default async function () {
   const core = createCore({ strict: true, now: () => 0, mono: () => 0, rng: () => 0.5 });
   const names = Object.keys(LAZY);
-  assert.deepEqual(names, ['shop', 'bag', 'today', 'shrine', 'wake', 'backup', 'restore', 'tools', 'workbench', 'projects', 'fishbook', 'villager', 'scrapbook', 'mill', 'kitchen']);
+  assert.deepEqual(names, ['shop', 'bag', 'today', 'shrine', 'wake', 'backup', 'restore', 'tools', 'workbench', 'projects', 'fishbook', 'villager', 'scrapbook', 'mill', 'kitchen', 'plot']);
   assert.equal(core.sheets.size, 0, 'nothing is loaded before the first open');
 
   const [a, b] = await Promise.all([loadSheet(core, 'shop'), loadSheet(core, 'shop')]);
@@ -19,7 +19,7 @@ export default async function () {
     const s = await loadSheet(core, n);
     assert.equal(typeof s.render, 'function', n);
     assert.equal(s.owner, 'ui', n);
-    assert.equal(!!s.live, ['shop', 'bag', 'today', 'shrine', 'tools', 'workbench', 'projects', 'fishbook', 'villager', 'scrapbook', 'mill', 'kitchen'].includes(n), `${n} live`);
+    assert.equal(!!s.live, ['shop', 'bag', 'today', 'shrine', 'tools', 'workbench', 'projects', 'fishbook', 'villager', 'scrapbook', 'mill', 'kitchen', 'plot'].includes(n), `${n} live`);
   }
   await assert.rejects(loadSheet(core, 'nope'), /no sheet 'nope'/);
 

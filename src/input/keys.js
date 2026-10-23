@@ -17,7 +17,7 @@ export function setupKeys({ game, ui, view }) {
     if (BLOCK_KEYS.has(e.code)) e.preventDefault();
     ui.hideHelp();
     if (e.repeat && !MOVE_KEYS.includes(e.code)) return;
-    game.touchInput = false; ui.setTouch(false);
+    game.touchInput = false; ui.setTouch(false); ui.setPad(false);
     game.setKey(e.code, true);
     game.core.keys.press(e.code, game.core);
   });

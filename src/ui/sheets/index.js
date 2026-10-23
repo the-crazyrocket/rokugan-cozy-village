@@ -16,6 +16,7 @@ export const LAZY = {
   scrapbook: () => import('./scrapbook.js'),
   mill: () => import('./mill.js'),
   kitchen: () => import('./kitchen.js'),
+  plot: () => import('./plot.js'),
 };
 
 const loading = new WeakMap(); // ctx -> Map(name -> promise)

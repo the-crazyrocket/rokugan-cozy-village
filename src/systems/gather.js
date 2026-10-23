@@ -6,9 +6,10 @@ import { defineSystem } from '../core/system.js';
 import { createRng } from '../core/rng.js';
 import { T, WK } from '../world/kinds.js';
 
-/** What turns up, where, and what it gives. `where`: open grass, grass near trees, a fresh-water bank, a beach by the sea. */
+/** What turns up, where, and what it gives. `where`: open grass, grass near trees, a fresh-water bank, a beach by the sea.
+ *  `per` a day, or with `perLand` one for every that many tiles of land when that is more (a bigger island, more rocks). */
 export const NODES = {
-  rock: { sprites: ['rock_a', 'rock_b'], height: 1.0, where: 'open', gives: 'stone', n: 2, per: 4, verb: 'Break', color: '#a8a49a', sfx: 'till' },
+  rock: { sprites: ['rock_a', 'rock_b'], height: 1.0, where: 'open', gives: 'stone', n: 2, per: 4, perLand: 140, verb: 'Break', color: '#a8a49a', sfx: 'till' },
   branch: { sprites: ['branch_a', 'branch_b'], height: 0.85, where: 'trees', gives: 'wood', n: 2, per: 3, verb: 'Pick up', color: '#8a6440', sfx: 'forage' },
   clay: { sprites: ['clay'], height: 0.8, where: 'bank', gives: 'clay', n: 1, per: 2, verb: 'Dig', color: '#c06a3e', sfx: 'till' },
   shells: { sprites: ['shells', 'driftwood'], height: 0.75, where: 'beach', gives: 'shell', n: 1, per: 3, verb: 'Pick up', color: '#f2dccb', sfx: 'forage' },
@@ -50,12 +51,16 @@ export default defineSystem({
         return out;
       },
 
+      /** Tiles of land on the island. */
+      land() { const w = ctx.world; let n = 0; for (let z = 0; z < w.h; z++) for (let x = 0; x < w.w; x++) if (w.isLand(x, z)) n++; return n; },
+
       /** The roll: `per` of each kind, kept a few tiles apart so they read as separate finds. */
       spawn(rnd) {
-        const places = api.places(), spots = [], int = (n) => Math.floor(rnd() * n);
+        const places = api.places(), spots = [], int = (n) => Math.floor(rnd() * n), land = api.land();
         for (const [kind, n] of Object.entries(NODES)) {
           const list = n.where === 'trees' && !places.trees.length ? places.open : places[n.where]; // an island without trees still has branches
-          for (let k = 0; k < n.per && list.length; k++) {
+          const per = n.perLand ? Math.max(n.per, Math.round(land / n.perLand)) : n.per;
+          for (let k = 0; k < per && list.length; k++) {
             const t = list.splice(int(list.length), 1)[0];
             for (const l of Object.values(places)) for (let i = l.length - 1; i >= 0; i--) if (Math.max(Math.abs(l[i].x - t.x), Math.abs(l[i].z - t.z)) < 3) l.splice(i, 1);
             spots.push({ x: t.x, z: t.z, kind, v: int(n.sprites.length), taken: false });

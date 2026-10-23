@@ -358,5 +358,17 @@
     "by": "codex",
     "attempts": 1,
     "last": "2026-10-23T12:53:14.866Z"
+  },
+  "outcrop_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T16:05:39.733Z"
+  },
+  "outcrop_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T16:05:42.645Z"
   }
 }

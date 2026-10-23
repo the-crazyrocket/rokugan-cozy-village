@@ -154,4 +154,30 @@ body.build-mode #btn-build { background: var(--grain), linear-gradient(#d4583c, 
 
 /* the welcome-back summary's one-tap chore, and the shop's buy-five */
 .away .btn.go { margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.plot > .btn.start { display: block; width: 100%; margin-top: 10px; }
+.plot .tabs.sizes .tab:disabled { opacity: 0.45; }
+.plot .progress .bar { display: block; margin: 8px 0 4px; }
 .btn.five { padding-left: 10px; padding-right: 10px; }
+
+/* ---- gamepad: a gold highlight to steer with the D-pad, and controller prompts instead of keys (body.pad) */
+.pad-focus { outline: 3px solid var(--gold) !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(220,174,82,.35), 0 0 18px rgba(220,174,82,.55) !important; position: relative; z-index: 1; }
+body.pad canvas { cursor: none !important; }
+body.pad .slot .key { display: none; }
+body.pad #hotbar::before, body.pad #hotbar::after { align-self: center; padding: 3px 7px; border-radius: 8px; background: var(--wood-edge); color: var(--paper); font: 700 12px/1 var(--font); letter-spacing: .02em; }
+body.pad #hotbar::before { content: 'LB'; margin-right: 4px; }
+body.pad #hotbar::after { content: 'RB'; margin-left: 4px; }
+body.pad .slot[data-item="dig"]::after, body.pad:not(.build-mode) .slot.done::after, body.pad.build-mode .slot.done::after, body.pad .slot[data-item="bag"]::after,
+body.pad #btn-action::after, body.pad #btn-today::after, body.pad #btn-build::after, body.pad #btn-bag::after {
+  position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  background: var(--wood-edge); color: var(--paper); border: 1.5px solid var(--gold); font: 700 12px/1 var(--font); box-shadow: 0 2px 4px rgba(0,0,0,.3); pointer-events: none;
+}
+body.pad .slot[data-item="dig"]::after, body.pad:not(.build-mode) .slot.done::after { content: 'X'; }
+body.pad.build-mode .slot.done::after { content: 'B'; }
+body.pad .slot[data-item="bag"]::after, body.pad #btn-bag::after { content: 'Y'; }
+body.pad #btn-action::after { content: 'A'; top: -4px; right: -4px; }
+body.pad #btn-today::after { content: '☰'; }
+body.pad #btn-build::after { content: '⧉'; }
+body.pad #btn-today, body.pad #btn-build, body.pad #btn-bag, body.pad .slot { position: relative; }
+body.pad .todo-ribbon::before { content: '▲'; font-size: 10px; padding: 3px 5px; border-radius: 6px; background: var(--wood-edge); color: var(--paper); margin-right: 2px; }
+.pk { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; padding: 0 4px; margin: 0 1px; border-radius: 9px; vertical-align: 1px;
+  background: var(--wood-edge); color: var(--paper); border: 1px solid var(--gold); font: 700 10.5px/1 var(--font); }

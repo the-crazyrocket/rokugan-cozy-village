@@ -167,5 +167,11 @@
   "asset": "stump",
   "price": 0,
   "fixed": true
+ },
+ "outcrop": {
+  "name": "Rock outcrop",
+  "asset": "outcrop",
+  "price": 0,
+  "fixed": true
  }
 }

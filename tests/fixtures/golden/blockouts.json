@@ -335,5 +335,16 @@
   "desc": "a low freshly sawn tree stump with brown bark, a pale cut top showing its growth rings, little roots spreading into a ring of moss, and two wood chips on the ground beside it",
   "parts": 8,
   "hash": "dae2fe4ebe382ac9b975b4de6a2b23a4d979b2b4"
+ },
+ "outcrop": {
+  "label": "Rock outcrop",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "desc": "a knot of weathered grey granite boulders: one big rounded boulder with a crack splitting it, two smaller ones leaning against it, moss on top and in the cracks, and a few chips of broken stone on the ground at its foot",
+  "parts": 9,
+  "hash": "0ff1fa1bfe20f094391423bfe413efb89e5adb06"
  }
 }

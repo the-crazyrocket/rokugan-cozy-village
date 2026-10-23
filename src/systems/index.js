@@ -14,6 +14,7 @@ import terrainrules from './terrainrules.js';
 import terraform from './terraform.js';
 import gather from './gather.js';
 import reclaim from './reclaim.js';
+import quarry from './quarry.js';
 import craft from './craft.js';
 import projects from './projects.js';
 import villagers from './villagers.js';
@@ -23,5 +24,5 @@ import bugs from './bugs.js';
 import trees from './trees.js';
 import interact from './interact.js';
 
-export const systems = [props, build, fishing, shrine, stats, daily, market, requests, forage, farming, player, terrainrules, terraform, gather, reclaim, craft, projects, villagers, visitors, kitchen, bugs, trees, interact];
+export const systems = [props, build, fishing, shrine, stats, daily, market, requests, forage, farming, player, terrainrules, terraform, gather, reclaim, quarry, craft, projects, villagers, visitors, kitchen, bugs, trees, interact];
 export default systems;

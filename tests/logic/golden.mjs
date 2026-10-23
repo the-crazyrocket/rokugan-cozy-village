@@ -24,5 +24,5 @@ export default function () {
   assert.equal(Object.keys(g('fish')).length, 9 + 16); // + the Wave 2 waters
   assert.equal(Object.keys(g('daily').asleep).length, 30);
   assert.equal(Object.keys(g('fishpools')).length, 3 * 2 * 24);
-  assert.equal(Object.keys(g('blockouts')).length, 25); // + stairs, + workbench, project board, scaffolding, kakei, scarecrow, + Kenji and Ume, + mill and kitchen, + stump
+  assert.equal(Object.keys(g('blockouts')).length, 26); // + stairs, + workbench, project board, scaffolding, kakei, scarecrow, + Kenji and Ume, + mill and kitchen, + stump, + outcrop
 }

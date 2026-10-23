@@ -34,6 +34,8 @@ body.touch .btn { min-height: 44px; min-width: 52px; padding: 8px 12px; font-siz
 #help { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(31,41,69,.3); z-index: 9; padding: var(--sat) var(--sar) var(--sab) var(--sal); }
 .controls { padding-left: 18px; line-height: 1.7; font-size: 14px; }
 body.touch .help-desktop, body:not(.touch) .help-touch { display: none; }
+body:not(.pad) .help-pad, body.pad .help-desktop { display: none; }
+body.pad .help-touch { display: none; }
 kbd { background: #fff; border: 1px solid #b9a77c; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: 12px; font-family: inherit; }
 .link { background: none; border: none; color: var(--vermilion); text-decoration: underline; font-size: 14px; padding: 0; min-height: 32px; }
 #dialog { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(31,41,69,.45); z-index: 30; }

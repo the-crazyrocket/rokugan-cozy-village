@@ -1,8 +1,8 @@
 {
- "generated": "2026-10-23T12:53:17+00:00",
+ "generated": "2026-10-23T16:06:47+00:00",
  "codexCalls": {
-  "total": 70,
-  "succeeded": 68,
+  "total": 72,
+  "succeeded": 70,
   "failed": 2
  },
  "assets": {
@@ -1130,6 +1130,51 @@
     }
    ],
    "icon": "assets/painted/icons/stump.png"
+  },
+  "outcrop": {
+   "label": "Rock outcrop",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.993,
+     "iouAfterAlign": 0.995,
+     "alignApplied": true,
+     "alignScale": [
+      0.9986,
+      1.0017
+     ],
+     "alignOffsetPx": [
+      1,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/outcrop_a45.webp",
+     "depth": "assets/painted/outcrop_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.996,
+     "iouAfterAlign": 0.996,
+     "alignApplied": false,
+     "alignScale": [
+      0.9986,
+      1.0018
+     ],
+     "alignOffsetPx": [
+      1,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/outcrop_a225.webp",
+     "depth": "assets/painted/outcrop_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/outcrop.png"
   }
  },
  "sheets": {

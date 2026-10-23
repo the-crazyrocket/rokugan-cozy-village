@@ -83,6 +83,13 @@ export class UI {
     document.body.classList.toggle('touch', on);
     if (this.game) this.refresh();
   }
+  /** Gamepad in use: controller prompts instead of keys (body.pad). */
+  setPad(on) {
+    if (on === !!this.pad) return;
+    this.pad = on;
+    document.body.classList.toggle('pad', on);
+    if (this.game) this.refresh();
+  }
   compact() { return this.touch || window.innerWidth < 700; }
 
   // ------------------------------------------------------------------ refresh (hotbar, build bar and the open sheet)
@@ -92,7 +99,7 @@ export class UI {
     this.tickKoku(g.money);
     this.updateClock();
     document.body.classList.toggle('build-mode', g.mode === 'build');
-    $('#mode-label').textContent = g.mode === 'build' ? (this.touch ? 'Build mode' : 'Build mode · R rotate · B done') : '';
+    $('#mode-label').innerHTML = g.mode === 'build' ? (this.touch ? 'Build mode' : this.pad ? 'Build mode · <b class="pk">X</b> rotate · <b class="pk">B</b> done' : 'Build mode · R rotate · B done') : '';
     this.renderHotbar();
     this.renderHud();
     this.updateBuildBar();

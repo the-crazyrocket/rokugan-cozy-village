@@ -107,6 +107,7 @@ export const hotbarMixin = {
     const g = this.game;
     this.hotbar.querySelector('.slot.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     const tool = this.toolInfo(g.tool);
+    if (this.pad) { $('#tool-hint').innerHTML = this.padHint(g, tool); return; }
     $('#tool-hint').textContent = g.mode === 'build'
       ? (g.buildSel === 'pickup'
         ? (this.touch ? 'Tap a decoration to move, rotate or store it' : 'Click a prop to pick it up')
@@ -114,6 +115,14 @@ export const hotbarMixin = {
       : g.kit === 'dig'
         ? (this.touch ? `${tool.name}${tool.hint ? ' — ' + tool.hint : ''}` : `${tool.name}${tool.hint ? ' — ' + tool.hint : ''} · click or drag over the ground`)
         : (this.touch ? 'Tap to go · swipe the field to tend it' : `${tool.name}${tool.hint ? ' — ' + tool.hint : ' — plant on tilled soil'} · click to go or use, drag over the field to tend it`);
+  },
+
+  /** The hint line with a gamepad in hand (HTML: the buttons drawn as little badges). */
+  padHint(g, tool) {
+    const k = (b) => `<b class="pk">${b}</b>`;
+    if (g.mode === 'build') return g.buildSel === 'pickup' ? `${k('A')} pick up · ${k('LB')}${k('RB')} what to place · ${k('B')} done` : `${k('A')} place ${ITEMS[g.buildSel].name.toLowerCase()} · ${k('X')} rotate · ${k('LB')}${k('RB')} choose · ${k('B')} done`;
+    if (g.kit === 'dig') return `${tool.name}${tool.hint ? ' — ' + tool.hint : ''} · ${k('A')} use · ${k('LB')}${k('RB')} tool · ${k('X')} done`;
+    return `${tool.name} · ${k('A')} do what's in front · ${k('LB')}${k('RB')} seed · ${k('X')} dig · ${k('Y')} bag · ${k('☰')} today`;
   },
 
   /** Compact hotbar: the one slot for the tools in `more`; it shows the one in hand, and a tap opens the tools sheet. */

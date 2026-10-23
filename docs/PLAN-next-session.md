@@ -39,6 +39,9 @@ This is too much for one sitting. The ultracode session should aim at Waves 0–
   - The shop has ×5 seeds and a sell total, opens on Sell with a haul, and moves on to Seeds after selling.
 - **Trees:** the axe (dig kit) fells a grown tree for 3 wood and a stump that sprouts again after 36 h, or the shovel digs the stump out. Saplings (Hana, or sometimes from a felled tree) go in the seed slot and grow sapling → young → grown over a day, drawn small until grown.
 - **Woodcutting, animated:** felling takes three axe strokes (swing, chips, the tree shudders), then the tree topples away from the player, lands in dust and leaves with a thud, and shrinks away. Walking off stops it and the tree stands again. View: `src/render/views/woodcut.js`, driven by the trees system's `chopHit` / `treeFell` / `chopStop` events.
+- **Growing the island, by plot:** replaces filling the sea one tile at a time (which got too dear: ~2,200 stone and ~165k koku to double the island). In Dig, the earth basket on the sea beside the shore opens a plot sheet: 3×3 to 6×6, outlined on the water (also under the basket on hover). Price per tile 10 → 30 koku as plots add up, plus 0.4 stone and 0.2 wood a tile (a first 5×5: 250 koku, 10 stone, 5 wood). The village fills it in 30 min + 3 min a tile, also while away; pockets and notches of sea it leaves are filled too. Sand at first; 20 h later everything no longer by the sea (the old beach behind it too) is grass. Every second plot turns up a rock outcrop. Sea in Kenji's unbuilt project shapes (plus 2 tiles) is kept clear. `src/systems/reclaim.js`, sheet `src/ui/sheets/plot.js`, view `src/render/views/plot-view.js`.
+- **Stone supply:** a rock outcrop (`src/systems/quarry.js`, painted prop `outcrop`) gives 3 blows of 2 stone a day, tapped in either kit; every island gets one east of home. Daily loose rocks scale with the island: one per 140 land tiles, at least 4.
+- **Controller support:** `src/input/gamepad.js`, polled each frame (standard mapping; Steam Deck, Xbox, PlayStation). World: left stick walk, A act, B stop, X dig kit, Y bag, LB/RB tool, LT/RT zoom, right stick pan, Menu today, View build, D-pad up the ribbon's chore. Build mode gets its own tile cursor the camera follows. Sheets, help and dialogs: a gold highlight steered by D-pad/stick (kept across live redraws), A press, B close, LB/RB tabs, right stick scroll. `body.pad` swaps key labels for controller badges; `haptic` events rumble. Browser test: `npm run test:gamepad` (simulated pad).
 - **Desktop cursor:** shows the icon of what a click will do there.
 - **Fix:** tree trunks and branches no longer poke through the leaves (the canopy cut-outs are pushed toward the camera).
 
@@ -48,7 +51,7 @@ This is too much for one sitting. The ultracode session should aim at Waves 0–
 - **3.3** stamps; a real photo-mode camera
 - **2.8** painted UI kit frames; the map
 - **Wave 2 extras:** compost, crop quality in the UI, paddies, fish shadows, traps
-- **Later goal: an island with no size limit.** The player should be able to grow the island as far as they like, up to a full big village. Today the world is a fixed 64×64 grid, so this needs a growable or chunked world (and the camera, saves, pathfinding and ground rendering to follow). Not for now.
+- **Later goal: an island with no size limit.** The player should be able to grow the island as far as they like, up to a full big village. Plots now grow it within the fixed 64×64 grid (about 3,500 tiles of sea to fill, keeping 2 at the edge); so this needs a growable or chunked world (and the camera, saves, pathfinding and ground rendering to follow). Not for now.
 
 ---
 

@@ -164,20 +164,30 @@ if (params.has('dev')) {
   setInterval(show, 5000);
 }
 
+/** Where the camera aims for a focus; `lift` (a fraction of the screen) puts the spot that much above the middle. */
+function focusPoint(f) {
+  const p = new THREE.Vector3(f.x, 0, f.z);
+  if (!f.lift) return p;
+  const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion), up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+  up.y = 0; up.normalize();
+  return p.addScaledVector(up, -f.lift * (camera.top - camera.bottom) / Math.max(0.3, -fwd.y));
+}
+
 // ------------------------------------------------------------------ loop
 const clock = new THREE.Clock();
 let t = 0, frames = 0;
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.1);
   t += dt;
+  input.pad.update(dt); // the gamepad, polled
   game.update(dt, t);
   daylight.update(game.now());
   sound.update(daylight.night);
   // two-finger / build-mode pan drifts back to the player once they walk (or after a while)
   const idlePan = performance.now() - lastPan > (game.mode === 'build' ? 1e9 : 4000);
   if ((game.player.moving && game.mode === 'play') || idlePan) panOffset.multiplyScalar(Math.exp(-dt * 3));
-  const focus = game.cameraFocus(); // a Fortune waking: the camera tours the changes
-  if (focus) camTarget.lerp(new THREE.Vector3(focus.x, 0, focus.z), 1 - Math.exp(-dt * 2.5));
+  const focus = game.cameraFocus() || game.plotFocus(); // a Fortune waking: the camera tours the changes; a plot being offered
+  if (focus) camTarget.lerp(focusPoint(focus), 1 - Math.exp(-dt * 2.5));
   else if (!view.hold) camTarget.lerp(new THREE.Vector3().copy(game.player.pos).add(panOffset), 1 - Math.exp(-dt * 6));
   placeCamera();
   sun.target.position.copy(camTarget);

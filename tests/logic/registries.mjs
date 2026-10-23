@@ -41,7 +41,7 @@ function resolvers() {
   const r = t.core.resolvers.all();
   same(r.map((e) => [e.id, e.priority, e.owner]), [
     ['shop', 100, 'market'], ['villager', 95, 'villagers'], ['visitor', 94, 'visitors'], ['bug', 93, 'bugs'], ['shrine', 90, 'shrine'], ['forage', 80, 'forage'], ['gather', 75, 'gather'], ['crop', 70, 'farming'],
-    ['forestry', 67, 'trees'], ['terraform', 65, 'terraform'], ['reclaim', 64, 'reclaim'], ['sapling', 61, 'trees'], ['soil', 60, 'farming'], ['pond-plant', 55, 'farming'], ['fish', 50, 'fishing'], ['projects', 46, 'projects'], ['workbench', 44, 'craft'], ['mill', 43, 'kitchen'], ['shake', 42, 'gather'], ['kitchen', 41, 'kitchen'], ['prop-inspect', 40, 'props'], ['till', 30, 'farming'],
+    ['forestry', 67, 'trees'], ['quarry', 66, 'quarry'], ['terraform', 65, 'terraform'], ['reclaim', 64, 'reclaim'], ['sapling', 61, 'trees'], ['soil', 60, 'farming'], ['pond-plant', 55, 'farming'], ['fish', 50, 'fishing'], ['projects', 46, 'projects'], ['workbench', 44, 'craft'], ['mill', 43, 'kitchen'], ['shake', 42, 'gather'], ['kitchen', 41, 'kitchen'], ['prop-inspect', 40, 'props'], ['till', 30, 'farming'],
   ], 'the converted branches of Game.resolve, each owned by the system it belongs to');
   same(lintCore(t.core), []);
 }
@@ -107,7 +107,7 @@ function hotbar() {
   assert.ok(all.filter((e) => e.owner === 'farming' && e.compact === 'seeds').length >= 10, 'every crop has its seed in the seeds group');
   assert.ok(bar.every((e) => e.icon && e.name === t.core.content.itemMap().get(e.id).name && e.icon === t.core.content.itemMap().get(e.id).icon));
   same(t.i.hotbar().map((e) => e.id), all.filter((e) => !e.kit && !e.when).map((e) => e.id), 'the Wave 2 seeds wait until there are some in the bag');
-  assert.equal(t.core.hotbar.get('earth').hint, 'Pile the ground up a level, or fill a pond back in');
+  assert.equal(t.core.hotbar.get('earth').hint, 'Pile the ground up a level, fill a pond back in, or mark out new land on the shore');
 
   // an entry before the seeds shifts the slots after it; selectSlot and tool() follow the registry
   t.core.as('wp99').hotbar.add({ id: 'trap', order: 44, name: 'Trap', icon: 'icons:basket', compact: true });
@@ -140,10 +140,10 @@ function hotbar() {
 function actions() {
   const t = boot();
   const a = (kind) => t.core.actions.get(kind);
-  same(t.core.actions.all().map((e) => e.kind).sort(), ['chop', 'collect', 'cook', 'craft', 'dig', 'fish', 'forage', 'gather', 'harvest', 'inspect', 'mill', 'net', 'noseed', 'photo', 'pile', 'plant', 'plantTree', 'projects', 'reclaim', 'shake', 'shop', 'shrine', 'talk', 'till', 'unstump', 'water']);
+  same(t.core.actions.all().map((e) => e.kind).sort(), ['chop', 'collect', 'cook', 'craft', 'dig', 'fish', 'forage', 'gather', 'harvest', 'inspect', 'mill', 'net', 'noseed', 'photo', 'pile', 'plant', 'plantTree', 'plot', 'projects', 'quarry', 'shake', 'shop', 'shrine', 'talk', 'till', 'unstump', 'water']);
   same(t.core.sweeps.kinds().sort(), ['dig', 'forage', 'gather', 'harvest', 'pile', 'plant', 'till', 'water'], 'what a swipe over the field queues');
-  same(t.core.actions.all().filter((e) => e.button).map((e) => e.kind).sort(), ['chop', 'collect', 'cook', 'craft', 'dig', 'fish', 'harvest', 'mill', 'net', 'photo', 'pile', 'plant', 'plantTree', 'projects', 'reclaim', 'shop', 'shrine', 'talk', 'till', 'unstump', 'water'], 'what the action button shows');
-  same(t.core.actions.all().filter((e) => e.queueable).map((e) => e.kind).sort(), ['chop', 'collect', 'cook', 'craft', 'dig', 'fish', 'forage', 'gather', 'harvest', 'mill', 'net', 'photo', 'pile', 'plant', 'plantTree', 'projects', 'reclaim', 'shake', 'shop', 'shrine', 'talk', 'till', 'unstump', 'water']);
+  same(t.core.actions.all().filter((e) => e.button).map((e) => e.kind).sort(), ['chop', 'collect', 'cook', 'craft', 'dig', 'fish', 'harvest', 'mill', 'net', 'photo', 'pile', 'plant', 'plantTree', 'plot', 'projects', 'quarry', 'shop', 'shrine', 'talk', 'till', 'unstump', 'water'], 'what the action button shows');
+  same(t.core.actions.all().filter((e) => e.queueable).map((e) => e.kind).sort(), ['chop', 'collect', 'cook', 'craft', 'dig', 'fish', 'forage', 'gather', 'harvest', 'mill', 'net', 'photo', 'pile', 'plant', 'plantTree', 'projects', 'quarry', 'shake', 'shop', 'shrine', 'talk', 'till', 'unstump', 'water']);
   same(t.core.actions.all().filter((e) => e.range).map((e) => [e.kind, e.range]), [['fish', 2], ['photo', 3], ['net', 1]]);
   assert.equal(a('inspect').queueable, false);
   assert.equal(a('noseed').queueable, false);

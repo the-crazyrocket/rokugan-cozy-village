@@ -56,7 +56,7 @@ export default defineSystem({
         const w = world();
         if (!w.inBounds(x, z)) return 'That is beyond the island.';
         if (dir < 0 && w.isWater(x, z)) return 'That is water already.';
-        if (dir > 0 && w.isWater(x, z) && !fresh(x, z)) return 'The sea is too deep to fill with a basket.';
+        if (dir > 0 && w.isWater(x, z) && !fresh(x, z)) return 'Out here the sea is too deep: tap it right beside the shore to mark out a new plot.';
         if (dir > 0 && w.heightAt(x, z) >= MAX_HEIGHT && w.isLand(x, z)) return 'It will not pile any higher.';
         if (dir > 0 && ctx.inv.count(EARTH) < 1) return 'No earth left: dig some up with the shovel.';
         return null;
@@ -118,6 +118,6 @@ export default defineSystem({
     ctx.tools.add('earth', { use: (t) => { ctx.use('player').swing(); api.raise(t.x, t.z); } });
     // the dig kit, with the hoe
     ctx.hotbar.add({ ...hotbarEntry(ctx, 'shovel', 46), kit: 'dig' });
-    ctx.hotbar.add({ ...hotbarEntry(ctx, 'earth', 47), kit: 'dig', hint: 'Pile the ground up a level, or fill a pond back in' });
+    ctx.hotbar.add({ ...hotbarEntry(ctx, 'earth', 47), kit: 'dig', hint: 'Pile the ground up a level, fill a pond back in, or mark out new land on the shore' });
   },
 });

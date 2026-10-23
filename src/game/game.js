@@ -293,6 +293,7 @@ export class Game {
     this.cursor.visible = !this.fishing && !(this.mode === 'build' && this.buildSel !== 'pickup');
     if (this.mode === 'play') this.cursorColor(0xffffff);
     this.updateGhost();
+    this.updatePlot(dt, t);
     this.updateFishing(t);
 
     this.core.use('interact').tick(dt); // the smart-tap action queue
