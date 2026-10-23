@@ -2,7 +2,7 @@
 const BLOCK_KEYS = new Set(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 const MOVE_KEYS = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
-export function setupKeys({ game, ui, view, endJoystick }) {
+export function setupKeys({ game, ui, view }) {
   const keys = game.core.as('input').keys;
   keys.bind('KeyB', () => { ui.closeModal(); game.toggleBuild(); });
   keys.bind('KeyI', () => (ui.modal === 'bag' ? ui.closeModal() : ui.openBag()));
@@ -22,5 +22,5 @@ export function setupKeys({ game, ui, view, endJoystick }) {
     game.core.keys.press(e.code, game.core);
   });
   window.addEventListener('keyup', (e) => game.setKey(e.code, false));
-  window.addEventListener('blur', () => { game.keys.clear(); endJoystick(); view.hold = false; });
+  window.addEventListener('blur', () => { game.keys.clear(); view.hold = false; });
 }

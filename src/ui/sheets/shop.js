@@ -25,8 +25,11 @@ export function render(ui) {
   const list = el('div', 'list');
   if (ui.shopTab === 'sell') {
     const sellables = [...g.inv.keys()].filter((id) => ITEMS[id]?.sell && ITEMS[id].kind !== 'prop' && g.count(id) > 0);
-    const all = el('button', 'btn big sell-all', 'Sell all harvest & fish');
-    all.onclick = () => g.sellAll();
+    const haul = g.haul();
+    const all = el('button', 'btn big sell-all', haul.total ? `Sell all · +${haul.total} koku` : 'Sell all harvest & fish');
+    all.disabled = !haul.total;
+    // sold: on to the seeds, to restock
+    all.onclick = () => { g.sellAll(); ui.shopTab = 'seeds'; ui.renderSheet(); };
     list.appendChild(all);
     if (!sellables.length) list.appendChild(el('p', 'muted', 'Nothing to sell yet — harvest crops or go fishing!'));
     for (const id of sellables) {
@@ -42,7 +45,7 @@ export function render(ui) {
       list.appendChild(r);
     }
   } else {
-    const ids = Object.keys(ITEMS).filter((id) => (ui.shopTab === 'seeds' ? ['seed', 'bait'].includes(ITEMS[id].kind) : ITEMS[id].kind === 'prop')
+    const ids = Object.keys(ITEMS).filter((id) => (ui.shopTab === 'seeds' ? ['seed', 'sapling', 'bait'].includes(ITEMS[id].kind) : ITEMS[id].kind === 'prop')
       && (!ITEMS[id].unlock || g.shrine.isAwake(ITEMS[id].unlock)));
     // today's specials first
     if (ui.shopTab === 'decor') ids.sort((a, b) => (g.buyPrice(b) < ITEMS[b].buy) - (g.buyPrice(a) < ITEMS[a].buy));
@@ -55,6 +58,12 @@ export function render(ui) {
       b.disabled = g.money < price;
       b.onclick = () => g.buy(id);
       right.appendChild(b);
+      if (ui.shopTab === 'seeds' && ITEMS[id].kind !== 'sapling') {
+        const b5 = el('button', 'btn five', '×5');
+        b5.disabled = g.money < price * 5;
+        b5.onclick = () => g.buy(id, 5);
+        right.appendChild(b5);
+      }
       list.appendChild(ui.row(id, right));
     }
   }

@@ -18,7 +18,6 @@ import { installFacades } from '../../src/systems/install.js';
 import { createCore } from '../../src/core/core.js';
 import { PRIO } from '../../src/core/bus.js';
 import { World, T } from '../../src/game/world.js';
-import { HOTBAR } from '../../src/game/data.js';
 
 const T0 = new Date(2026, 0, 15, 12).getTime();
 const same = (a, b, msg = 'same') => assert.deepEqual(a, b, msg);
@@ -72,7 +71,7 @@ function needs() {
   assert.equal(t.i.slot, 0);
   same(t.i.queue, []);
   assert.deepEqual([t.i.cooldown, t.i.hover], [0, null]);
-  assert.equal(t.i.tool(), 'hand');
+  assert.equal(t.i.tool(), 'seed_rice', 'the play kit holds the seeds');
   // two cores, two queues
   const other = boot();
   assert.notEqual(other.i.queue, t.i.queue);
@@ -86,30 +85,31 @@ function resolve() {
   const at = (dx, dz) => ({ x: m.x + dx, z: m.z + dz });
   const kind = (tile) => t.i.resolve(tile).kind;
 
-  // plain ground walks; the hoe tills grass and sand, not paths
+  // plain ground walks; the hoe (dig kit) tills grass and sand, not paths
   assert.equal(kind(at(0, 0)), 'walk');
-  t.i.slot = HOTBAR.indexOf('hoe');
+  t.i.setKit('dig');
   same(t.i.resolve(at(0, 0)), { kind: 'till', t: at(0, 0), icon: 'icons:hoe', label: 'Till' });
   t.world.set(m.x, m.z, T.PATH);
   assert.equal(kind(at(0, 0)), 'walk');
   t.world.set(m.x, m.z, T.SAND);
   assert.equal(kind(at(0, 0)), 'till');
-  t.i.slot = 0;
+  t.i.setKit('play');
 
-  // soil: no seed, the can, the seed in hand, the last seed used, any seed
+  // soil: no seed, the seed in hand, the last seed used, any seed; not while digging
   t.world.set(m.x + 1, m.z, T.SOIL);
   same(t.i.resolve(at(1, 0)), { kind: 'noseed', t: at(1, 0) });
   t.core.inv.give('seed_daikon', 2);
   same(t.i.resolve(at(1, 0)), { kind: 'plant', t: at(1, 0), seed: 'seed_daikon', icon: t.core.content.itemMap().get('seed_daikon').icon, label: 'Plant' });
   t.core.inv.give('seed_rice', 2);
-  t.i.slot = HOTBAR.indexOf('seed_rice');
+  t.i.selectSlot(0);
   assert.equal(t.i.resolve(at(1, 0)).seed, 'seed_rice');
-  t.i.slot = 0;
+  t.i.selectSlot(2); // tea: none in the bag
   t.fa.lastSeed = 'seed_rice';
   assert.equal(t.i.resolve(at(1, 0)).seed, 'seed_rice');
-  t.i.slot = HOTBAR.indexOf('can');
-  same(t.i.resolve(at(1, 0)), { kind: 'water', t: at(1, 0), icon: 'icons:can', label: 'Water' });
-  t.i.slot = 0;
+  t.i.setKit('dig');
+  assert.equal(kind(at(1, 0)), 'walk', 'the hoe does not plant');
+  t.i.setKit('play');
+  t.i.selectSlot(0);
 
   // crops: thirsty, watered (inspect), ripe
   const c = ripeCrop(t, m.x + 2, m.z, { progress: 1, wet: false });
@@ -143,13 +143,13 @@ function resolve() {
 
 function slots() {
   const t = boot();
-  t.i.selectSlot(3);
-  assert.equal(t.i.slot, 3);
-  assert.equal(t.i.tool(), 'rod');
+  t.i.selectSlot(2);
+  assert.equal(t.i.slot, 2);
+  assert.equal(t.i.tool(), 'seed_tea');
   same(t.flush(), ['inv:ui']);
-  t.i.selectSlot(HOTBAR.length);
+  t.i.selectSlot(t.i.hotbar().length);
   t.i.selectSlot(-1);
-  assert.equal(t.i.slot, 3);
+  assert.equal(t.i.slot, 2);
   same(t.flush(), []);
 
   // choosing a slot drops a cast line
@@ -169,6 +169,33 @@ function slots() {
   t.i.selectSlot(2);
   assert.equal(t.i.slot, 0);
   same(t.flush(), ['select:2']);
+}
+
+function kits() {
+  const t = boot();
+  same(t.i.hotbar().map((e) => e.id), ['seed_rice', 'seed_daikon', 'seed_tea']);
+  t.i.selectSlot(1);
+  t.i.setKit('dig');
+  same(t.i.hotbar().map((e) => e.id), ['hoe'], 'the land tools (terraform adds the shovel and the earth)');
+  assert.equal(t.i.inHand(), 'hoe');
+  t.i.setKit('play');
+  assert.equal(t.i.tool(), 'seed_daikon', 'the seed held before comes back');
+  assert.equal(t.i.inHand(), null, 'nothing in hand at rest');
+  // build mode puts the dig kit away
+  t.i.setKit('dig');
+  t.b.toggle(true);
+  assert.equal(t.i.kit, 'play');
+  t.b.toggle(false);
+
+  // the ribbon's chore: one tap harvests the whole field, nearest first
+  const m = meadow(t.world);
+  stand(t, m.x, m.z);
+  for (const dx of [3, 1, 2]) { t.world.set(m.x + dx, m.z, T.SOIL); ripeCrop(t, m.x + dx, m.z); }
+  const chore = t.core.todo.collect(t.core).find((e) => e.id === 'harvest');
+  assert.equal(chore.cta, 'Harvest all 3');
+  assert.equal(chore.onTap(), 3);
+  same(t.i.queue.map((a) => [a.kind, a.t.x - m.x]), [['harvest', 2], ['harvest', 3]], 'the nearest is harvested at once');
+  assert.equal(t.i.inHand(), null);
 }
 
 function tapping() {
@@ -292,6 +319,11 @@ function sweeping() {
   assert.equal(t.i.sweep(row(3)).kind, 'harvest');
   c.progress = 1;
   assert.equal(t.i.sweep(row(3)), null, 'the same tile is already queued');
+  // a bug on a tile is not chased: the sweep takes the first answer it can queue
+  t.core.as('wp99').resolvers.add({ id: 'bugish', priority: 93, fn: (tile) => (tile.x === m.x + 4 && tile.z === m.z + 3 ? { kind: 'catch', t: tile } : null) });
+  assert.equal(t.i.resolve(row(4)).kind, 'catch');
+  t.core.inv.give('seed_rice', 1);
+  assert.equal(t.i.sweep(row(4)).kind, 'plant');
   // not while fishing, not in build mode, not with a card open
   t.i.queue.length = 0;
   c.progress = 1; c.wet = false;
@@ -382,12 +414,12 @@ function performing() {
   t.i.perform({ kind: 'forage', t: at(2, 0) });
   assert.ok(t.flush().includes('forage:warabi'));
 
-  // fishing takes the rod in hand and casts
+  // fishing shows the rod in hand and casts
   const s = shore(t.world);
   stand(t, s.x, s.z);
   t.st.facing = Math.PI / 2;
   t.i.perform({ kind: 'fish', t: { x: s.x + 1, z: s.z } });
-  assert.equal(t.i.tool(), 'rod');
+  assert.equal(t.i.inHand(), 'rod');
   assert.ok(t.fi.cast);
   assert.ok(t.flush().includes('say:Cast into fresh water... wait for a bite!'));
   // an unknown kind does nothing but cool down
@@ -532,7 +564,7 @@ function arrivals() {
   const m = meadow(t.world);
   t.world.set(m.x + 1, m.z, T.GRASS);
   stand(t, m.x, m.z);
-  t.i.slot = HOTBAR.indexOf('hoe');
+  t.i.setKit('dig');
   t.flush();
   t.core.bus.emit('arrive', { action: { kind: 'till', t: { x: m.x + 1, z: m.z } } });
   assert.equal(t.world.get(m.x + 1, m.z), T.SOIL);
@@ -601,7 +633,7 @@ function tools() {
   same(says(), ['say:Something is already growing here.']);
   t.i.useTool(at(1, 2), 'rod');
   same(says(), ['say:Face the water to cast your line.']);
-  t.i.slot = HOTBAR.indexOf('hoe');
+  t.i.setKit('dig');
   t.i.useTool(at(2, 2));
   same(says(), ['say:Tilled the earth.'], 'the tool in hand is the default');
 }
@@ -627,9 +659,10 @@ function facade() {
   installFacades(game, SYSTEMS);
   const i = core.use('interact');
   assert.equal(game.slot, 0);
-  game.slot = 4;
-  assert.equal(i.slot, 4);
-  assert.equal(game.tool, 'seed_rice');
+  game.slot = 1;
+  assert.equal(i.slot, 1);
+  assert.equal(game.tool, 'seed_daikon');
+  assert.equal(game.kit, 'play');
   const q = [];
   game.queue = q;
   assert.equal(i.queue, q);
@@ -640,7 +673,7 @@ function facade() {
   same(i.hover, { x: 1, z: 2 });
   game.actionCooldown = 0;
   assert.equal(game.isBusy(), false);
-  for (const name of ['selectSlot', 'resolve', 'isBusy', 'action', 'clickTile', 'tap', 'enqueue', 'sweepTile', 'inspect', 'standTiles', 'startAction', 'perform', 'goAndAct', 'useTool']) {
+  for (const name of ['selectSlot', 'resolve', 'isBusy', 'action', 'clickTile', 'tap', 'enqueue', 'sweepTile', 'inspect', 'standTiles', 'startAction', 'perform', 'goAndAct', 'useTool', 'setKit', 'inHand']) {
     assert.equal(typeof game[name], 'function', name);
   }
   const m = meadow(core.world);
@@ -653,6 +686,7 @@ export default function () {
   needs();
   resolve();
   slots();
+  kits();
   tapping();
   queueing();
   sweeping();

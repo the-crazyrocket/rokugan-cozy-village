@@ -70,7 +70,7 @@ export default defineSystem({
       /** First seed we can plant: the one in hand (`tool`), the last used one, then any. */
       pickSeed(tool) {
         if (item(tool)?.kind === 'seed' && ctx.inv.count(tool) > 0) return tool;
-        if (s.lastSeed && ctx.inv.count(s.lastSeed) > 0) return s.lastSeed;
+        if (item(s.lastSeed)?.kind === 'seed' && ctx.inv.count(s.lastSeed) > 0) return s.lastSeed; // (the seed slot also holds saplings)
         return seeds().find((id) => ctx.inv.count(id) > 0) || null;
       },
 
@@ -217,7 +217,7 @@ export default defineSystem({
     // nothing is built on a crop
     ctx.guards.add('place', (p) => (p.cells.some((q) => api.crop(q.x, q.z)) ? 'crop' : null));
 
-    // what a tile is for: ripe crops are harvested, thirsty ones watered, soil planted (or watered with the can), grass tilled with the hoe
+    // what a tile is for: ripe crops are harvested, thirsty ones watered, soil planted with the seed in hand, grass tilled with the hoe (dig kit)
     ctx.resolvers.add({
       id: 'crop', priority: 70,
       fn(t) {
@@ -231,10 +231,8 @@ export default defineSystem({
     ctx.resolvers.add({
       id: 'soil', priority: 60,
       fn(t, ix) {
-        if (ctx.world.get(t.x, t.z) !== T.SOIL) return null;
-        const tool = ix.tool();
-        if (tool === 'can') return { kind: 'water', t, icon: 'icons:can', label: 'Water' };
-        const seed = api.pickSeed(tool);
+        if (ctx.world.get(t.x, t.z) !== T.SOIL || ix.kit === 'dig') return null;
+        const seed = api.pickSeed(ix.tool());
         if (seed) return { kind: 'plant', t, seed, icon: item(seed).icon, label: 'Plant' };
         return { kind: 'noseed', t };
       },
@@ -259,11 +257,10 @@ export default defineSystem({
     ctx.actions.add('harvest', { queueable: true, sweep: true, button: true, perform: (a) => { const c = api.crop(a.t.x, a.t.z); if (c && api.stage(c) >= RIPE) api.harvest(c); } });
     ctx.actions.add('water', { queueable: true, sweep: true, button: true, perform: (a, ix) => ix.useTool(a.t, 'can') });
     ctx.actions.add('plant', { queueable: true, sweep: true, button: true, perform: (a, ix) => { api.lastSeed = a.seed; ix.useTool(a.t, a.seed); } });
-    ctx.actions.add('till', { queueable: true, button: true, perform: (a, ix) => ix.useTool(a.t, 'hoe') });
+    ctx.actions.add('till', { queueable: true, sweep: true, button: true, perform: (a, ix) => ix.useTool(a.t, 'hoe') });
 
     const at = (t) => [t.x, t.z, props().at(t.x, t.z), api.crop(t.x, t.z), ctx.world.get(t.x, t.z)];
-    ctx.tools.add('can', { use: (t) => api.water(...at(t)) });
-    ctx.hotbar.add(hotbarEntry(ctx, 'can', 30));
+    ctx.tools.add('can', { use: (t) => api.water(...at(t)) }); // no slot: a thirsty crop is watered by tapping it
     ctx.content.crops.all().forEach(([id, def], i) => {
       const seed = def.seed || `seed_${id}`;
       ctx.tools.add(seed, { use: (t) => api.plant(...at(t), seed) });

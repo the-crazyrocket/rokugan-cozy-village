@@ -14,6 +14,7 @@ import { hudMixin } from '../ui/hud/index.js';
 import { dialogsMixin } from '../ui/dialogs.js';
 import { motionMixin } from '../ui/motion.js';
 import { todoMixin } from '../ui/todo.js';
+import { cursorMixin } from '../ui/cursor.js';
 import { LAZY, loadSheet } from '../ui/sheets/index.js';
 
 export class UI {
@@ -127,7 +128,8 @@ export class UI {
       return true;
     });
     this.actionT -= dt;
-    if (this.actionT <= 0) { this.updateAction(); this.updateBuildBar(); this.renderHud(); this.renderTodo(); this.actionT = 0.15; }
+    if (this.actionT <= 0) { this.updateAction(); this.updateBuildBar(); this.renderHud(); this.renderTodo(); this.actionT = 0.15; this.actionTick = (this.actionTick || 0) + 1; }
+    this.updateCursor(canvas);
     this.clockT -= dt;
     if (this.clockT <= 0) { this.updateClock(); this.clockT = 1; }
   }
@@ -203,7 +205,8 @@ export class UI {
     this.pendingSheet = name;
     loadSheet(this.game.core, name).then(() => { if (this.pendingSheet === name) show(); }, (e) => { this.pendingSheet = null; console.error(`sheet ${name} failed to load`, e); });
   }
-  openShop() { this.openModal('shop'); }
+  /** The stall, on `args.tab` ('sell' | 'seeds' | 'decor') if given. */
+  openShop(args) { if (args?.tab) this.shopTab = args.tab; this.openModal('shop'); }
   openBag() { this.openModal('bag'); }
   openTools() { this.openModal('tools'); }
   /** Today sheet; `away` adds a "while you were away" summary on top. */
@@ -272,4 +275,4 @@ export class UI {
   }
 }
 
-Object.assign(UI.prototype, iconMixin, fasttapMixin, toastMixin, fxMixin, dialogsMixin, hotbarMixin, actionButtonMixin, buildBarMixin, hudMixin, motionMixin, todoMixin);
+Object.assign(UI.prototype, iconMixin, fasttapMixin, toastMixin, fxMixin, dialogsMixin, hotbarMixin, actionButtonMixin, buildBarMixin, hudMixin, motionMixin, todoMixin, cursorMixin);

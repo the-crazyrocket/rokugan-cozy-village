@@ -2,8 +2,10 @@
 // Owns the hotbar slot, the queue of smart-tap actions, the cooldown between actions and the pointer's hover tile. Everything it acts on is
 // another system's api (needs): the player walks, build takes the taps in build mode. What a tile is for (resolvers), what each kind of action
 // does (actions) and how each tool is used (tools) are registered by the system that owns them; the resolvers and the actions get this api as
-// their second argument (tool(), equip(), useTool(), inspect()). This system keeps the walk fallback, the hand and the hoe (which picks greens
-// first), the hand's look at things, the number keys and the hotbar of the tools nobody else owns. Taking the controls (`playerMove { manual }`) or entering build mode empties the queue; reaching the end
+// their second argument (tool(), kit, useTool(), inspect()). This system keeps the walk fallback, the hand and the hoe (which picks greens
+// first), the hand's look at things, the number keys and the ribbon's chores (harvest everything ripe, water everything thirsty).
+// Taps are context-smart, so the hotbar holds only what a tap cannot guess: in the play kit the seed to plant, in the dig kit (G) the
+// land tool (hoe, shovel, earth). A hotbar entry names its kit (`kit`, default 'play'). Taking the controls (`playerMove { manual }`) or entering build mode empties the queue; reaching the end
 // of a walk (`arrive { action }`) performs the action that was waiting. The shop and shrine cards, floating labels, the queue chips and
 // the build bar's selection are events for the UI (`openSheet`, `floatLabel`, `queueChange`, `buildSelect`); whether a card is open is
 // asked with the `ui.modalOpen` filter. The frame step (the queue pump) is tick(dt), called by Game.update.
@@ -16,6 +18,8 @@ import { cheb, SHRINE_TYPES, hotbarEntry } from './shared.js';
 const QUEUE_MAX = 24; // a swipe across a whole field queues one action per tile
 const COOLDOWN = 0.3; // seconds between one action and the next queued one
 const RIPE = 3; // the stage of a ripe crop (farming's RIPE)
+const SHOW_S = 1.2; // seconds the tool an action used stays in the player's hand
+const SHOWN = { water: 'can', till: 'hoe', fish: 'rod' }; // the tool mesh each kind of action shows
 
 // Game's side of the facade: `this` is the Game, which reads the api ungated
 const NAME = 'interact';
@@ -31,6 +35,9 @@ export default defineSystem({
     actionCooldown: field('cooldown'),
     hoverTile: field('hover'),
     tool: { get() { return this.core.use(NAME).tool(); } },
+    kit: { get() { return this.core.use(NAME).kit; } },
+    setKit: call('setKit'),
+    inHand: call('inHand'),
     selectSlot: call('selectSlot'),
     resolve: call('resolve'),
     isBusy: call('isBusy'),
@@ -48,7 +55,8 @@ export default defineSystem({
   },
   api(ctx) {
     // slot: index into the hotbar registry; queue: actions waiting their turn; cooldown: seconds left before the next one; hover: the tile under the pointer
-    const s = Object.assign(ctx.state, { slot: 0, held: null, queue: [], cooldown: 0, hover: null }); // held: the id in hand, so the slot follows it
+    // kit: 'play' | 'dig'; held: kit -> the id in hand, so the slot follows it; shown: the tool the last action used, for shownT seconds
+    const s = Object.assign(ctx.state, { slot: 0, kit: 'play', held: {}, queue: [], cooldown: 0, hover: null, shown: null, shownT: 0 });
     const props = () => ctx.use('props');
     const player = () => ctx.use('player');
     const build = () => ctx.use('build');
@@ -60,6 +68,7 @@ export default defineSystem({
     const crop = (type) => ctx.content.crops.get(type);
     const modal = () => !!ctx.bus.apply('ui.modalOpen', false);
     const label = (text, x, z) => { if (text) ctx.bus.emit('floatLabel', { text, x, z }); };
+    const busyElsewhere = () => !!ctx.bus.apply('interact.busy', false);
 
     const api = {
       get slot() { return s.slot; }, set slot(v) { s.slot = v; },
@@ -67,41 +76,61 @@ export default defineSystem({
       get cooldown() { return s.cooldown; }, set cooldown(v) { s.cooldown = v; },
       get hover() { return s.hover; }, set hover(v) { s.hover = v; },
 
-      /** The hotbar entries in order (those whose `when` holds), the tools of the toolbar. */
+      get kit() { return s.kit; },
+
+      /** The hotbar entries of the kit in use, in order (those whose `when` holds). */
       hotbar() {
-        const all = ctx.hotbar.all();
+        const all = ctx.hotbar.all().filter((e) => (e.kit ?? 'play') === s.kit);
         return all.some((e) => e.when) ? all.filter((e) => !e.when || ctx.cond.evaluate(e.when, ctx.condCtx())) : all;
       },
 
-      /** The id of the tool in hand. */
+      /** The id of the tool in hand: in the play kit the seed to plant, in the dig kit the land tool. */
       tool: () => api.hotbar()[s.slot]?.id,
 
-      /** Takes the tool `id` in hand. */
+      /** Takes the tool `id` of the kit in use in hand. */
       equip(id) {
         const i = api.hotbar().findIndex((e) => e.id === id);
         if (i < 0 || i === s.slot) return;
         s.slot = i;
-        s.held = id;
+        s.held[s.kit] = id;
         ctx.invalidate('ui');
+      },
+
+      /** Switches the hotbar to kit 'play' or 'dig'; the tool last held in that kit comes back. */
+      setKit(kit) {
+        if (kit === s.kit) return;
+        s.kit = kit;
+        const i = api.hotbar().findIndex((e) => e.id === s.held[kit]);
+        s.slot = Math.max(0, i);
+        fishing().cancel();
+        ctx.invalidate('ui');
+      },
+
+      /** The tool the player visibly holds: the land tool while digging, the rod while fishing, else what the last action used. */
+      inHand() {
+        if (s.kit === 'dig') return api.tool();
+        if (fishing().cast) return 'rod';
+        return s.shownT > 0 ? s.shown : null;
       },
 
       selectSlot(i) {
         if (build().mode === 'build') { ctx.bus.emit('buildSelect', { index: i }); return; }
         if (i < 0 || i >= api.hotbar().length) return;
         s.slot = i;
-        s.held = api.hotbar()[i].id;
+        s.held[s.kit] = api.hotbar()[i].id;
         fishing().cancel();
         ctx.invalidate('ui');
       },
 
       /**
        * What tapping / using tile t should do, by context: the highest resolver that has an answer (shop 100, shrine 90, forage 80, crop 70,
-       * soil 60, fish 50, prop-inspect 40, till 30), else walk. The selected tool only matters where it clearly applies
-       * (hoe on grass, can on soil, a chosen seed).
+       * soil 60, fish 50, prop-inspect 40, till 30), else walk. The tool in hand only matters where a tap cannot guess: the seed
+       * to plant, and the land tools of the dig kit.
        */
       resolve(t) { return ctx.resolvers.resolve(t, api) || { kind: 'walk', t }; },
 
-      isBusy() { return !!player().state.pending || !!fishing().cast || s.cooldown > 0 || s.queue.length > 0; },
+      /** Walking to act, fishing, cooling down, a queue, or another system's long action (`interact.busy` filter: felling a tree). */
+      isBusy() { return !!player().state.pending || !!fishing().cast || s.cooldown > 0 || s.queue.length > 0 || busyElsewhere(); },
 
       /** Space / action button: smart action on the tile in front of the player. */
       action() {
@@ -145,11 +174,11 @@ export default defineSystem({
         return true;
       },
 
-      /** Swipe across the field: queue the obvious farm action on each tile passed over. */
+      /** Swipe across the field: queue the obvious farm action on each tile passed over (a bug sitting there is not chased). */
       sweep(t) {
         if (build().mode !== 'play' || fishing().cast || modal()) return null;
-        const a = api.resolve(t);
-        if (!ctx.sweeps.has(a.kind)) return null;
+        const a = ctx.resolvers.resolve(t, api, (r) => ctx.sweeps.has(r.kind));
+        if (!a) return null;
         if (a.kind === 'plant') {
           // don't queue more plantings than there are seeds
           const planned = [player().state.pending, ...s.queue].filter((q) => q?.kind === 'plant' && q.seed === a.seed).length;
@@ -209,17 +238,35 @@ export default defineSystem({
       },
 
       perform(a) {
+        if (SHOWN[a.kind]) { s.shown = SHOWN[a.kind]; s.shownT = SHOW_S; }
         ctx.actions.get(a.kind)?.perform(a, api);
         s.cooldown = COOLDOWN;
       },
 
+      /** Queues `kind` on each tile, nearest first and each next one nearest to the last (the ribbon's chores). -> how many */
+      queueAll(tiles, kind) {
+        let at = player().cell(), n = 0;
+        const left = [...tiles];
+        while (left.length && s.queue.length < QUEUE_MAX) {
+          let bi = 0;
+          left.forEach((t, i) => { if (Math.hypot(t.x - at.x, t.z - at.z) < Math.hypot(left[bi].x - at.x, left[bi].z - at.z)) bi = i; });
+          const [t] = left.splice(bi, 1);
+          const a = api.resolve(t);
+          if (a.kind === kind && api.enqueue(a)) n++;
+          at = t;
+        }
+        ctx.bus.emit('queueChange');
+        return n;
+      },
+
       goAndAct(t) { api.startAction(api.resolve(t)); },
 
-      useTool(t, tool = api.tool()) {
+      /** Uses `tool` on tile t: by default the land tool while digging, else the hand. */
+      useTool(t, tool = s.kit === 'dig' ? api.tool() : 'hand') {
         const { x, z } = t;
         const p = props().at(x, z);
         const c = farming().crop(x, z);
-        if ((p && p.type === 'stall') || ctx.use('market').isMerchant(x, z)) { ctx.bus.emit('openSheet', { name: 'shop' }); return; }
+        if ((p && p.type === 'stall') || ctx.use('market').isMerchant(x, z)) { ctx.bus.emit('openSheet', { name: 'shop', args: { tab: ctx.use('market').haul().n ? 'sell' : 'seeds' } }); return; }
         if (p && p.type === 'well' && tool !== 'can') { ctx.say('The well water is cool and clear.'); return; }
         if (c && farming().stage(c) >= RIPE && tool !== 'can') { farming().harvest(c); return; }
         ctx.tools.get(tool)?.use(t, api);
@@ -228,8 +275,9 @@ export default defineSystem({
       /** Every frame: the cooldown runs down, then the next queued action starts once the player is free. */
       tick(dt) {
         s.cooldown = Math.max(0, s.cooldown - dt);
+        s.shownT = Math.max(0, s.shownT - dt);
         const pl = player().state;
-        if (!pl.pending && !pl.path && !fishing().cast && s.cooldown <= 0 && s.queue.length && !modal()) api.startAction(s.queue.shift());
+        if (!pl.pending && !pl.path && !fishing().cast && s.cooldown <= 0 && s.queue.length && !modal() && !busyElsewhere()) api.startAction(s.queue.shift());
       },
     };
     // the tools this system owns: the hand looks at things, the hoe digs up greens under the tile before it tills
@@ -263,18 +311,34 @@ export default defineSystem({
     ctx.actions.add('noseed', { queueable: false, perform: (a) => api.inspect(a) });
     ctx.tools.add('hand', { use: s.tools.hand });
     ctx.tools.add('hoe', { use: s.tools.hoe });
-    ctx.hotbar.add(hotbarEntry(ctx, 'hand', 10));
-    ctx.hotbar.add(hotbarEntry(ctx, 'hoe', 20));
+    ctx.hotbar.add({ ...hotbarEntry(ctx, 'hoe', 20), kit: 'dig' });
     for (const code of ['Space', 'KeyE', 'Enter']) ctx.keys.bind(code, () => api.action());
+    ctx.keys.bind('KeyG', () => { if (build().mode === 'play') api.setKit(s.kit === 'dig' ? 'play' : 'dig'); });
     // 1-9 pick a tool (or a prop in build mode); building and the bag have their letters (B, I)
     for (let n = 1; n <= 9; n++) ctx.keys.bind(`Digit${n}`, () => api.selectSlot(n - 1));
     // a slot that appears or goes (seeds in the bag, a gift from a visitor) shifts the others: the tool in hand stays in hand
-    const follow = () => { const i = s.held ? ctx.state.api.hotbar().findIndex((e) => e.id === s.held) : -1; if (i >= 0) s.slot = i; };
+    const follow = () => { const i = s.held[s.kit] ? api.hotbar().findIndex((e) => e.id === s.held[s.kit]) : -1; if (i >= 0) s.slot = i; };
     ctx.bus.on('itemGain', follow, { priority: PRIO.STATE });
     ctx.bus.on('itemLoss', follow, { priority: PRIO.STATE });
     // the controls taken by hand drop whatever was queued; so does build mode
     ctx.bus.on('playerMove', (p) => { if (p.manual) s.queue.length = 0; }, { priority: PRIO.STATE });
-    ctx.bus.on('buildMode', () => { s.queue.length = 0; }, { priority: PRIO.STATE });
+    ctx.bus.on('buildMode', () => { s.queue.length = 0; api.setKit('play'); }, { priority: PRIO.STATE });
+    // the ribbon's chores: one tap queues the whole field
+    const farming = () => ctx.use('farming');
+    ctx.todo.add({
+      id: 'harvest', priority: 70,
+      when() {
+        const ripe = farming().ripe();
+        return ripe.length ? { icon: 'icons:basket', text: `${ripe.length} ${ripe.length === 1 ? 'crop is' : 'crops are'} ready · tap to harvest`, cta: `Harvest ${ripe.length === 1 ? 'it' : `all ${ripe.length}`}`, onTap: () => api.queueAll(ripe, 'harvest') } : null;
+      },
+    });
+    ctx.todo.add({
+      id: 'water', priority: 65,
+      when() {
+        const dry = farming().crops().filter((c) => !c.wet && farming().stage(c) < RIPE);
+        return dry.length ? { icon: 'icons:can', text: `${dry.length} thirsty ${dry.length === 1 ? 'crop' : 'crops'} · tap to water`, cta: `Water ${dry.length === 1 ? 'it' : `all ${dry.length}`}`, onTap: () => api.queueAll(dry, 'water') } : null;
+      },
+    });
     // the end of a walk with an action waiting
     ctx.bus.on('arrive', (p) => api.perform(p.action), { priority: PRIO.GAME });
   },

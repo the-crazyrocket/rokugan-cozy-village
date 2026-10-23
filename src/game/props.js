@@ -29,6 +29,8 @@ export class PropManager {
     // a prop stands on the level of its land cells (flat, by the terrain rules); a bridge on the sea-level shore
     this.view.baseY = (p) => { const c = p.cells.find((q) => world.isLand(q.x, q.z)); return c ? world.levelY(c.x, c.z) : 0; };
     this.baseY = this.view.baseY;
+    // how big a tree is drawn: its growth, when the trees system runs
+    this.view.growth = (p) => (core.systems.get('trees') ? core.use('trees').scale(p.id) : 1);
     this.group = this.view.group;
     this.geos = this.view.geos;
     this.mats = this.view.mats;

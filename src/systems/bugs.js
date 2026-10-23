@@ -4,7 +4,6 @@
 // Saved in ext.bugs: { hour, taken: [slot indexes caught this hour] }; fishing's catch counter keeps the book.
 import { defineSystem } from '../core/system.js';
 import { createRng } from '../core/rng.js';
-import { hotbarEntry } from './shared.js';
 import { T } from '../world/kinds.js';
 
 const HOUR = 3600e3;
@@ -93,11 +92,10 @@ export default defineSystem({
   init(ctx) {
     const { api } = ctx.state;
     ctx.tools.add('net', { use: (t) => api.catch(t.x, t.z) });
-    ctx.hotbar.add({ ...hotbarEntry(ctx, 'net', 45, false), when: { has: 'net' } }); // in the more sheet, with the land tools
     ctx.resolvers.add({
-      id: 'bug', priority: 93, // with the net in hand, a bug is caught before anything under it is looked at
-      fn(t, ix) {
-        if (ix.tool() !== 'net') return null;
+      id: 'bug', priority: 93, // with a net in the bag, a bug is caught before anything under it is looked at
+      fn(t) {
+        if (!ctx.inv.count('net')) return null;
         const b = api.at(t.x, t.z);
         return b ? { kind: 'net', t, icon: ctx.content.bugs.get(b.id).icon, label: 'Catch' } : null;
       },

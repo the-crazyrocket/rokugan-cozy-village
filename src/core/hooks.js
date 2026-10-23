@@ -16,11 +16,11 @@ const HUD_SLOTS = ['toolbar', 'preview', 'shutter', 'corner'];
 /** Registry configs. field = name of the key property, arg = key is the first argument, sort = [property, direction]. */
 export const REGISTRIES = {
   tools: { field: 'id', arg: true, spec: open({ use: 'function', mesh: 'any?', group: 'string?' }) },
-  hotbar: { field: 'id', sort: ['order', 1], spec: open({ id: 'string', order: 'number', name: 'string?', hint: 'string?', icon: 'any?', compact: 'any?', when: 'cond?' }) },
+  hotbar: { field: 'id', sort: ['order', 1], spec: open({ id: 'string', order: 'number', name: 'string?', hint: 'string?', icon: 'any?', compact: 'any?', kit: { enum: ['play', 'dig'], optional: true }, when: 'cond?' }) },
   resolvers: {
     field: 'id', sort: ['priority', -1], spec: open({ id: 'string', priority: 'number', fn: 'function' }),
-    // highest priority non-null action wins; null means walk
-    extra: (api) => ({ resolve(t, ctx) { for (const e of api.all()) { const a = e.fn(t, ctx); if (a) return a; } return null; } }),
+    // highest priority non-null action wins (that `accept` takes, if given); null means walk
+    extra: (api) => ({ resolve(t, ctx, accept) { for (const e of api.all()) { const a = e.fn(t, ctx); if (a && (!accept || accept(a))) return a; } return null; } }),
   },
   actions: { field: 'kind', arg: true, spec: open({ perform: 'function', range: 'number?', queueable: 'any?', sweep: 'any?', button: 'any?' }) },
   guards: {
@@ -40,7 +40,7 @@ export const REGISTRIES = {
   },
   todo: {
     field: 'id', sort: ['priority', -1], spec: open({ id: 'string', priority: 'number', when: 'function' }),
-    // what to show now: [{ id, priority, icon, text, onTap }]
+    // what to show now: [{ id, priority, icon, text, cta (a short button label), onTap }]
     extra: (api) => ({ collect(ctx) { const out = []; for (const e of api.all()) { const r = e.when(ctx); if (r) out.push({ id: e.id, priority: e.priority, ...r }); } return out; } }),
   },
   today: { field: 'id', verb: 'addSection', sort: ['order', 1], spec: open({ id: 'string', order: 'number', render: 'function' }) },

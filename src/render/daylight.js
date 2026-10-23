@@ -99,7 +99,7 @@ export class Daylight {
     const u = this.post.material.uniforms;
     u.uTint.value.set(...k.tint); u.uExposure.value = k.exp; u.uSat.value = k.sat; u.uNight.value = k.night;
     paintUniforms.uUnlit.value.setRGB(...k.unlit);
-    for (const layer of [this.game.veg, ...Object.values(this.game.cropLayers), this.game.canopy, this.game.gatherLayer, this.game.visitorLayer, this.game.bugLayer]) layer.material.uniforms.uLight.value.setRGB(...k.unlit);
+    for (const layer of [this.game.veg, ...Object.values(this.game.cropLayers), this.game.canopy, this.game.gatherLayer, this.game.visitorLayer, this.game.bugLayer, this.game.fellLayer]) layer.material.uniforms.uLight.value.setRGB(...k.unlit);
     this.game.particles.night = k.night;
     // sun arcs from the east in the morning to the west in the evening; a fixed high moon at night
     if (h > 5 && h < 20) {

@@ -60,20 +60,22 @@ export default defineSystem({
 
       /** Store a placed prop back into the inventory. */
       pickUp(p, { quiet = false } = {}) {
-        if (def(p.type).fixed) { ctx.say('The merchant would miss their stall!'); return false; }
+        if (def(p.type).fixed) { ctx.say(p.type === 'stall' ? 'The merchant would miss their stall!' : p.type === 'stump' ? 'A stump stays put: dig it out with the shovel.' : 'That stays where it is.'); return false; }
         const pc = ctx.use('player').cell();
         if (p.type === 'bridge' && p.cells.some((c) => c.x === pc.x && c.z === pc.z)) { ctx.say('Step off the bridge first.'); return false; }
+        // what goes back into the bag (`build.pickupItem` filter: a young tree is its sapling again)
+        const back = ctx.bus.apply('build.pickupItem', `prop_${p.type}`, { id: p.id, prop: p.type });
         props().remove(p, { to: 'bag' });
-        give(`prop_${p.type}`);
+        give(back);
         ctx.sfx('pickup');
         ctx.fx.burst(p.cx, 0.4, p.cz, { color: '#f4ead2', n: 14, up: 0.8 });
-        if (!quiet) ctx.say(`Picked up ${def(p.type).name.toLowerCase()}.`, item(`prop_${p.type}`).icon);
+        if (!quiet) ctx.say(`Picked up ${item(back).name.toLowerCase()}.`, item(back).icon);
         return true;
       },
 
       /** Rotate a placed prop in place (if it still fits). */
       rotateProp(p) {
-        if (def(p.type).fixed) { ctx.say('Hana likes her stall just where it is.'); return false; }
+        if (def(p.type).fixed) { ctx.say(p.type === 'stall' ? 'Hana likes her stall just where it is.' : 'That stays where it is.'); return false; }
         const rot = (p.rot + 1) % 4;
         if (!props().canPlace(p.type, p.x, p.z, rot, { ignoreId: p.id, via: 'move' })) { ctx.say('No room to rotate it here.'); return false; }
         const { type, x, z, id } = p;

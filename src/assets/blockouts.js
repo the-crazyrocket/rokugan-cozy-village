@@ -11,6 +11,7 @@ import './blockouts/base/terrain.js';
 import './blockouts/base/workshop.js';
 import './blockouts/base/characters.js';
 import './blockouts/base/kitchen.js';
+import './blockouts/base/trees.js';
 
 export { BLOCKOUTS, defineBlockout } from './blockouts/registry.js';
 export { BRIDGE_LEN, BRIDGE_DECK } from './blockouts/base/crossings.js';

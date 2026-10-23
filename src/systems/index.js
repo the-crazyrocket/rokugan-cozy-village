@@ -20,7 +20,8 @@ import villagers from './villagers.js';
 import visitors from './visitors.js';
 import kitchen from './kitchen.js';
 import bugs from './bugs.js';
+import trees from './trees.js';
 import interact from './interact.js';
 
-export const systems = [props, build, fishing, shrine, stats, daily, market, requests, forage, farming, player, terrainrules, terraform, gather, reclaim, craft, projects, villagers, visitors, kitchen, bugs, interact];
+export const systems = [props, build, fishing, shrine, stats, daily, market, requests, forage, farming, player, terrainrules, terraform, gather, reclaim, craft, projects, villagers, visitors, kitchen, bugs, trees, interact];
 export default systems;

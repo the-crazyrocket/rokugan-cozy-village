@@ -62,6 +62,13 @@ export function render(ui, ctx, args) {
     for (const name of a.built || []) lines.push(`Kenji finished ${name.toLowerCase()}!`);
     for (const name of [...new Set(a.visited || [])]) lines.push(`${name} came by and left a gift.`);
     box.innerHTML = `<b>Welcome back!</b>${lines.map((l) => `<span>${l}</span>`).join('')}`;
+    // the first thing to do, one tap away (the ribbon's top chore)
+    const top = g.core.todo.collect(g.core).find((e) => e.onTap);
+    if (top) {
+      const go = el('button', 'btn big go', `${top.icon ? ui.iconHTML(top.icon, 'icon tiny') : ''}<span>${top.cta ?? top.text}</span>`);
+      go.onclick = () => { ui.closeModal(); top.onTap(); };
+      box.appendChild(go);
+    }
     body.appendChild(box);
   }
 

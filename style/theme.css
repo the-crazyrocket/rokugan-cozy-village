@@ -62,7 +62,7 @@ body.build-mode #btn-build { background: var(--grain), linear-gradient(#d4583c, 
 .slot:active { transform: translateY(1px) scale(.96); }
 .slot .count { color: var(--wood-edge); font-weight: 700; text-shadow: 0 0 3px #fff8e6, 0 0 3px #fff8e6, 0 0 2px #fff8e6; }
 .slot .key { color: var(--wood); font-weight: 700; }
-#tool-hint { font-weight: 700; letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0,0,0,.8), 0 0 10px rgba(0,0,0,.35); }
+#tool-hint { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0,0,0,.8), 0 0 10px rgba(0,0,0,.35); }
 
 /* ---------- the action button: a red lacquer seal with a gold rim */
 #btn-action {
@@ -151,3 +151,7 @@ body.build-mode #btn-build { background: var(--grain), linear-gradient(#d4583c, 
   .card.sheet .grabber::after { content: ""; display: block; width: 48px; height: 5px; margin: 0 auto; border-radius: 3px; background: rgba(255,240,210,.5); }
   .card.sheet .card-head { padding-top: 6px; background: var(--fibres), linear-gradient(180deg, #34467a, var(--indigo) 60%, #24315a); }
 }
+
+/* the welcome-back summary's one-tap chore, and the shop's buy-five */
+.away .btn.go { margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.five { padding-left: 10px; padding-right: 10px; }

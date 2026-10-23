@@ -15,7 +15,7 @@ export function render(ui) {
     if (it.kind === 'prop') {
       c.classList.add('clickable'); c.title = 'Place in build mode';
       c.onclick = () => { ui.closeModal(); g.buildSel = id; g.toggleBuild(true); };
-    } else if (it.kind === 'seed') {
+    } else if (it.kind === 'seed' || it.kind === 'sapling') {
       c.classList.add('clickable');
       c.onclick = () => { ui.closeModal(); g.selectSlot(ui.slotOf(id)); g.lastSeed = id; };
     }

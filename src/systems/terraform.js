@@ -116,8 +116,8 @@ export default defineSystem({
     ctx.actions.add('pile', { queueable: true, sweep: true, button: true, perform: (a, ix) => ix.useTool(a.t, 'earth') });
     ctx.tools.add('shovel', { use: (t, ix) => { ctx.use('player').swing(); api.lower(t.x, t.z); } });
     ctx.tools.add('earth', { use: (t) => { ctx.use('player').swing(); api.raise(t.x, t.z); } });
-    // on a phone both live in the more sheet: the compact bar's five slots stay hand, hoe, can, rod and seeds
-    ctx.hotbar.add(hotbarEntry(ctx, 'shovel', 46, false));
-    ctx.hotbar.add({ ...hotbarEntry(ctx, 'earth', 47, false), hint: 'Pile the ground up a level, or fill a pond back in' });
+    // the dig kit, with the hoe
+    ctx.hotbar.add({ ...hotbarEntry(ctx, 'shovel', 46), kit: 'dig' });
+    ctx.hotbar.add({ ...hotbarEntry(ctx, 'earth', 47), kit: 'dig', hint: 'Pile the ground up a level, or fill a pond back in' });
   },
 });

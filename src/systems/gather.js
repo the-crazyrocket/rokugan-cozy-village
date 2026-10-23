@@ -123,7 +123,7 @@ export default defineSystem({
     });
     ctx.resolvers.add({
       id: 'shake', priority: 42, // with the hand, before a tree is looked at
-      fn(t, ix) { return ix.tool() === 'hand' && api.shakable(t.x, t.z) ? { kind: 'shake', t, icon: 'icons3:wood', label: 'Shake' } : null; },
+      fn(t) { return api.shakable(t.x, t.z) ? { kind: 'shake', t, icon: 'icons3:wood', label: 'Shake' } : null; },
     });
     ctx.actions.add('gather', { queueable: true, sweep: true, perform: (a) => api.take(a.t.x, a.t.z) });
     ctx.actions.add('shake', { queueable: true, perform: (a) => api.shake(a.t.x, a.t.z) });

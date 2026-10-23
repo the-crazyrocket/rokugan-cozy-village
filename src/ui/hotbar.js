@@ -1,7 +1,7 @@
 import { ITEMS } from '../game/data.js';
 import { $, el } from './dom.js';
 
-export const CORE_SLOTS = 5; // the compact bar's own tool slots (hand, hoe, can, rod, seeds); further tools go to the more sheet
+export const CORE_SLOTS = 5; // the compact bar's own tool slots; further tools go to the more sheet
 
 /**
  * Where each hotbar entry goes. Desktop shows every entry as a slot. The compact bar has one slot per entry that asks for its own
@@ -60,7 +60,15 @@ export const hotbarMixin = {
         this.hotbar.appendChild(s);
       });
     } else {
+      // the play kit holds the seeds, the dig kit the land tools (taps do the rest by context);
       // compact: a slot for each entry that asks for its own (compact: true) and one for each group of entries (compact: 'seeds')
+      const dig = g.kit === 'dig';
+      if (dig) {
+        const done = el('button', 'slot special done', '<span class="glyph">✓</span><span class="tip">Done digging (G)</span>');
+        done.dataset.item = 'done';
+        done.onclick = () => g.setKit('play');
+        this.hotbar.appendChild(done);
+      }
       const bar = this.bar();
       const { slots, more } = toolLayout(bar, { compact, groupOf: (e) => this.groupOf(e) });
       slots.forEach((id, i) => {
@@ -70,11 +78,16 @@ export const hotbarMixin = {
         const s = el('button', 'slot' + (g.slot === idx ? ' sel' : '') + ((it.kind === 'seed' || it.kind === 'material') && !g.count(id) ? ' empty' : ''));
         s.dataset.item = id;
         s.innerHTML = this.iconHTML(it.icon) + `<span class="key">${i + 1}</span>`
-          + (it.kind === 'seed' || it.kind === 'material' ? `<span class="count">${g.count(id)}</span>` : '') + `<span class="tip">${id === 'hand' && compact ? 'Hand (auto)' : it.name}</span>`;
+          + (it.kind === 'seed' || it.kind === 'material' ? `<span class="count">${g.count(id)}</span>` : '') + `<span class="tip">${it.name}</span>`;
         s.onclick = () => { this.closeSeedPicker(); g.selectSlot(idx); };
         this.hotbar.appendChild(s);
       });
       if (more.length) this.hotbar.appendChild(this.moreSlot(more));
+      if (dig) { this.renderHint(); return; }
+      const d = el('button', 'slot special', `${this.iconHTML('icons3:shovel')}<span class="key">G</span><span class="tip">Dig (G)</span>`);
+      d.dataset.item = 'dig';
+      d.onclick = () => { this.closeSeedPicker(); g.setKit('dig'); };
+      this.hotbar.appendChild(d);
       const b = el('button', 'slot special', `${this.iconHTML('asset:minka')}<span class="key">B</span><span class="tip">Build (B)</span>`);
       b.dataset.item = 'build';
       b.onclick = () => { this.closeSeedPicker(); g.toggleBuild(true); };
@@ -87,13 +100,20 @@ export const hotbarMixin = {
         this.hotbar.appendChild(bag);
       }
     }
+    this.renderHint();
+  },
+
+  renderHint() {
+    const g = this.game;
     this.hotbar.querySelector('.slot.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-    const tool = this.toolInfo(g.mode === 'build' ? 'hand' : g.tool);
+    const tool = this.toolInfo(g.tool);
     $('#tool-hint').textContent = g.mode === 'build'
       ? (g.buildSel === 'pickup'
         ? (this.touch ? 'Tap a decoration to move, rotate or store it' : 'Click a prop to pick it up')
         : (this.touch ? `Tap to preview ${ITEMS[g.buildSel].name.toLowerCase()}, tap again or ✓ to place` : `Click to place ${ITEMS[g.buildSel].name.toLowerCase()} · R to rotate`))
-      : (this.touch ? 'Drag to walk · tap things to use them' : `${tool.name}${tool.hint ? ' — ' + tool.hint : ' — plant on tilled soil'}`);
+      : g.kit === 'dig'
+        ? (this.touch ? `${tool.name}${tool.hint ? ' — ' + tool.hint : ''}` : `${tool.name}${tool.hint ? ' — ' + tool.hint : ''} · click or drag over the ground`)
+        : (this.touch ? 'Tap to go · swipe the field to tend it' : `${tool.name}${tool.hint ? ' — ' + tool.hint : ' — plant on tilled soil'} · click to go or use, drag over the field to tend it`);
   },
 
   /** Compact hotbar: the one slot for the tools in `more`; it shows the one in hand, and a tap opens the tools sheet. */
@@ -113,7 +133,7 @@ export const hotbarMixin = {
     const SEEDS = this.seeds();
     const selSeed = SEEDS.includes(g.tool) ? g.tool : (g.lastSeed && SEEDS.includes(g.lastSeed) ? g.lastSeed : SEEDS.find((s) => g.count(s) > 0) || SEEDS[0]);
     const sel = SEEDS.includes(g.tool);
-    const s = el('button', 'slot' + (sel ? ' sel' : '') + (g.count(selSeed) ? '' : ' empty'));
+    const s = el('button', 'slot' + (g.count(selSeed) ? '' : ' empty'));
     s.dataset.item = 'seeds';
     s.innerHTML = this.iconHTML(ITEMS[selSeed].icon) + `<span class="count">${g.count(selSeed)}</span><span class="more">▴</span><span class="tip">Seeds</span>`;
     s.onclick = () => {

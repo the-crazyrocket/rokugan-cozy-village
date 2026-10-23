@@ -30,6 +30,7 @@ import './base/villagers.js';
 import './base/visitors.js';
 import './base/kitchen.js';
 import './base/bugs.js';
+import './base/trees.js';
 import '../packs/index.js';
 import { content as registries } from '../core/content.js';
 

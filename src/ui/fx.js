@@ -1,6 +1,6 @@
 import { $, el } from './dom.js';
 
-// Touch feedback laid over the canvas: ripples, the joystick, float labels and the queue chips.
+// Touch feedback laid over the canvas: ripples, float labels and the queue chips.
 export const fxMixin = {
   ripple(x, y, long = false) {
     const r = el('div', 'ripple' + (long ? ' long' : ''));
@@ -17,15 +17,6 @@ export const fxMixin = {
     const l = { e, x: x + 0.5, z: z + 0.5, t: 0 };
     this.labels.push(l);
     this.placeAt(e, l.x, 0.9, l.z);
-  },
-
-  joystick(s) {
-    const j = $('#joy');
-    if (!s) { j.classList.add('hidden'); return; }
-    j.classList.remove('hidden');
-    j.style.left = `${s.ox}px`; j.style.top = `${s.oy}px`;
-    const k = j.querySelector('.knob');
-    k.style.transform = `translate(${s.x - s.ox}px, ${s.y - s.oy}px)`;
   },
 
   placeAt(e, x, y, z, dy = 0) {

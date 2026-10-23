@@ -134,21 +134,20 @@ try {
     return null;
   });
   assert.ok(field, 'grass tile next to the field');
-  await page.keyboard.press('Digit2'); // hoe
+  await page.keyboard.press('KeyG'); // the dig kit: the hoe is its first tool
   s = await G((t) => __game.tileToScreen(t.x, t.z), field);
   await page.mouse.click(s.x, s.y);
   await page.waitForFunction((t) => __game.game.world.get(t.x, t.z) === 4, field, { timeout: 40000 });
   log('tilled', field);
+  await page.keyboard.press('KeyG'); // back to the seeds
   await page.keyboard.press(`Digit${await G(() => document.querySelector('#hotbar .slot[data-item="seed_rice"] .key').textContent)}`); // rice seeds
   await page.keyboard.press('Space'); // player is facing the tilled tile
   await page.waitForFunction((t) => !!__game.game.crop(t.x, t.z), field, { timeout: 10000 });
-  await page.keyboard.press('Digit3'); // watering can
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Space'); // the new crop is thirsty: Space waters it, no can to pick
   await page.waitForFunction((t) => __game.game.crop(t.x, t.z).wet === true, field, { timeout: 10000 });
   log('planted + watered rice');
   // harvest the ripe daikon of the starter field with a click
   const daikonBefore = await G(() => __game.game.count('daikon'));
-  await page.keyboard.press('Digit1');
   s = await G(() => __game.tileToScreen(14 + __game.O, 26 + __game.O));
   await page.mouse.click(s.x, s.y);
   await page.waitForFunction((n) => __game.game.count('daikon') > n, daikonBefore, { timeout: 30000 });
@@ -173,8 +172,7 @@ try {
   assert.equal(await G(() => __game.game.stage(__game.game.crop(11 + __game.O, 28 + __game.O))), 3, 'rice ripe after 40 minutes');
   log('time skip ripened the rice');
 
-  // ---- fishing: click a nearby water tile with the rod, wait for the bite, press Space
-  await page.keyboard.press('Digit4');
+  // ---- fishing: click a nearby water tile, wait for the bite, press Space
   const water = await G(() => {
     const g = __game.game, c = g.playerCell();
     let best = null, bd = 1e9;
@@ -190,7 +188,7 @@ try {
   for (let attempt = 1; attempt <= 4 && !caught; attempt++) {
     // a Space that arrived after the fish got away starts a new cast; clear it so the click casts
     await G(() => __game.game.cancelFishing());
-    const before = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
+    const before = await G(() => __game.game.core.content.fish.ids().reduce((n, f) => n + __game.game.count(f), 0));
     s = await G((t) => __game.tileToScreen(t.x, t.z, -0.32), water);
     await page.mouse.click(s.x, s.y);
     await page.waitForFunction(() => !!__game.game.fishing, null, { timeout: 40000 });
@@ -202,7 +200,7 @@ try {
     await page.waitForFunction(() => !__game.game.fishing || __game.game.fishing.phase === 'bite', null, { timeout: 15000 });
     await page.keyboard.press('Space');
     await page.waitForTimeout(300);
-    const after = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
+    const after = await G(() => __game.game.core.content.fish.ids().reduce((n, f) => n + __game.game.count(f), 0));
     caught = after > before;
     log(`fishing attempt ${attempt}:`, caught ? `caught a ${await G(() => __game.game.lastCatch)}` : 'missed');
   }
@@ -358,7 +356,7 @@ try {
   });
   assert.equal(await G(() => document.querySelectorAll('#hotbar .slot[data-item="more"]').length), 0, 'no more slot on a wide screen');
   assert.equal(await G(() => document.querySelectorAll('#hotbar .slot[data-item="dummy"] .icon.missing').length), 1, 'the tool has its own slot with the placeholder icon');
-  assert.equal(await G(() => document.querySelectorAll('#hotbar .slot').length), (await G(() => __game.ui.bar().length)) + 2, 'one slot per tool, build and bag');
+  assert.equal(await G(() => document.querySelectorAll('#hotbar .slot').length), (await G(() => __game.ui.bar().length)) + 3, 'one slot per tool, dig, build and bag');
   assert.equal(await G(() => document.querySelector('#hud-corner')?.textContent), 'Corner chip', 'corner slot drawn');
   assert.equal(await G(() => document.querySelector('#hud-toolbar')?.classList.contains('hidden') ?? true), true, 'toolbar entry hidden while its condition fails');
   await G(() => { __game.game.core.flags.set('hud_test', true); });
@@ -377,7 +375,7 @@ try {
     __game.ui.refresh();
   });
   await page.waitForFunction(() => document.querySelector('#hud-corner').classList.contains('hidden') && document.querySelector('#hud-toolbar').classList.contains('hidden'), null, { timeout: 5000 });
-  assert.equal(await G(() => __game.game.tool), 'hand');
+  assert.equal(await G(() => __game.game.tool), 'seed_rice');
   log('more-tool inline on desktop, hud slots follow their registry');
 
   // ---- offline: the service worker serves the cached game

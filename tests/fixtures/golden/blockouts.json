@@ -324,5 +324,16 @@
   "desc": "a cosy Japanese outdoor kitchen: a reddish clay kamado stove with two black iron rice pots under pale wooden lids and glowing fire mouths, a wooden prep bench with a chopping board, a knife and a green vegetable, a shelf of white bowls on dark posts behind, under a small grey tiled roof",
   "parts": 20,
   "hash": "ff2c77545772cd48803476f966c7421b2f1e35e2"
+ },
+ "stump": {
+  "label": "Tree stump",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "desc": "a low freshly sawn tree stump with brown bark, a pale cut top showing its growth rings, little roots spreading into a ring of moss, and two wood chips on the ground beside it",
+  "parts": 8,
+  "hash": "dae2fe4ebe382ac9b975b4de6a2b23a4d979b2b4"
  }
 }

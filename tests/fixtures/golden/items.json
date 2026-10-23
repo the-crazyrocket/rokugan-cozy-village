@@ -112,6 +112,26 @@
   "icon": "bugs:net",
   "hint": "Tap a bug nearby to catch it"
  },
+ "axe": {
+  "name": "Axe",
+  "kind": "tool",
+  "icon": "icons6:axe",
+  "hint": "Chop a grown tree for wood"
+ },
+ "sapling_sakura": {
+  "name": "Sakura sapling",
+  "kind": "sapling",
+  "prop": "sakura",
+  "icon": "icons6:sapling_sakura",
+  "buy": 15
+ },
+ "sapling_pine": {
+  "name": "Pine sapling",
+  "kind": "sapling",
+  "prop": "pine",
+  "icon": "icons6:sapling_pine",
+  "buy": 10
+ },
  "seed_edamame": {
   "name": "Edamame seeds",
   "kind": "seed",

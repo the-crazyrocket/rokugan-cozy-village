@@ -31,6 +31,16 @@ This is too much for one sitting. The ultracode session should aim at Waves 0–
 - **3.4** Daikoku: his offerings, then the mill (timed batches) and the kitchen (12 dishes found by trying ingredients, plus a stew fallback).
 - **3.5** Nine bugs and the net.
 - **2.8** in part: fly-to-bag, the koku tick and the "to do" ribbon.
+- **UI theme:** `style/theme.css` (lacquered wood, washi paper, cloth banners, Zen Maru Gothic + Kaisei Decol).
+- **UX pass:**
+  - The hotbar holds only what a tap cannot guess: seeds in the play kit, and hoe/shovel/earth in the dig kit (G). The can, rod and net work by context.
+  - The touch joystick is gone: a tap walks, a drag pans, a swipe over the field (or anywhere while digging) sweeps.
+  - The ribbon's chores harvest or water the whole field in one tap; the welcome-back summary offers the same.
+  - The shop has ×5 seeds and a sell total, opens on Sell with a haul, and moves on to Seeds after selling.
+- **Trees:** the axe (dig kit) fells a grown tree for 3 wood and a stump that sprouts again after 36 h, or the shovel digs the stump out. Saplings (Hana, or sometimes from a felled tree) go in the seed slot and grow sapling → young → grown over a day, drawn small until grown.
+- **Woodcutting, animated:** felling takes three axe strokes (swing, chips, the tree shudders), then the tree topples away from the player, lands in dust and leaves with a thud, and shrinks away. Walking off stops it and the tree stands again. View: `src/render/views/woodcut.js`, driven by the trees system's `chopHit` / `treeFell` / `chopStop` events.
+- **Desktop cursor:** shows the icon of what a click will do there.
+- **Fix:** tree trunks and branches no longer poke through the leaves (the canopy cut-outs are pushed toward the camera).
 
 **Not done yet:**
 
@@ -38,6 +48,7 @@ This is too much for one sitting. The ultracode session should aim at Waves 0–
 - **3.3** stamps; a real photo-mode camera
 - **2.8** painted UI kit frames; the map
 - **Wave 2 extras:** compost, crop quality in the UI, paddies, fish shadows, traps
+- **Later goal: an island with no size limit.** The player should be able to grow the island as far as they like, up to a full big village. Today the world is a fixed 64×64 grid, so this needs a growable or chunked world (and the camera, saves, pathfinding and ground rendering to follow). Not for now.
 
 ---
 

@@ -2,7 +2,7 @@
 // Base fields are frozen; a work package adds namespaced ones with schema.extend('items', 'x_wpNN_name', spec).
 import { schema } from '../../core/schema.js';
 
-export const ITEM_KINDS = ['tool', 'seed', 'produce', 'forage', 'bait', 'fish', 'bug', 'prop', 'material', 'dish', 'craft', 'gift'];
+export const ITEM_KINDS = ['tool', 'seed', 'produce', 'forage', 'bait', 'fish', 'bug', 'prop', 'material', 'dish', 'craft', 'gift', 'sapling'];
 
 schema.define('items', {
   name: 'string',

@@ -25,7 +25,7 @@ export function attachFeedback(core, host) {
     core.bus.on('bubble', (p, m) => { if (!m.away) host.ui?.bubble(p.text); }, opts),
     core.bus.on('invalidate', (p, m) => { if (!m.away && p.what === 'ui') host.ui?.refresh(); }, opts),
     core.bus.on('wake', (p, m) => { if (m.away) return; host.ui?.closeModal(); host.ui?.celebrate?.(p.fortune, host.focusQ?.length ? 4700 : 0); }, opts),
-    core.bus.on('openSheet', (p, m) => { if (m.away) return; if (SHEETS[p.name]) host.ui?.[SHEETS[p.name]]?.(); else host.ui?.openModal?.(p.name, undefined, p.args); }, opts),
+    core.bus.on('openSheet', (p, m) => { if (m.away) return; if (SHEETS[p.name]) host.ui?.[SHEETS[p.name]]?.(p.args); else host.ui?.openModal?.(p.name, undefined, p.args); }, opts),
     core.bus.on('floatLabel', (p, m) => { if (!m.away) host.ui?.floatLabel(p.text, p.x, p.z); }, opts),
     core.bus.on('queueChange', (p, m) => { if (!m.away) host.ui?.refreshQueue?.(); }, opts),
     core.bus.on('buildSelect', (p, m) => { if (!m.away) host.ui?.selectBuild(p.index); }, opts),

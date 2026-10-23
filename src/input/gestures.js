@@ -1,20 +1,18 @@
 // Pointer gestures.
 //
 // Touch (per pointer id):
-//   tap        < 10 px movement, released before the hold -> smart context action
+//   tap        < 10 px movement, released before the hold -> smart context action (walking there first)
 //   long-press < 10 px, held >= 500 ms              -> inspect (play) / prop menu (build)
-//   drag       >= 10 px                             -> floating joystick (play), camera pan or
-//                                                      ghost drag (build); starting on the
-//                                                      field: sweep (harvest/water/plant each tile)
+//   drag       >= 10 px                             -> camera pan, or ghost drag (build); starting on
+//                                                      the field, or anywhere in the dig kit: sweep
+//                                                      (harvest/water/plant, or till/dig/raise each tile)
 //   2 fingers  any time                             -> pinch zoom + two-finger pan
-// Mouse: click = smart action / build, drag across the field = sweep, hover = cursor, wheel = zoom.
+// Mouse: the same; hover = cursor, wheel = zoom.
 import { T } from '../game/world.js';
 
 const TAP_SLOP = 10;
 const TAP_MS = 400;
 const LONG_MS = 500;
-const JOY_DEAD = 10;
-const JOY_FULL = 50;
 const GHOST_LIFT = 70; // px: dragged build preview sits above the finger
 const SWEEP_STEP_PX = 10; // fast swipes are sampled along the segment so no tile is skipped
 
@@ -23,11 +21,8 @@ export function setupGestures({ canvas, game, ui, view, picker }) {
   const pointers = new Map();
   let g = null; // current gesture
 
-  function endJoystick() { game.setAnalog(null); ui.joystick(null); }
-
   function startPinch() {
     if (g?.timer) clearTimeout(g.timer);
-    endJoystick();
     view.hold = false;
     const [a, b] = [...pointers.values()];
     g = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: view.getZoom(), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
@@ -78,21 +73,23 @@ export function setupGestures({ canvas, game, ui, view, picker }) {
     else ui.toast('Tap a decoration to move, rotate or store it — or pick one below.');
   }
 
-  /** Does a drag starting here sweep the field instead of walking? */
+  /** Does a drag starting here sweep instead of panning? On the field, or anywhere with the dig kit. */
   // A fence or tree in front of the field can cover its tiles on screen, so a
   // sweep also considers the ground tile under the finger, not just what's picked.
   const isField = (t) => !!t && (!!game.crop(t.x, t.z) || game.world.get(t.x, t.z) === T.SOIL);
+  const sweepable = (t) => !!t && (game.kit === 'dig' || isField(t));
 
   function onField(x, y) {
     if (game.mode !== 'play' || game.fishing || ui.modalOpen()) return false;
+    if (game.kit === 'dig') return true;
     const pk = pick(x, y);
     return isField(pk.tile) || isField(pk.ground);
   }
 
   function sweepAt(x, y) {
     const pk = pick(x, y);
-    for (const t of [pk.tile, pk.ground]) {
-      if (!isField(t)) continue;
+    for (const t of game.kit === 'dig' ? [pk.ground] : [pk.tile, pk.ground]) {
+      if (!sweepable(t)) continue;
       const k = t.z * 1000 + t.x;
       if (g.visited.has(k)) return;
       g.visited.add(k);
@@ -165,25 +162,15 @@ export function setupGestures({ canvas, game, ui, view, picker }) {
         ui.closePropMenu(); ui.closeSeedPicker();
         sweepAt(g.x0, g.y0);
         g.lx = g.x0; g.ly = g.y0;
-      } else if (!g.touch) { g.type = 'mousedrag'; }
-      else if (game.mode === 'build') {
-        g.type = inGhost(groundTile(g.x0, g.y0)) ? 'ghost' : 'pan';
+      } else if (game.mode === 'build') {
+        g.type = !g.touch ? 'mousedrag' : inGhost(groundTile(g.x0, g.y0)) ? 'ghost' : 'pan';
         ui.closePropMenu();
       } else {
-        g.type = 'joy'; g.ox = g.x0; g.oy = g.y0;
+        g.type = 'pan';
         ui.closePropMenu(); ui.closeSeedPicker();
       }
     }
-    if (g.type === 'joy') {
-      let vx = e.clientX - g.ox, vy = e.clientY - g.oy;
-      let len = Math.hypot(vx, vy);
-      // let the stick's centre trail the finger so direction changes stay easy
-      const maxR = JOY_FULL + 20;
-      if (len > maxR) { g.ox += (vx / len) * (len - maxR); g.oy += (vy / len) * (len - maxR); vx = e.clientX - g.ox; vy = e.clientY - g.oy; len = maxR; }
-      const m = len < JOY_DEAD ? 0 : Math.min(1, 0.3 + 0.7 * (len - JOY_DEAD) / (JOY_FULL - JOY_DEAD));
-      game.setAnalog(m ? { x: vx / len, y: vy / len, m } : null);
-      ui.joystick({ ox: g.ox, oy: g.oy, x: e.clientX, y: e.clientY });
-    } else if (g.type === 'sweep') {
+    if (g.type === 'sweep') {
       sweepTo(e.clientX, e.clientY);
     } else if (g.type === 'pan') {
       view.pan(e.clientX - g.lx, e.clientY - g.ly);
@@ -212,7 +199,6 @@ export function setupGestures({ canvas, game, ui, view, picker }) {
       note({ release: g.type, dt: Math.round(dt), cancelled, isTap, ev: e.type });
       if (isTap) onTap(e.clientX, e.clientY, g.touch);
       else if (starved && !cancelled) onLongPress(g.x0, g.y0);
-      if (g.type === 'joy') endJoystick();
       if (g.type === 'sweep') view.hold = false;
       if (g.type === 'ghost') ui.refresh();
       g = { type: 'dead' };
@@ -228,5 +214,5 @@ export function setupGestures({ canvas, game, ui, view, picker }) {
   for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); view.setZoom(view.getZoom() * (e.deltaY > 0 ? 1.12 : 1 / 1.12)); }, { passive: false });
 
-  return { endJoystick, debug: () => ({ pointers: [...pointers.keys()], gesture: g?.type ?? null, trace }) };
+  return { debug: () => ({ pointers: [...pointers.keys()], gesture: g?.type ?? null, trace }) };
 }

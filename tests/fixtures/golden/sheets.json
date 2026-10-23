@@ -757,5 +757,31 @@
     "a Japanese bug-catching net: a round green mesh net on a long bamboo handle"
    ]
   ]
+ },
+ "icons6": {
+  "cols": 4,
+  "rows": 1,
+  "width": 1024,
+  "height": 256,
+  "cell": 256,
+  "subject": "inventory item icons for a cosy Japanese island game (a woodcutting tool and young trees to plant), each a single centred object",
+  "cells": [
+   [
+    "axe",
+    "a small Japanese woodcutter's axe (ono) with a curved wooden handle wrapped in cord near the end and a dark iron head with a bright edge"
+   ],
+   [
+    "sapling_sakura",
+    "a young cherry tree sapling with a few pink blossoms and small leaves, its roots wrapped in a burlap ball tied with straw rope"
+   ],
+   [
+    "sapling_pine",
+    "a young Japanese black pine sapling with tufts of dark green needles, its roots wrapped in a burlap ball tied with straw rope"
+   ],
+   [
+    "stump",
+    "a sawn-off tree stump with a pale cut top showing its rings, a little moss at its foot"
+   ]
+  ]
  }
 }

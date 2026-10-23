@@ -57,6 +57,9 @@ export class Game {
     this.core.use('stats').data.caught = this.core.use('fishing').caught; // the fishing system counts the catches
     // until the slices are registered (S10): offerings, a waking Fortune and a handed-in request are saved at once
     for (const name of ['offer', 'wake', 'requestClaimed']) this.core.bus.on(name, (p, m) => { if (!m.away) this.save(); }, { priority: PRIO.VIEW, owner: 'game' });
+    this.core.bus.on('chopHit', (p) => this.woodcutHit(p), { priority: PRIO.VIEW, owner: 'game' });
+    this.core.bus.on('treeFell', (p) => this.woodcutFell(p), { priority: PRIO.VIEW, owner: 'game' });
+    this.core.bus.on('chopStop', (p) => this.woodcutStop(p), { priority: PRIO.VIEW, owner: 'game' });
     this.core.bus.on('buildMode', () => { this.player.path = null; this.player.pending = null; }, { priority: PRIO.STATE, owner: 'game' });
     this.core.bus.on('invalidate', (p) => { if (p.what === 'veg' || p.what === 'crops' || p.what === 'ground') this.dirty[p.what] = true; else if (p.what === 'terrain') this.dirty.ground = this.dirty.terrain = true; }, { priority: PRIO.STATE, owner: 'game' });
     this.ground = new Ground(this.world, painted.sheets);
@@ -72,8 +75,9 @@ export class Game {
     this.gatherLayer = new BillboardLayer(painted.sheets.gather, { capacity: 200, name: 'gather' });
     this.visitorLayer = new BillboardLayer(painted.sheets.visitors, { capacity: 16, name: 'visitors' });
     this.bugLayer = new BillboardLayer(painted.sheets.bugs, { capacity: 16, name: 'bugs' });
+    this.fellLayer = new BillboardLayer(painted.sheets.canopy, { capacity: 24, name: 'fell' }); // a tree coming down
     this.blobs = new BlobShadows(400);
-    scene.add(this.veg.mesh, ...Object.values(this.cropLayers).map((l) => l.mesh), this.canopy.mesh, this.gatherLayer.mesh, this.visitorLayer.mesh, this.bugLayer.mesh, this.blobs.mesh);
+    scene.add(this.veg.mesh, ...Object.values(this.cropLayers).map((l) => l.mesh), this.canopy.mesh, this.gatherLayer.mesh, this.visitorLayer.mesh, this.bugLayer.mesh, this.fellLayer.mesh, this.blobs.mesh);
     this.particles = new Particles(scene);
     for (let z = 0; z < this.world.h; z++) for (let x = 0; x < this.world.w; x++) {
       if (this.world.isLand(x, z) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => this.world.isFresh(x + dx, z + dz))) this.particles.fireflySources.push({ x, z });
@@ -279,7 +283,8 @@ export class Game {
     this.char.root.rotation.y = pl.facing;
     const swing = pl.swingT > 0 ? Math.sin((1 - pl.swingT / 0.35) * Math.PI) * 1.6 : (this.fishing ? 0.9 : 0);
     animateCharacter(this.char, t, { moving: pl.moving, swing });
-    for (const [k, m] of Object.entries(this.toolMeshes)) m.visible = this.mode === 'play' && this.tool === k;
+    const held = this.mode === 'play' ? this.inHand() : null;
+    for (const [k, m] of Object.entries(this.toolMeshes)) m.visible = held === k;
 
     // cursor on target tile
     const tt = this.mode === 'build' && this.hoverTile ? this.hoverTile : this.targetTile();
@@ -321,7 +326,7 @@ export class Game {
     if (this.dirty.ground) { this.ground.wet = new Set([...[...this.farm.values()].filter((c) => c.wet).map((c) => c.z * this.world.w + c.x), ...this.wetSoil.keys()]); this.ground.updateTypes(); this.dirty.ground = false; }
     if (this.dirty.crops) { this.rebuildCrops(); this.dirty.crops = false; }
     if (this.dirty.veg) { this.rebuildVegetation(); this.dirty.veg = false; }
-    this.veg.update(t); for (const l of Object.values(this.cropLayers)) l.update(t); this.canopy.update(t); this.gatherLayer.update(t); this.visitorLayer.update(t); this.bugLayer.update(t); this.ground.update(t);
+    this.veg.update(t); for (const l of Object.values(this.cropLayers)) l.update(t); this.canopy.update(t); this.gatherLayer.update(t); this.visitorLayer.update(t); this.bugLayer.update(t); this.updateWoodcut(dt); this.fellLayer.update(t); this.ground.update(t);
     this.particles.update(dt);
     if (this.merchant) animateCharacter(this.merchant, t + 3, {});
     this.updateVillagers(t);

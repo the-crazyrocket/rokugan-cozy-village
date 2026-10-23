@@ -100,7 +100,7 @@ async function runViewport(browser, base, vp) {
   assert.ok(short > 9 && short < 11.5, `short side frames ~10 units (got ${short.toFixed(2)})`);
   // all hotbar slots on screen and >= 44 px
   const slots = await G(() => [...document.querySelectorAll('#hotbar .slot')].map((e) => e.getBoundingClientRect()).map((r) => ({ l: r.left, r: r.right, w: r.width, h: r.height })));
-  assert.ok(slots.length >= 7, 'compact hotbar has its slots');
+  assert.ok(slots.length >= 4, 'compact hotbar has its slots');
   for (const r of slots) { assert.ok(r.w >= 44 && r.h >= 44, 'slot >= 44px'); assert.ok(r.l >= 0 && r.r <= vp.width, 'slot on screen'); }
   await settle();
   await shot('01-village');
@@ -114,69 +114,74 @@ async function runViewport(browser, base, vp) {
     return sl;
   };
   const plain = await bar();
-  // the shovel and the earth are not compact: they already make a more slot, and the bag moves into its sheet
-  assert.equal(plain.filter((r) => r.item === 'more').length, 1, 'the land tools make a more slot');
-  assert.ok(!plain.some((r) => r.item === 'bag'), 'the bag is in the more sheet');
+  // taps pick the tool by context: the play bar is the seeds, dig, build and the bag
+  assert.deepEqual(plain.map((r) => r.item), ['seeds', 'dig', 'build', 'bag'], 'the play bar');
+  // the dig kit: done, then the land tools
+  await tapEl('#hotbar .slot[data-item="dig"]');
+  await page.waitForFunction(() => __game.game.kit === 'dig', null, { timeout: 5000 });
+  let sl = await checkBar('dig kit');
+  assert.deepEqual(sl.map((r) => r.item), ['done', 'hoe', 'axe', 'shovel', 'earth'], 'the dig bar');
+  await shot('01b-dig-kit');
+  await tapEl('#hotbar .slot[data-item="done"]');
+  await page.waitForFunction(() => __game.game.kit === 'play', null, { timeout: 5000 });
+  // an extension tool in group 'more' joins the bar as one more slot and a tools sheet (the bag moves in there)
   await G(() => {
     const c = __game.game.core;
     c.tools.add('dummy', { use() {}, group: 'more' });
     c.hotbar.add({ id: 'dummy', order: 100, compact: true, icon: 'icons:no_such_icon', name: 'Dummy', hint: 'does nothing' });
     __game.ui.refresh();
   });
-  let sl = await checkBar('with the more slot');
-  assert.equal(sl.filter((r) => r.item === 'dummy').length, 0, 'the overflow tool has no slot of its own');
-  assert.equal(sl.filter((r) => r.item === 'more').length, 1, 'one more slot');
-  assert.ok(sl.length <= plain.length, `the bar does not grow (${sl.length} vs ${plain.length})`);
-  assert.equal(sl.filter((r) => !r.special && r.item !== 'more').length + 1 <= 6, true, 'at most six tool slots');
+  sl = await checkBar('with the more slot');
+  assert.deepEqual(sl.map((r) => r.item), ['seeds', 'more', 'dig', 'build'], 'one more slot, the bag in its sheet');
   if (vp.name === 'portrait') {
     await page.setViewportSize({ width: 360, height: 740 });
     await sleep(400);
-    sl = await checkBar('360px wide');
-    assert.ok(sl.length <= 7 && sl.some((r) => r.item === 'more'), `360px: ${sl.length} slots with the more slot`);
+    await checkBar('360px wide');
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await sleep(400);
   }
   await tapEl('#hotbar .slot[data-item="more"]');
   await page.waitForFunction(() => __game.ui.modal === 'tools', null, { timeout: 5000 });
   await sleep(400);
-  assert.deepEqual(await G(() => [...document.querySelectorAll('#panel .bag-item')].map((e) => e.dataset.item)), ['net', 'shovel', 'earth', 'dummy', 'bag'], 'the tools sheet lists the overflow tools and the bag');
+  assert.deepEqual(await G(() => [...document.querySelectorAll('#panel .bag-item')].map((e) => e.dataset.item)), ['dummy', 'bag'], 'the tools sheet lists the overflow tool and the bag');
   assert.equal(await G(() => document.querySelectorAll('#panel .bag-item[data-item="dummy"] .icon.missing').length), 1, 'an unknown icon shows the placeholder');
-  await shot('01b-tools-sheet');
   await tapEl('#panel .bag-item[data-item="dummy"]');
   await page.waitForFunction(() => __game.game.tool === 'dummy' && !__game.ui.modal, null, { timeout: 5000 });
   sl = await checkBar('dummy in hand');
   const more = sl.find((r) => r.item === 'more');
   assert.ok(more.sel && more.missing === 1, 'the more slot shows the tool in hand');
-  await tapEl('#hotbar .slot[data-item="more"]');
-  await page.waitForFunction(() => __game.ui.modal === 'tools', null, { timeout: 5000 });
-  await sleep(400);
-  await tapEl('#panel .bag-item[data-item="bag"]');
-  await page.waitForFunction(() => __game.ui.modal === 'bag', null, { timeout: 5000 });
-  await G(() => __game.ui.closeModal());
-  await tapEl('#hotbar .slot[data-item="hand"]');
-  await page.waitForFunction(() => __game.game.tool === 'hand', null, { timeout: 5000 });
+  await tapEl('#hotbar .slot[data-item="seeds"]');
+  await page.waitForFunction(() => __game.game.tool?.startsWith('seed_'), null, { timeout: 5000 });
   await G(() => { const c = __game.game.core; c.hotbar.remove('dummy'); c.tools.remove('dummy'); __game.ui.refresh(); });
   sl = await checkBar('after the overflow tool is gone');
   assert.deepEqual(sl.map((r) => r.item), plain.map((r) => r.item), 'the bar is back to what it was');
-  log('overflow tool: more slot + tools sheet ok');
+  log('hotbar: play bar, dig kit, more slot ok');
 
-  // ---- drag to move (floating joystick): finger goes right -> player goes right on screen
+  // ---- a drag off the field looks around (the player stays); a tap walks there
   const p0 = await G(() => ({ x: __game.game.player.pos.x, z: __game.game.player.pos.z }));
-  const s0 = await screen(p0.x - 0.5, p0.z - 0.5);
+  const pan0 = await G(() => __game.view.panOffset.length());
   const cx = vp.width / 2, cy = vp.height / 2;
   await touch('touchStart', [{ x: cx, y: cy }]);
   for (let i = 1; i <= 6; i++) { await touch('touchMove', [{ x: cx + i * 15, y: cy }]); await sleep(30); }
-  await page.waitForSelector('#joy:not(.hidden)', { timeout: 3000 }); // joystick visible while dragging
-  await sleep(1200);
   await touch('touchEnd', []);
   await sleep(150);
-  const p1 = await G(() => ({ x: __game.game.player.pos.x, z: __game.game.player.pos.z, analog: __game.game.analog }));
-  const s1 = await screen(p1.x - 0.5, p1.z - 0.5);
-  log('drag moved', p0, '->', p1);
-  assert.ok(Math.hypot(p1.x - p0.x, p1.z - p0.z) > 0.8, 'player moved by dragging');
-  assert.ok(s1.x - s0.x > Math.abs(s1.y - s0.y), 'moved in the drag direction (right on screen)');
-  assert.equal(p1.analog, null, 'joystick released');
-  assert.equal(await page.locator('#joy').isHidden(), true, 'joystick hidden after release');
+  const p1 = await G(() => ({ x: __game.game.player.pos.x, z: __game.game.player.pos.z, pan: __game.view.panOffset.length() }));
+  assert.ok(Math.hypot(p1.x - p0.x, p1.z - p0.z) < 0.05, 'a drag does not walk');
+  assert.ok(p1.pan > pan0 + 0.5, `a drag pans the camera (${pan0.toFixed(2)} -> ${p1.pan.toFixed(2)})`);
+  const dest = await G(() => {
+    const g = __game.game, pl = g.core.use('player'), c = pl.cell();
+    for (const [dx, dz] of [[3, 0], [0, 3], [-3, 0], [0, -3], [3, 3], [-3, -3], [3, -3], [-3, 3]]) {
+      const t = { x: c.x + dx, z: c.z + dz };
+      if (pl.walkable(t.x, t.z) && g.resolve(t).kind === 'walk') return t;
+    }
+    return null;
+  });
+  assert.ok(dest, 'open ground near the player');
+  const ds = await aim(dest.x, dest.z);
+  await tap(ds.x, ds.y);
+  await page.waitForFunction((p) => Math.hypot(__game.game.player.pos.x - p.x, __game.game.player.pos.z - p.z) > 1, p0, { timeout: 8000 });
+  log('drag panned, tap walked');
+  await G(() => __game.view.panOffset.set(0, 0, 0)); // the taps below aim at a still camera
 
   // ---- smart taps at the starter field (teleport next to it for a deterministic view)
   await G(() => { const g = __game.game; g.player.pos.set(16.5 + __game.O, 0, 27.5 + __game.O); g.player.path = null; });
@@ -216,7 +221,6 @@ async function runViewport(browser, base, vp) {
   await touch('touchStart', [{ x: a0.x, y: a0.y }]);
   for (let i = 1; i <= 10; i++) { await touch('touchMove', [{ x: a0.x + ((a1.x - a0.x) * i) / 10, y: a0.y + ((a1.y - a0.y) * i) / 10 }]); await sleep(40); }
   await touch('touchEnd', []);
-  assert.equal(await page.locator('#joy').isHidden(), true, 'a field swipe is not a joystick');
   const want = Math.min(seeds, 4);
   await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x + __game.O, 28 + __game.O)).length >= n, want, { timeout: 60000 });
   log(`swipe planted ${want} tiles`);
@@ -267,18 +271,18 @@ async function runViewport(browser, base, vp) {
   let caught = false;
   for (let attempt = 1; attempt <= 4 && !caught; attempt++) {
     await G(() => __game.game.cancelFishing());
-    const before = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
+    const before = await G(() => __game.game.core.content.fish.ids().reduce((n, f) => n + __game.game.count(f), 0));
     const sc = await aim(target.x, target.z, [-0.32]);
     await tap(sc.x, sc.y);
     await page.waitForFunction(() => !!__game.game.fishing, null, { timeout: 40000 });
-    assert.equal(await G(() => __game.game.tool), 'rod', 'rod auto-selected');
+    assert.equal(await G(() => __game.game.inHand()), 'rod', 'the rod in hand');
     if (attempt === 1) { await sleep(400); await shot('04-fishing'); }
     await page.waitForFunction(() => !__game.game.fishing || __game.game.fishing.phase === 'bite', null, { timeout: 15000 });
     await touch('touchStart', [{ x: vp.width / 2, y: vp.height / 3 }]); // reel on touch-DOWN, anywhere
     const reeledOnDown = await G(() => !__game.game.fishing);
     await touch('touchEnd', []);
     await sleep(200);
-    const after = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
+    const after = await G(() => __game.game.core.content.fish.ids().reduce((n, f) => n + __game.game.count(f), 0));
     caught = after > before;
     log(`fishing attempt ${attempt}:`, caught ? `caught a ${await G(() => __game.game.lastCatch)}` : 'missed', reeledOnDown ? '(reeled on touch-down)' : '');
     if (caught) assert.ok(reeledOnDown, 'reeled on touch-down');

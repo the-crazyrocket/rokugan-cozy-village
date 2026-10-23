@@ -110,5 +110,3 @@ body.build-mode:not(.touch) #btn-rotate { display: block; }
 .chip { position: absolute; transform: translate(-50%, -100%); width: 38px; height: 38px; border-radius: 50%; background: rgba(244,234,210,.95); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 6px rgba(0,0,0,.2); }
 .chip .icon.chip-icon { width: 28px; height: 28px; }
 .chip b { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--vermilion); color: var(--paper); font-size: 11px; display: flex; align-items: center; justify-content: center; }
-#joy { position: fixed; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 3px solid rgba(244,234,210,.7); background: rgba(47,62,102,.18); pointer-events: none; z-index: 2; }
-#joy .knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(244,234,210,.9); border: 2px solid var(--indigo); }

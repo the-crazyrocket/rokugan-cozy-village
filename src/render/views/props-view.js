@@ -7,6 +7,8 @@ import { geomHash } from '../../assets/geomhash.js';
 
 const PROPS = content.props.view();
 const HALF_PI = Math.PI / 2;
+// canopies are flat cut-outs facing the camera: pushed this far toward it (screen position unchanged) so the trunk's branches stay behind them
+const CANOPY_PUSH = 0.6;
 
 export class PropsView {
   constructor(scene, painted) {
@@ -54,7 +56,7 @@ export class PropsView {
     const mesh = this.makeMesh(type);
     mesh.position.set(cx, this.baseY(prop), cz);
     mesh.rotation.y = rot * HALF_PI;
-    if (PROPS[type].canopy) mesh.scale.setScalar(0.92 + prop.seed * 0.2);
+    if (PROPS[type].canopy) { mesh.userData.size = 0.92 + prop.seed * 0.2; mesh.scale.setScalar(mesh.userData.size * (this.growth?.(prop) ?? 1)); }
     mesh.userData.propId = prop.id;
     this.group.add(mesh);
     prop.mesh = mesh;
@@ -66,15 +68,17 @@ export class PropsView {
   billboards(list) {
     const canopy = [], veg = [], shadows = [];
     for (const p of list) {
+      if (p.felling) continue; // being felled: the woodcut view draws it
       const def = PROPS[p.type], y0 = this.baseY(p);
       if (def.canopy) {
+        p.mesh.scale.setScalar(p.mesh.userData.size * (this.growth?.(p) ?? 1)); // a young tree is drawn small
         const s = p.mesh.scale.x, th = p.rot * HALF_PI;
         TREE_CANOPIES[def.canopy].forEach((c, k) => {
           const [ox, oy, oz] = c.pos;
           const rx = ox * Math.cos(th) + oz * Math.sin(th), rz = -ox * Math.sin(th) + oz * Math.cos(th);
           canopy.push({
             x: p.cx + rx * s, y: y0 + (oy - c.size * 0.45) * s, z: p.cz + rz * s, sprite: c.sprite, height: c.size * s,
-            sway: 0.035, phase: p.seed * 6 + k, shade: 0.9 + ((p.seed * 7 + k * 0.3) % 1) * 0.18, lean: k === 0 ? 0 : 0.05, flip: (p.seed + k * 0.37) % 1 > 0.5,
+            sway: 0.035, phase: p.seed * 6 + k, shade: 0.9 + ((p.seed * 7 + k * 0.3) % 1) * 0.18, lean: (CANOPY_PUSH + k * 0.05) * s, flip: (p.seed + k * 0.37) % 1 > 0.5,
           });
         });
         shadows.push({ x: p.cx + 0.25, y: y0, z: p.cz + 0.25, r: 1.0 * s });

@@ -46,10 +46,10 @@ export default function () {
   assert.deepEqual(FORTUNE_ORDER, readGolden('fortunes').FORTUNE_ORDER);
   const itemMap = [...base.itemMap()];
   verbatim(Object.fromEntries(itemMap), readGolden('items'), 'items (explicit plus derived)');
-  assert.equal(itemMap.length, 108, 'the Wave 0-3 items: the workbench, the Wave 2 crops and fish, kakei and scarecrow, the mill and the kitchen, flour and dishes, bugs and the net');
+  assert.equal(itemMap.length, 111, 'the Wave 0-3 items: the workbench, the Wave 2 crops and fish, kakei and scarecrow, the mill and the kitchen, flour and dishes, bugs and the net, the axe and two saplings');
   assert.ok(itemMap.slice(-25, -12).every(([, it]) => it.kind === 'material') && itemMap.slice(-12).every(([, it]) => it.kind === 'dish'), 'the materials, then the dishes, come last');
   assert.deepEqual(base.items.ids().slice(0, 4), ['hand', 'hoe', 'can', 'rod']);
-  assert.equal(base.items.size, 18, 'items.js holds tools, seeds, produce, forage and bait; kitchen.js the mill\'s three flours');
+  assert.equal(base.items.size, 21, 'items.js holds tools, seeds, produce, forage and bait; kitchen.js the mill\'s three flours; trees.js the axe and the saplings');
   assert.equal(base.materials.size, 13);
   assert.ok(base.materials.all().every(([, m]) => m.placeholder === true), 'every base material is a placeholder');
   assert.equal(base.recipes.size, 10 + 3 + 12, 'the workbench recipes (Wave 2), the mill\'s and the kitchen\'s (Daikoku)');

@@ -22,6 +22,7 @@ export default defineSystem({
     buyPrice: call('buyPrice'),
     sell: call('sell'),
     sellAll: call('sellAll'),
+    haul: call('haul'),
     buy: call('buy'),
   },
   api(ctx) {
@@ -50,6 +51,14 @@ export default defineSystem({
         ctx.say(`Sold ${n} ${it.name.toLowerCase()} for ${total} koku.`, 'icons:koku');
       },
 
+      /** What Sell all would sell now: { n, total }. */
+      haul() {
+        const all = items();
+        let n = 0, total = 0;
+        for (const [id, k] of ctx.inv.map) if (SELLABLE_KINDS.has(all.get(id)?.kind)) { n += k; total += api.sellPrice(id) * k; }
+        return { n, total };
+      },
+
       sellAll() {
         const all = items(), sold = [];
         let total = 0;
@@ -69,14 +78,14 @@ export default defineSystem({
         ctx.say(total ? `Sold the harvest for ${total} koku!` : 'Nothing to sell yet.', 'icons:koku');
       },
 
-      buy(id) {
-        const it = items().get(id), price = api.buyPrice(id);
+      buy(id, n = 1) {
+        const it = items().get(id), price = api.buyPrice(id) * n;
         if (!ctx.money.spend(price, 'buy')) { ctx.say('Not enough koku.'); return; }
-        ctx.inv.give(id, 1, { reason: 'buy' });
+        ctx.inv.give(id, n, { reason: 'buy' });
         refresh();
-        ctx.bus.emit('buy', { item: id, n: 1, total: price });
+        ctx.bus.emit('buy', { item: id, n, total: price });
         ctx.sfx('coin');
-        ctx.say(`Bought ${it.name.toLowerCase()}.`, it.icon);
+        ctx.say(n > 1 ? `Bought ${n} × ${it.name.toLowerCase()}.` : `Bought ${it.name.toLowerCase()}.`, it.icon);
       },
     };
     ctx.state.api = api;
@@ -87,10 +96,13 @@ export default defineSystem({
       id: 'shop', priority: 100,
       fn(t) {
         const p = ctx.use('props').at(t.x, t.z);
-        return ctx.state.api.isMerchant(t.x, t.z) || (p && p.type === 'stall') ? { kind: 'shop', t, icon: 'icons:koku', label: 'Shop' } : null;
+        if (!ctx.state.api.isMerchant(t.x, t.z) && p?.type !== 'stall') return null;
+        const { total } = ctx.state.api.haul();
+        return { kind: 'shop', t, icon: 'icons:koku', label: total ? `Sell +${total}` : 'Shop' };
       },
     });
-    ctx.actions.add('shop', { queueable: true, button: true, perform: () => ctx.bus.emit('openSheet', { name: 'shop' }) });
+    // with a haul to sell the stall opens on Sell; with nothing, on Seeds
+    ctx.actions.add('shop', { queueable: true, button: true, perform: () => ctx.bus.emit('openSheet', { name: 'shop', args: { tab: ctx.state.api.haul().n ? 'sell' : 'seeds' } }) });
     // the day's demand (one sellable) and specials (two decorations); draws from the day's stream in this order
     ctx.daily.contribute({
       id: 'market', order: 20, base: true,

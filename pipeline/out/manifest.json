@@ -1,9 +1,9 @@
 {
- "generated": "2026-10-23T09:15:01+00:00",
+ "generated": "2026-10-23T12:53:17+00:00",
  "codexCalls": {
-  "total": 66,
-  "succeeded": 65,
-  "failed": 1
+  "total": 70,
+  "succeeded": 68,
+  "failed": 2
  },
  "assets": {
   "minka": {
@@ -1085,6 +1085,51 @@
     }
    ],
    "icon": "assets/painted/icons/kitchen.png"
+  },
+  "stump": {
+   "label": "Tree stump",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.997,
+     "iouAfterAlign": 0.997,
+     "alignApplied": false,
+     "alignScale": [
+      0.9984,
+      1.0018
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/stump_a45.webp",
+     "depth": "assets/painted/stump_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.993,
+     "iouAfterAlign": 0.994,
+     "alignApplied": true,
+     "alignScale": [
+      1.0,
+      1.0018
+     ],
+     "alignOffsetPx": [
+      1,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/stump_a225.webp",
+     "depth": "assets/painted/stump_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/stump.png"
   }
  },
  "sheets": {
@@ -1343,6 +1388,17 @@
     "tentomushi",
     "yukimushi",
     "net"
+   ]
+  },
+  "icons6": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/icons6_atlas.png",
+   "cells": [
+    "axe",
+    "sapling_sakura",
+    "sapling_pine",
+    "stump"
    ]
   }
  }

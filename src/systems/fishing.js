@@ -6,7 +6,7 @@
 import { defineSystem } from '../core/system.js';
 import { PRIO } from '../core/bus.js';
 import { T } from '../world/kinds.js';
-import { cheb, hotbarEntry } from './shared.js';
+import { cheb } from './shared.js';
 
 export const BAIT_RARE = 3; // rare fish weight multiplier while you carry bait
 
@@ -171,9 +171,8 @@ export default defineSystem({
       fn(t) { return ctx.world.get(t.x, t.z) === T.WATER && !ctx.use('props').isBridge(t.x, t.z) ? { kind: 'fish', t, icon: 'icons:rod', label: 'Fish' } : null; },
     });
     // fishing can be done from a little further away; the rod is taken up first
-    ctx.actions.add('fish', { range: 2, queueable: true, button: true, perform: (a, ix) => { ix.equip('rod'); api.start(a.t); } });
+    ctx.actions.add('fish', { range: 2, queueable: true, button: true, perform: (a) => api.start(a.t) });
     ctx.tools.add('rod', { use: (t) => api.start(t) });
-    ctx.hotbar.add(hotbarEntry(ctx, 'rod', 40));
     // building (and leaving build mode) drops a cast line
     ctx.bus.on('buildMode', () => ctx.state.api.cancel(), { priority: PRIO.STATE });
   },

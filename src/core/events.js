@@ -28,7 +28,7 @@ export const EVENTS = Object.freeze({
   catch: { kind: oneOf('fish', 'bug'), id: 'id', size: 'number', water: { ...oneOf('sea', 'fresh', 'pond', 'stream', 'tide'), nullable: true }, spot: { fields: xz }, bait: { any: ['string', 'bool'], nullable: true }, first: 'bool', via: oneOf('rod', 'trap', 'net') },
   forage: { item: 'id', n: 'int', ...xz, first: 'bool' },
   gather: { item: 'id', n: 'int', ...xz, kind: 'string' },
-  place: { prop: 'id', id: 'int', ...xz, rot: 'int', via: oneOf('build', 'move', 'project', 'load') },
+  place: { prop: 'id', id: 'int', ...xz, rot: 'int', via: oneOf('build', 'move', 'project', 'load', 'plant', 'grow') },
   remove: { prop: 'id', id: 'int', ...xz, to: oneOf('bag', 'gone') },
   craft: { recipe: 'id', bench: { type: 'string', nullable: true }, made: items, used: items },
   cook: { dish: 'id', ingredients: { array: 'id' }, discovered: 'bool', quality: 'number' },

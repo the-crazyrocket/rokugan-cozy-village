@@ -22,7 +22,11 @@ export default defineSystem({
       rod.add(new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.02, 1.1, 6).translate(0, 0.55, 0), bamboo));
       rod.rotation.x = Math.PI * 0.32;
       this.rodTip = new THREE.Object3D(); this.rodTip.position.set(0, 1.1, 0); rod.add(this.rodTip);
-      this.toolMeshes = { hoe, can, rod };
+      const axe = new THREE.Group();
+      axe.add(new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.022, 0.55, 6).translate(0, -0.12, 0), wood));
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.12, 0.17), metal); head.position.set(0, -0.36, 0.06); axe.add(head);
+      axe.rotation.x = Math.PI * 0.5;
+      this.toolMeshes = { hoe, can, rod, axe };
       for (const m of Object.values(this.toolMeshes)) { m.visible = false; m.traverse((o) => (o.castShadow = true)); this.char.parts.hand.add(m); }
     },
 
