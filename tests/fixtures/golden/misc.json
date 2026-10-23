@@ -1,0 +1,24 @@
+{
+ "HOTBAR": [
+  "hand",
+  "hoe",
+  "can",
+  "rod",
+  "seed_rice",
+  "seed_daikon",
+  "seed_tea"
+ ],
+ "START_INVENTORY": {
+  "seed_rice": 4,
+  "seed_daikon": 8,
+  "seed_tea": 2,
+  "prop_crate": 2,
+  "prop_pot": 2,
+  "prop_toro": 1,
+  "prop_fence": 6,
+  "prop_sakura": 1,
+  "prop_bamboo": 2
+ },
+ "START_MONEY": 120,
+ "BAIT_RARE": 3
+}

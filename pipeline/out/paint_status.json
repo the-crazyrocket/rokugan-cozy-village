@@ -111,13 +111,13 @@
     "painted": true,
     "by": "codex",
     "attempts": 1,
-    "last": "2026-10-22T19:59:50.757Z"
+    "last": "2026-10-23T01:55:02.215Z"
   },
   "bridge_a45": {
     "painted": true,
     "by": "codex",
     "attempts": 1,
-    "last": "2026-10-22T19:59:57.004Z"
+    "last": "2026-10-23T01:54:38.145Z"
   },
   "vegetation": {
     "painted": true,
@@ -148,5 +148,59 @@
     "by": "codex",
     "attempts": 1,
     "last": "2026-10-22T20:01:38.650Z"
+  },
+  "shrine_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:24:17.866Z"
+  },
+  "shrine_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:24:18.210Z"
+  },
+  "shrine_old_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:24:22.505Z"
+  },
+  "shrine_old_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:24:22.639Z"
+  },
+  "pier_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:25:19.560Z"
+  },
+  "stone_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:25:21.539Z"
+  },
+  "pier_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:25:34.926Z"
+  },
+  "stone_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:25:51.420Z"
+  },
+  "icons2": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T00:26:34.122Z"
   }
 }

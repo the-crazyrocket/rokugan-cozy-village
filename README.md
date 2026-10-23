@@ -1,6 +1,6 @@
 # Rokugan Cozy Village
 
-A small, cosy isometric 3D sandbox set in Rokugan (the feudal-Japan-inspired world of *Legend of the Five Rings*). It plays a bit like a tiny Animal Crossing or Minecraft. You live on a little island village surrounded by the sea, with a river and a pond. You can farm rice, daikon and tea, fish in fresh water and in the sea, sell your harvest to Hana at her stall, and decorate the village with minka houses, torii gates, stone lanterns, trees and more.
+A small, cosy isometric 3D sandbox set in Rokugan (the feudal-Japan-inspired world of *Legend of the Five Rings*). It plays a bit like a tiny Animal Crossing or Minecraft. You live on a little island village surrounded by the sea, with a river and a pond. You can farm rice, daikon and tea, fish in fresh water and in the sea, forage wild greens, sell your harvest to Hana at her stall, and decorate the village with minka houses, torii gates, stone lanterns, trees and more. The village runs on your local clock, with a daily rhythm of requests. The long-term goal is waking the Seven Fortunes at the quiet shrine; chapter 1 is Ebisu (see [docs/DESIGN.md](docs/DESIGN.md)).
 
 **There is no energy, stamina or fatigue system.** Every action is free and unlimited.
 
@@ -48,30 +48,38 @@ Progress auto-saves to `localStorage` every 10 seconds, and also when you hide o
 * Empty tilled soil: plant the selected seed, otherwise the last seed you used.
 * Water: switch to the rod, walk to the shore and cast.
 * Hana or her stall: open the shop.
+* The shrine: walk up to it and open the offerings sheet.
+* Wild greens: pick them.
 * Grass, with the hoe selected: till it.
 * Anywhere else: walk there, or to the nearest reachable tile.
 
-Taps made while you're busy are **queued**. Numbered chips mark them, and they run in turn, up to 8.
+Taps made while you're busy are **queued**. Numbered chips mark them, and they run in turn, up to 24. **Swipe** across a field (start the drag on soil or a crop) to harvest, water or plant every tile you pass over.
 
 ## Features
 
-* **Island and camera:** a 40×40 tile island. The sea, beaches, cliffs, a river and a pond come from a deterministic generator (`src/game/world.js`). The camera is a fixed isometric orthographic one (azimuth 45°, elevation 35.264°). It follows the player smoothly and zooms with the mouse wheel, with no free rotation.
+* **Island and camera:** a 40×40 tile island. The sea, beaches, cliffs, a river and a pond come from a deterministic generator (`src/game/world.js`). The land is drawn as one soft block: coastlines and banks are filleted in plan view and roll over a rounded top edge into the cliff (`src/render/ground.js`). The camera is a fixed isometric orthographic one (azimuth 45°, elevation 35.264°). It follows the player smoothly and zooms with the mouse wheel, with no free rotation.
 * **Player and movement:** a low-poly villager in a straw *kasa* hat with walk, idle and tool-swing animations. Movement collides with props and water.
   * Clicking a tile walks there using A* pathfinding.
   * Clicking a tile with a tool walks next to it and uses the tool.
-  * Bridges are walkable, and the player climbs the arch of the deck.
+  * Bridges are walkable, and the player climbs the arch of the deck. Old saves with a bridge that hangs over the water get it nudged by a tile (or back in the bag) on load.
 * **Build mode:** a ghost preview with green/red validity tint and footprint squares. Placement snaps to the grid and rotates in 90° steps. Picking a prop up returns it to the inventory.
-  * Placeable props: crate, clay pot, stone lantern (*tōrō*), fence, minka house, torii gate, well, arched bridge (must go over water), sakura, pine and bamboo.
+  * Placeable props: crate, clay pot, stone lantern (*tōrō*), fence, minka house, torii gate, well, arched bridge (four tiles long: bank, two tiles of water, bank), sakura, pine and bamboo.
   * The torii's middle tile stays walkable.
 * **Farming:**
   * The hoe tills grass (or sand) into soil. Seeds (rice, daikon, tea) plant on tilled soil.
-  * Crops grow through 3 stages in real time, using timestamps, so growth catches up after the tab was closed. Per stage: rice takes 1 minute, daikon 1.5 and tea 2.
+  * Crops grow through 3 stages in real time, using timestamps, so growth catches up after the tab was closed. Per stage: daikon takes 2 minutes (a snack crop for one session), rice 12 and tea 80 (a check-in crop that regrows).
   * The watering can doubles the speed of the current stage, and wet soil is drawn darker.
   * Harvesting puts the crop in your inventory. Tea bushes regrow after harvest.
 * **Fishing:**
   * Face water with the rod and cast. A bobber, line and ripples appear.
   * After a random wait the fish bites: a **!** bubble appears and the bobber dips. Press Space or click within the bite window to catch it. Pressing too early scares the fish; too late and it gets away.
   * Fresh water (river/pond) has ayu and koi. The sea has tai and fugu. Each fish has its own bite window.
+  * Once Ebisu wakes, the pier reaches deep water with five more fish: aji, saba (5–11 h), tako (16–21 h), ika (19–5 h) and the rare golden tai.
+  * Bait (from Ebisu, then Hana) makes rare fish bite three times as often and bites come sooner. One is used only when you land a fish.
+* **Daily rhythm (`src/game/daily.js`, `src/render/daylight.js`):** the sky, lights and lantern glows follow your local time. Each day (from 5:00, seeded by the date) brings three requests from Hana, one item she pays ×1.5 for, two decorations on special and six wild greens to find. The **Today** sheet (the clock pill) shows all of it, plus a "while you were away" summary after a break.
+* **The shrine (`src/game/shrine.js`):** the quiet, overgrown shrine across the river wants four small offering bundles. They can be filled a little at a time. Ringing the bell wakes Ebisu: the camera visits the restored shrine and the new pier, and a card lists what changed. Daikoku's stone beside it is the hook for chapter 2.
+* **Sound (`src/audio/sound.js`):** procedural Web Audio music (plucked koto-like strings and a flute on Japanese scales), waves, birds and crickets by time of day, and effects for every action. Music and effects can be switched off in **?**.
+* **Saves:** versioned saves with migrations (now v3) and a rolling backup slot. **?** can make a backup code to copy, share or save, and restore one in any browser. The game is an installable PWA, works offline after one visit, and asks the browser to keep its storage.
 * **Economy:** koku money. At Hana's stall you can sell produce and fish (sell one, sell all, or sell everything) and buy seeds and decorations. Small toast messages appear as feedback.
 * **UI:** hotbar with painted icons, bag panel, help card.
 * **Mobile:**
@@ -194,7 +202,7 @@ The whole scene shares one palette, a warm `HemisphereLight` plus a directional 
 
 ## What Codex painted
 
-The latest full pipeline run (`pipeline/out/manifest.json`, `pipeline/out/log/codex_calls.jsonl`) made **25 Codex image calls: 25 succeeded, 0 failed**, with no retries and no procedural fallbacks.
+The pipeline log (`pipeline/out/manifest.json`, `pipeline/out/log/codex_calls.jsonl`) holds **34 Codex image calls: 34 succeeded, 0 failed**, with no retries and no procedural fallbacks: the original 25, plus 9 for the shrine chapter.
 
 | Asset | Angles | Painted by |
 |---|---|---|
@@ -204,6 +212,8 @@ The latest full pipeline run (`pipeline/out/manifest.json`, `pipeline/out/log/co
 | canopy sheet (sakura/pine clumps) | — | **Codex** |
 | tiles (grass, sand, path, soil, water, cliff) | — | **Codex** |
 | icons (tools, seeds, produce, fish, koku, basket) | — | **Codex** |
+| shrine_old (overgrown), shrine (restored), pier, stone (Daikoku's sleeping stone) | 45°, 225° | **Codex** (8 calls) |
+| icons2 (aji, saba, ika, tako, golden tai, bait, shrine bell, Ebisu) | — | **Codex** |
 
 **Not painted by Codex (procedural):**
 
@@ -230,6 +240,8 @@ The procedural brush fallback and the canvas guide sketches exist in the pipelin
 * tap water: walk to the shore, auto-select the rod, and reel on touch-down
 * pinch zoom and two-finger pan (which must not walk)
 * build mode: preview, drag the preview, ✓ to place, then the prop menu's Rotate and Store
+* a field swipe plants a row, and the clock pill opens Today
+* tapping the shrine walks up to it and opens the offerings sheet; an offering made by thumb
 * tapping Hana opens a bottom sheet in portrait and a side sheet in landscape; sell all and close
 * the in-game confirm dialog
 
@@ -246,7 +258,11 @@ It also fails on any console error. Screenshots go to `/workspace/screens/mobile
 * harvesting a ripe daikon by clicking it
 * casting at the nearest water with the rod, waiting for the bite and pressing Space to catch the fish
 * selling at the shop
-* a save → reload round trip
+* a mouse sweep across a field, and a time skip that ripens rice
+* claiming one of Hana's requests from the Today sheet, and a day rollover with the "welcome back" card
+* the shrine chapter: click the shrine, partial and complete offerings, ring the bell, the wake card, the pier and bait, standing on the pier deck, and which fish bite by hour and place
+* a save v3 → reload round trip, a backup code → restore round trip, and an old v1 save migrating (crop growth and landmarks)
+* loading offline from the service worker
 
 It also fails on any console error, page error, failed request or HTTP 4xx/5xx. Screenshots are written to `/workspace/screens/` (`01-village.png`, `02-build.png`, `03-farm-fish.png`, plus `04-catch.png`); you can change the folder with `SCREENS_DIR`.
 
@@ -269,13 +285,13 @@ tools/serve.mjs            zero-dependency static server (sub-path aware)
 
 * Only two paint angles per asset. Faces seen edge-on from both, such as diagonal faces of round objects, show more of the palette fallback and stretched paint.
 * The shading baked into the paintings doesn't change when a prop is rotated, so its lit side doesn't always match the sun.
-* The characters are procedural, not painted. No villagers wander around, there is no day/night cycle, and there is no audio.
-* Coastlines follow the tile grid, so they look stair-stepped.
+* The characters are procedural, not painted, and no villagers wander around yet (Phase 4).
+* Only chapter 1 of the shrine exists; Daikoku's stone is a teaser.
 * Placing a prop on top of decorative grass removes the grass. Tilled soil can't be turned back into grass.
 * Mobile:
   * Only tested with Chrome's touch emulation, not on a physical iPhone or Android phone.
   * Vibration works on Android only; iOS Safari has no `navigator.vibrate`.
   * There are no settings for joystick size or sensitivity.
   * Rendering was left as is (no pixel-ratio or shadow tuning for phones).
-* three.js comes from the unpkg CDN, so the game needs internet access on first load.
+* three.js comes from the unpkg CDN, so the very first load needs internet. After that the service worker serves everything offline.
 * The full pipeline needs Codex CLI with image generation. The committed `assets/painted/` lets the site run without it.

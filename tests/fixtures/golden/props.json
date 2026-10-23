@@ -1,0 +1,105 @@
+{
+ "crate": {
+  "name": "Crate",
+  "asset": "crate",
+  "price": 20
+ },
+ "pot": {
+  "name": "Clay pot",
+  "asset": "pot",
+  "price": 15
+ },
+ "toro": {
+  "name": "Stone lantern",
+  "asset": "toro",
+  "price": 60,
+  "light": true
+ },
+ "fence": {
+  "name": "Fence",
+  "asset": "fence",
+  "price": 8
+ },
+ "minka": {
+  "name": "Minka house",
+  "asset": "minka",
+  "price": 320
+ },
+ "torii": {
+  "name": "Torii gate",
+  "asset": "torii",
+  "price": 200
+ },
+ "well": {
+  "name": "Well",
+  "asset": "well",
+  "price": 120
+ },
+ "bridge": {
+  "name": "Arched bridge",
+  "asset": "bridge",
+  "price": 90
+ },
+ "sakura": {
+  "name": "Sakura tree",
+  "asset": "trunk",
+  "canopy": "sakura",
+  "price": 45,
+  "footprint": [
+   1,
+   1
+  ],
+  "icon": "canopy:sakura_a"
+ },
+ "pine": {
+  "name": "Pine tree",
+  "asset": "trunk",
+  "canopy": "pine",
+  "price": 35,
+  "footprint": [
+   1,
+   1
+  ],
+  "icon": "canopy:pine_a"
+ },
+ "bamboo": {
+  "name": "Bamboo",
+  "sprite": "bamboo",
+  "price": 25,
+  "footprint": [
+   1,
+   1
+  ],
+  "icon": "vegetation:bamboo"
+ },
+ "stall": {
+  "name": "Merchant stall",
+  "asset": "stall",
+  "price": 0,
+  "fixed": true
+ },
+ "shrine_old": {
+  "name": "Quiet shrine",
+  "asset": "shrine_old",
+  "price": 0,
+  "fixed": true
+ },
+ "shrine": {
+  "name": "Ebisu’s shrine",
+  "asset": "shrine",
+  "price": 0,
+  "fixed": true
+ },
+ "pier": {
+  "name": "Ebisu’s pier",
+  "asset": "pier",
+  "price": 0,
+  "fixed": true
+ },
+ "stone": {
+  "name": "Sleeping stone",
+  "asset": "stone",
+  "price": 0,
+  "fixed": true
+ }
+}

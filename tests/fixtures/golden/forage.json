@@ -1,0 +1,12 @@
+{
+ "wildflower": {
+  "sprite": "flowers_pink",
+  "height": 0.62,
+  "where": "open"
+ },
+ "warabi": {
+  "sprite": "fern",
+  "height": 0.78,
+  "where": "trees"
+ }
+}

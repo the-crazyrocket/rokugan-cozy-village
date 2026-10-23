@@ -5,10 +5,10 @@ import { PostFX } from './render/postfx.js';
 import { cameraOffsetDir, GAME_AZIMUTH } from './render/paintCamera.js';
 import { Game } from './game/game.js';
 import { UI } from './game/ui.js';
-import { W, H } from './game/world.js';
 import { setupInput } from './game/input.js';
 import { Daylight } from './render/daylight.js';
 import { Sound } from './audio/sound.js';
+import { FORTUNES } from './game/shrine.js';
 import { MIN, clockText } from './game/clock.js';
 
 const params = new URLSearchParams(location.search);
@@ -43,7 +43,7 @@ const camDir = cameraOffsetDir(GAME_AZIMUTH);
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 120);
 const SIN_EL = Math.sin(THREE.MathUtils.degToRad(35.264));
 let zoom = 11;
-const camTarget = new THREE.Vector3(W / 2, 0, H / 2);
+const camTarget = new THREE.Vector3(); // the player's position once the game exists
 const panOffset = new THREE.Vector3();
 let lastPan = -1e9;
 const viewW = () => canvas.clientWidth || window.innerWidth;
@@ -140,14 +140,17 @@ window.addEventListener('pagehide', () => game.save());
 if (params.has('dev')) {
   const dev = document.createElement('div');
   dev.id = 'dev';
-  dev.innerHTML = '<b></b><button data-skip="600000">+10m</button><button data-skip="3600000">+1h</button><button data-skip="86400000">+1d</button><button data-hour="cycle">☀/☾</button>';
+  dev.innerHTML = '<b></b><button data-skip="600000">+10m</button><button data-skip="3600000">+1h</button><button data-skip="86400000">+1d</button><button data-hour="cycle">☀/☾</button><button data-offerings="1" title="Give everything the shrine wants">⛩</button>';
   document.body.appendChild(dev);
   const label = dev.querySelector('b');
   const show = () => { label.textContent = `${clockText(game.now())}${game.timeOffset ? ` (+${Math.round(game.timeOffset / MIN)}m)` : ''}${daylight.override != null ? ` · ${daylight.override}h` : ''}`; };
   dev.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b) return;
-    if (b.dataset.skip) {
+    if (b.dataset.offerings) {
+      const f = game.shrine.current();
+      if (f) for (const o of FORTUNES[f].offerings) for (const [it, n] of Object.entries(o.items)) game.give(it, n);
+    } else if (b.dataset.skip) {
       const away = game.skipTime(Number(b.dataset.skip));
       if (away) ui.openToday(away);
     } else {
@@ -172,7 +175,9 @@ function frame() {
   // two-finger / build-mode pan drifts back to the player once they walk (or after a while)
   const idlePan = performance.now() - lastPan > (game.mode === 'build' ? 1e9 : 4000);
   if ((game.player.moving && game.mode === 'play') || idlePan) panOffset.multiplyScalar(Math.exp(-dt * 3));
-  if (!view.hold) camTarget.lerp(new THREE.Vector3().copy(game.player.pos).add(panOffset), 1 - Math.exp(-dt * 6));
+  const focus = game.cameraFocus(); // a Fortune waking: the camera tours the changes
+  if (focus) camTarget.lerp(new THREE.Vector3(focus.x, 0, focus.z), 1 - Math.exp(-dt * 2.5));
+  else if (!view.hold) camTarget.lerp(new THREE.Vector3().copy(game.player.pos).add(panOffset), 1 - Math.exp(-dt * 6));
   placeCamera();
   sun.target.position.copy(camTarget);
   sun.position.copy(camTarget).add(daylight.sunOffset);

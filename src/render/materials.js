@@ -84,6 +84,11 @@ outgoingLight = mix(diffuseColor.rgb * 1.02 * uUnlit, outgoingLight, uLightMix);
   return mat;
 }
 
+/** Plain vertex-colour Lambert: what a blockout shows while its paint is missing or out of date. */
+export function makeVertexMaterial() {
+  return new THREE.MeshLambertMaterial({ vertexColors: true });
+}
+
 /** Lambert with subtle brush-stroke noise; used for procedural meshes (characters, bobber...). */
 export function makeBrushMaterial(color, { strength = 0.14, scale = 2.0, ...opts } = {}) {
   const mat = new THREE.MeshLambertMaterial({ color, ...opts });

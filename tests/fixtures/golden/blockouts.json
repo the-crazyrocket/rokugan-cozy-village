@@ -1,0 +1,158 @@
+{
+ "minka": {
+  "label": "Minka house",
+  "footprint": [
+   3,
+   3
+  ],
+  "desc": "small traditional Japanese minka farmhouse with a thick thatched straw hipped roof, dark timber frame, cream plaster walls, paper shoji windows, a wooden veranda and stone foundation",
+  "parts": 27,
+  "hash": "a231dda09638e8165e74cdd08f26207202b65a28"
+ },
+ "crate": {
+  "label": "Wooden crate",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "small wooden produce crate with dark corner posts and cross bracing, a white daikon radish with green leaves peeking out of the top",
+  "parts": 17,
+  "hash": "710233791c4ac82d6468909defabac2967d764f1"
+ },
+ "pot": {
+  "label": "Clay pot",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "round terracotta clay storage pot (tsubo) with an indigo cloth band tied around its belly and a small wooden lid",
+  "parts": 6,
+  "hash": "e6d25587b041a6cef1670bcd51659e67d8f1a224"
+ },
+ "toro": {
+  "label": "Stone lantern",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "Japanese stone garden lantern (toro): round base, pillar, square fire box with warm glowing paper windows, pyramidal stone roof and a jewel finial; mossy weathered grey stone",
+  "parts": 8,
+  "hash": "7bb8ee2c7cc21bdd0c98a079b758e8558624d5f0"
+ },
+ "torii": {
+  "label": "Torii gate",
+  "footprint": [
+   3,
+   1
+  ],
+  "block": [
+   [
+    1,
+    0,
+    1
+   ]
+  ],
+  "desc": "vermilion lacquered Shinto torii gate with black lintel caps, black pillar bases and a small golden plaque in the centre",
+  "parts": 11,
+  "hash": "852d528eed79982bb939c456a71216d5967aff32"
+ },
+ "fence": {
+  "label": "Fence",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "short rustic wooden fence segment with two posts, two rails, green bamboo stakes behind and straw rope ties",
+  "parts": 11,
+  "hash": "d8cf6695e65b3dd9d54b79e255203bcbb987910f"
+ },
+ "trunk": {
+  "label": "Tree trunk",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "desc": "gnarled tree trunk with three short branches (the leaves will be added separately), brown bark, a ring of moss at the base",
+  "parts": 5,
+  "hash": "632b708bcd18ca13ce5948f6845280c2cca29ee0"
+ },
+ "well": {
+  "label": "Village well",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "round stone village well with water inside, two dark wooden posts, a pulley beam, a rope with a small wooden bucket and a little grey tiled gable roof",
+  "parts": 10,
+  "hash": "a0d39c984417c948398255ca1dd2c34a91eb993c"
+ },
+ "stall": {
+  "label": "Merchant stall",
+  "footprint": [
+   2,
+   1
+  ],
+  "desc": "small wooden Japanese market stall (yatai) with a dark grey tiled roof, indigo noren curtain strips with cream lettering-free patterns, red paper lanterns, and goods (fruit, a clay jar, a fish) on the counter",
+  "parts": 21,
+  "hash": "ada5f9a9625b1ca5cb3f35df50043e1c5f3aa68c"
+ },
+ "bridge": {
+  "label": "Arched bridge",
+  "footprint": [
+   1,
+   4
+  ],
+  "onWater": true,
+  "walkable": true,
+  "desc": "small arched wooden footbridge with light wood plank deck and vermilion lacquered railings with golden post caps",
+  "parts": 51,
+  "hash": "f852dc67a368c0164f1cc2576b17febcc5056aa4"
+ },
+ "shrine_old": {
+  "label": "Quiet shrine",
+  "footprint": [
+   2,
+   2
+  ],
+  "noShop": true,
+  "desc": "small, long-forgotten Shinto shrine (hokora) on a stone platform: faded weathered dark wood, paint peeled off, roof tiles covered in thick green moss, ivy creeping up the posts, a sagging straw shimenawa rope, a tipped-over wooden offering box and a fallen brass bell in the grass; melancholic but cosy, waiting to be restored",
+  "parts": 33,
+  "hash": "0f99d22e738a2f5431bf08f43bcd685e4286dc74"
+ },
+ "shrine": {
+  "label": "Ebisu shrine",
+  "footprint": [
+   2,
+   2
+  ],
+  "noShop": true,
+  "desc": "small, freshly restored Shinto shrine (hokora) of Ebisu, god of fishermen and luck: stone platform, warm wooden hall with vermilion lacquered posts, paper lattice doors, grey tiled gable roof with golden crossed chigi and katsuogi on the ridge, a straw shimenawa rope with white paper shide zigzags, a golden bell with red rope, a golden fish plaque, a wooden offering box with gold trim and two red paper lanterns",
+  "parts": 31,
+  "hash": "d7f270ca10c38b93d1567160ebaddf3908db04c4"
+ },
+ "pier": {
+  "label": "Fishing pier",
+  "footprint": [
+   1,
+   4
+  ],
+  "onWater": true,
+  "walkable": true,
+  "noShop": true,
+  "desc": "long narrow wooden fishing pier: weathered light wood plank deck on dark wooden posts standing in the sea, a rope rail at the far end, a small paper lantern on a hook and a woven bait basket",
+  "parts": 27,
+  "hash": "8ccce8e48b8b076daf26463664f33280285da9af"
+ },
+ "stone": {
+  "label": "Sleeping stone",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "desc": "round mossy sacred boulder (iwakura) with a smaller stone on top, a thick straw shimenawa rope tied around its middle with two white paper shide zigzags, patches of moss",
+  "parts": 7,
+  "hash": "4ba70575699da00042ab6b87e0218a854cb078f5"
+ }
+}

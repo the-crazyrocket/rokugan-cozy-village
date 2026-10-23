@@ -1,0 +1,90 @@
+{
+ "ayu": {
+  "name": "Ayu",
+  "water": "fresh",
+  "weight": 6,
+  "window": 950,
+  "sell": 30
+ },
+ "koi": {
+  "name": "Koi",
+  "water": "fresh",
+  "weight": 4,
+  "window": 780,
+  "sell": 65,
+  "rare": true
+ },
+ "tai": {
+  "name": "Tai",
+  "water": "sea",
+  "weight": 6,
+  "window": 850,
+  "sell": 75
+ },
+ "fugu": {
+  "name": "Fugu",
+  "water": "sea",
+  "weight": 3,
+  "window": 650,
+  "sell": 120,
+  "rare": true
+ },
+ "aji": {
+  "name": "Aji",
+  "water": "sea",
+  "deep": true,
+  "weight": 7,
+  "window": 900,
+  "sell": 32,
+  "icon": "icons2:aji"
+ },
+ "saba": {
+  "name": "Saba",
+  "water": "sea",
+  "deep": true,
+  "weight": 7,
+  "window": 820,
+  "sell": 48,
+  "hours": [
+   5,
+   11
+  ],
+  "icon": "icons2:saba"
+ },
+ "tako": {
+  "name": "Tako",
+  "water": "sea",
+  "deep": true,
+  "weight": 5,
+  "window": 760,
+  "sell": 85,
+  "hours": [
+   16,
+   21
+  ],
+  "icon": "icons2:tako"
+ },
+ "ika": {
+  "name": "Ika",
+  "water": "sea",
+  "deep": true,
+  "weight": 6,
+  "window": 800,
+  "sell": 70,
+  "hours": [
+   19,
+   5
+  ],
+  "icon": "icons2:ika"
+ },
+ "kintai": {
+  "name": "Golden tai",
+  "water": "sea",
+  "deep": true,
+  "weight": 0.5,
+  "window": 560,
+  "sell": 420,
+  "rare": true,
+  "icon": "icons2:kintai"
+ }
+}

@@ -1,0 +1,4970 @@
+{
+ "asleep": {
+  "2026-01-01": {
+   "key": "2026-01-01",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 7,
+     "value": 112,
+     "reward": 190,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_pine",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 19,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 31,
+     "z": 16,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-02": {
+   "key": "2026-01-02",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 5,
+     "value": 170,
+     "reward": 280,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 2,
+     "value": 24,
+     "reward": 50,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    }
+   ],
+   "demand": "wildflower",
+   "specials": [
+    "prop_well",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 22,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 14,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 28,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-03": {
+   "key": "2026-01-03",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 5,
+     "value": 60,
+     "reward": 105,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_toro",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 28,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-04": {
+   "key": "2026-01-04",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "sea",
+     "n": 3,
+     "value": 270,
+     "reward": 440
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "daikon",
+   "specials": [
+    "prop_bridge",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 27,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-05": {
+   "key": "2026-01-05",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_bridge",
+    "prop_pot"
+   ],
+   "forage": [
+    {
+     "x": 29,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 12,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 26,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-06": {
+   "key": "2026-01-06",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 4,
+     "value": 64,
+     "reward": 110,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_well",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-07": {
+   "key": "2026-01-07",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "ayu",
+   "specials": [
+    "prop_sakura",
+    "prop_crate"
+   ],
+   "forage": [
+    {
+     "x": 11,
+     "z": 10,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 10,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 10,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-08": {
+   "key": "2026-01-08",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 4,
+     "value": 136,
+     "reward": 230,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 1,
+     "value": 30,
+     "reward": 60
+    }
+   ],
+   "demand": "ayu",
+   "specials": [
+    "prop_crate",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 12,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 8,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 8,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-09": {
+   "key": "2026-01-09",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "sea",
+     "n": 3,
+     "value": 270,
+     "reward": 440
+    }
+   ],
+   "demand": "daikon",
+   "specials": [
+    "prop_torii",
+    "prop_pot"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 9,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 21,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 11,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-10": {
+   "key": "2026-01-10",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 8,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 3,
+     "value": 102,
+     "reward": 175
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_minka",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 25,
+     "z": 21,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 15,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 7,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-11": {
+   "key": "2026-01-11",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_bamboo",
+    "prop_torii"
+   ],
+   "forage": [
+    {
+     "x": 22,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 14,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 11,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-12": {
+   "key": "2026-01-12",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 3,
+     "value": 165,
+     "reward": 275
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 2,
+     "value": 60,
+     "reward": 105
+    }
+   ],
+   "demand": "wildflower",
+   "specials": [
+    "prop_bamboo",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 19,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 20,
+     "z": 15,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 9,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 32,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-13": {
+   "key": "2026-01-13",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 3,
+     "value": 135,
+     "reward": 225
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_sakura",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 27,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 30,
+     "z": 20,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-14": {
+   "key": "2026-01-14",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 6,
+     "value": 72,
+     "reward": 125
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 1,
+     "value": 30,
+     "reward": 60
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_torii",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 14,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 32,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 12,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-15": {
+   "key": "2026-01-15",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 3,
+     "value": 135,
+     "reward": 225,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 8,
+     "value": 96,
+     "reward": 165,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_fence",
+    "prop_minka"
+   ],
+   "forage": [
+    {
+     "x": 25,
+     "z": 21,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 14,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 10,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-16": {
+   "key": "2026-01-16",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 3,
+     "value": 102,
+     "reward": 175
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    }
+   ],
+   "demand": "ayu",
+   "specials": [
+    "prop_minka",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 27,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-17": {
+   "key": "2026-01-17",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 1,
+     "value": 30,
+     "reward": 60
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 3,
+     "value": 135,
+     "reward": 225
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_pot",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 25,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 32,
+     "z": 20,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 14,
+     "z": 26,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-18": {
+   "key": "2026-01-18",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 3,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 2,
+     "value": 90,
+     "reward": 155
+    }
+   ],
+   "demand": "tai",
+   "specials": [
+    "prop_fence",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 26,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 8,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-19": {
+   "key": "2026-01-19",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 3,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_crate",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 8,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 14,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 30,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 30,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-20": {
+   "key": "2026-01-20",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 3,
+     "value": 165,
+     "reward": 275,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95
+    }
+   ],
+   "demand": "tai",
+   "specials": [
+    "prop_crate",
+    "prop_bamboo"
+   ],
+   "forage": [
+    {
+     "x": 31,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 8,
+     "z": 26,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-21": {
+   "key": "2026-01-21",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 4,
+     "value": 64,
+     "reward": 110
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 6,
+     "value": 72,
+     "reward": 125
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_crate",
+    "prop_pot"
+   ],
+   "forage": [
+    {
+     "x": 12,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-22": {
+   "key": "2026-01-22",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 2,
+     "value": 110,
+     "reward": 185,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 8,
+     "value": 96,
+     "reward": 165
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_torii",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 28,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 27,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-23": {
+   "key": "2026-01-23",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "wildflower",
+   "specials": [
+    "prop_well",
+    "prop_crate"
+   ],
+   "forage": [
+    {
+     "x": 15,
+     "z": 20,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 15,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 14,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-24": {
+   "key": "2026-01-24",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 2,
+     "value": 90,
+     "reward": 155
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 3,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "daikon",
+   "specials": [
+    "prop_minka",
+    "prop_torii"
+   ],
+   "forage": [
+    {
+     "x": 11,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-25": {
+   "key": "2026-01-25",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 2,
+     "value": 110,
+     "reward": 185
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_bridge",
+    "prop_torii"
+   ],
+   "forage": [
+    {
+     "x": 23,
+     "z": 11,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 10,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 16,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-26": {
+   "key": "2026-01-26",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 5,
+     "value": 60,
+     "reward": 105
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_sakura",
+    "prop_toro"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 15,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-27": {
+   "key": "2026-01-27",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 4,
+     "value": 64,
+     "reward": 110
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_sakura",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 15,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 8,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-28": {
+   "key": "2026-01-28",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 2,
+     "value": 90,
+     "reward": 155,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_toro",
+    "prop_sakura"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 16,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 9,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-29": {
+   "key": "2026-01-29",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 2,
+     "value": 24,
+     "reward": 50,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 7,
+     "value": 84,
+     "reward": 145,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_pine",
+    "prop_bamboo"
+   ],
+   "forage": [
+    {
+     "x": 24,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 31,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-30": {
+   "key": "2026-01-30",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 3,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_torii",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 15,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 34,
+     "z": 20,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 28,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 31,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 31,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  }
+ },
+ "ebisu": {
+  "2026-01-01": {
+   "key": "2026-01-01",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 7,
+     "value": 112,
+     "reward": 190,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "aji",
+   "specials": [
+    "prop_pine",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 19,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 31,
+     "z": 16,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-02": {
+   "key": "2026-01-02",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 5,
+     "value": 170,
+     "reward": 280,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 2,
+     "value": 24,
+     "reward": 50,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    }
+   ],
+   "demand": "ayu",
+   "specials": [
+    "prop_well",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 22,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 14,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 28,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-03": {
+   "key": "2026-01-03",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 5,
+     "value": 60,
+     "reward": 105,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "saba",
+   "specials": [
+    "prop_toro",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 28,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-04": {
+   "key": "2026-01-04",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "sea",
+     "n": 3,
+     "value": 270,
+     "reward": 440
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_bridge",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 27,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-05": {
+   "key": "2026-01-05",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "wildflower",
+   "specials": [
+    "prop_bridge",
+    "prop_pot"
+   ],
+   "forage": [
+    {
+     "x": 29,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 12,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 26,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-06": {
+   "key": "2026-01-06",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 4,
+     "value": 64,
+     "reward": 110,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_well",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-07": {
+   "key": "2026-01-07",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "fugu",
+   "specials": [
+    "prop_sakura",
+    "prop_crate"
+   ],
+   "forage": [
+    {
+     "x": 11,
+     "z": 10,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 10,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 10,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-08": {
+   "key": "2026-01-08",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 4,
+     "value": 136,
+     "reward": 230,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 1,
+     "value": 30,
+     "reward": 60
+    }
+   ],
+   "demand": "aji",
+   "specials": [
+    "prop_crate",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 12,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 8,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 8,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-09": {
+   "key": "2026-01-09",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "sea",
+     "n": 3,
+     "value": 270,
+     "reward": 440
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_torii",
+    "prop_pot"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 9,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 21,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 11,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-10": {
+   "key": "2026-01-10",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 8,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 3,
+     "value": 102,
+     "reward": 175
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "saba",
+   "specials": [
+    "prop_minka",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 25,
+     "z": 21,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 15,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 7,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-11": {
+   "key": "2026-01-11",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_bamboo",
+    "prop_torii"
+   ],
+   "forage": [
+    {
+     "x": 22,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 14,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 11,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-12": {
+   "key": "2026-01-12",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 3,
+     "value": 165,
+     "reward": 275
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 2,
+     "value": 60,
+     "reward": 105
+    }
+   ],
+   "demand": "ayu",
+   "specials": [
+    "prop_bamboo",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 19,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 20,
+     "z": 15,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 9,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 32,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-13": {
+   "key": "2026-01-13",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 3,
+     "value": 135,
+     "reward": 225
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_sakura",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 27,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 30,
+     "z": 20,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-14": {
+   "key": "2026-01-14",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 6,
+     "value": 72,
+     "reward": 125
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 1,
+     "value": 30,
+     "reward": 60
+    }
+   ],
+   "demand": "tai",
+   "specials": [
+    "prop_torii",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 14,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 32,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 12,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-15": {
+   "key": "2026-01-15",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 3,
+     "value": 135,
+     "reward": 225,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 8,
+     "value": 96,
+     "reward": 165,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_fence",
+    "prop_minka"
+   ],
+   "forage": [
+    {
+     "x": 25,
+     "z": 21,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 14,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 10,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-16": {
+   "key": "2026-01-16",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "tea",
+     "n": 3,
+     "value": 102,
+     "reward": 175
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    }
+   ],
+   "demand": "aji",
+   "specials": [
+    "prop_minka",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 27,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 19,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-17": {
+   "key": "2026-01-17",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "ayu",
+     "n": 1,
+     "value": 30,
+     "reward": 60
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 3,
+     "value": 135,
+     "reward": 225
+    }
+   ],
+   "demand": "tai",
+   "specials": [
+    "prop_pot",
+    "prop_pine"
+   ],
+   "forage": [
+    {
+     "x": 25,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 32,
+     "z": 20,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 14,
+     "z": 26,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-18": {
+   "key": "2026-01-18",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 4,
+     "value": 72,
+     "reward": 125,
+     "bonus": {
+      "item": "seed_tea",
+      "n": 2
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 3,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 2,
+     "value": 90,
+     "reward": 155
+    }
+   ],
+   "demand": "ika",
+   "specials": [
+    "prop_fence",
+    "prop_bridge"
+   ],
+   "forage": [
+    {
+     "x": 26,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 11,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 8,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-19": {
+   "key": "2026-01-19",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 3,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 5,
+     "value": 80,
+     "reward": 140
+    }
+   ],
+   "demand": "koi",
+   "specials": [
+    "prop_crate",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 8,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 14,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 30,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 30,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-20": {
+   "key": "2026-01-20",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 3,
+     "value": 165,
+     "reward": 275,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95
+    }
+   ],
+   "demand": "tako",
+   "specials": [
+    "prop_crate",
+    "prop_bamboo"
+   ],
+   "forage": [
+    {
+     "x": 31,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 8,
+     "z": 26,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-21": {
+   "key": "2026-01-21",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 4,
+     "value": 64,
+     "reward": 110
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 6,
+     "value": 72,
+     "reward": 125
+    }
+   ],
+   "demand": "wildflower",
+   "specials": [
+    "prop_crate",
+    "prop_pot"
+   ],
+   "forage": [
+    {
+     "x": 12,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 9,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-22": {
+   "key": "2026-01-22",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 2,
+     "value": 110,
+     "reward": 185,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 8,
+     "value": 96,
+     "reward": 165
+    }
+   ],
+   "demand": "saba",
+   "specials": [
+    "prop_torii",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 28,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 26,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 27,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-23": {
+   "key": "2026-01-23",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_well",
+    "prop_crate"
+   ],
+   "forage": [
+    {
+     "x": 15,
+     "z": 20,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 15,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 14,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-24": {
+   "key": "2026-01-24",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 2,
+     "value": 90,
+     "reward": 155
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 3,
+     "value": 36,
+     "reward": 70
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "tea",
+   "specials": [
+    "prop_minka",
+    "prop_torii"
+   ],
+   "forage": [
+    {
+     "x": 11,
+     "z": 27,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 22,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 19,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 25,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-25": {
+   "key": "2026-01-25",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "any",
+     "n": 2,
+     "value": 110,
+     "reward": 185
+    }
+   ],
+   "demand": "daikon",
+   "specials": [
+    "prop_bridge",
+    "prop_torii"
+   ],
+   "forage": [
+    {
+     "x": 23,
+     "z": 11,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 15,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 10,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 10,
+     "z": 16,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-26": {
+   "key": "2026-01-26",
+   "requests": [
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 5,
+     "value": 60,
+     "reward": 105
+    }
+   ],
+   "demand": "rice",
+   "specials": [
+    "prop_sakura",
+    "prop_toro"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 15,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 23,
+     "z": 29,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 19,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-27": {
+   "key": "2026-01-27",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115,
+     "bonus": {
+      "item": "prop_fence",
+      "n": 3
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 3,
+     "value": 54,
+     "reward": 95,
+     "bonus": {
+      "item": "seed_rice",
+      "n": 3
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 4,
+     "value": 64,
+     "reward": 110
+    }
+   ],
+   "demand": "warabi",
+   "specials": [
+    "prop_sakura",
+    "prop_fence"
+   ],
+   "forage": [
+    {
+     "x": 15,
+     "z": 18,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 8,
+     "z": 23,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 13,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 16,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 12,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 11,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-28": {
+   "key": "2026-01-28",
+   "requests": [
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "rice",
+     "n": 6,
+     "value": 96,
+     "reward": 165
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "fresh",
+     "n": 2,
+     "value": 90,
+     "reward": 155,
+     "bonus": {
+      "item": "prop_toro",
+      "n": 1
+     }
+    },
+    {
+     "kind": "forage",
+     "have": 0,
+     "claimed": false,
+     "item": "forage",
+     "n": 2,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "seed_daikon",
+      "n": 4
+     }
+    }
+   ],
+   "demand": "daikon",
+   "specials": [
+    "prop_toro",
+    "prop_sakura"
+   ],
+   "forage": [
+    {
+     "x": 30,
+     "z": 16,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 13,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 9,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 24,
+     "z": 17,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-29": {
+   "key": "2026-01-29",
+   "requests": [
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 2,
+     "value": 24,
+     "reward": 50,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 7,
+     "value": 84,
+     "reward": 145,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    },
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "tai",
+     "n": 1,
+     "value": 75,
+     "reward": 130,
+     "bonus": {
+      "item": "prop_pot",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "saba",
+   "specials": [
+    "prop_pine",
+    "prop_bamboo"
+   ],
+   "forage": [
+    {
+     "x": 24,
+     "z": 23,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 25,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 18,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 31,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 17,
+     "z": 13,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  },
+  "2026-01-30": {
+   "key": "2026-01-30",
+   "requests": [
+    {
+     "kind": "catch",
+     "have": 0,
+     "claimed": false,
+     "item": "koi",
+     "n": 1,
+     "value": 65,
+     "reward": 115
+    },
+    {
+     "kind": "harvest",
+     "have": 0,
+     "claimed": false,
+     "item": "daikon",
+     "n": 4,
+     "value": 48,
+     "reward": 85
+    },
+    {
+     "kind": "deliver",
+     "have": 0,
+     "claimed": false,
+     "item": "wildflower",
+     "n": 3,
+     "value": 36,
+     "reward": 70,
+     "bonus": {
+      "item": "prop_crate",
+      "n": 1
+     }
+    }
+   ],
+   "demand": "saba",
+   "specials": [
+    "prop_torii",
+    "prop_well"
+   ],
+   "forage": [
+    {
+     "x": 18,
+     "z": 15,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 34,
+     "z": 20,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 9,
+     "z": 28,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 31,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 31,
+     "z": 17,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 18,
+     "z": 28,
+     "item": "warabi",
+     "taken": false
+    }
+   ],
+   "seen": false,
+   "gift": null
+  }
+ }
+}

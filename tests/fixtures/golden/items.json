@@ -1,0 +1,232 @@
+{
+ "hand": {
+  "name": "Hand",
+  "kind": "tool",
+  "icon": "icons:hand",
+  "hint": "Harvest, talk, interact"
+ },
+ "hoe": {
+  "name": "Hoe",
+  "kind": "tool",
+  "icon": "icons:hoe",
+  "hint": "Till grass into soil"
+ },
+ "can": {
+  "name": "Watering can",
+  "kind": "tool",
+  "icon": "icons:can",
+  "hint": "Water crops: they grow twice as fast"
+ },
+ "rod": {
+  "name": "Fishing rod",
+  "kind": "tool",
+  "icon": "icons:rod",
+  "hint": "Face water and cast"
+ },
+ "seed_rice": {
+  "name": "Rice seeds",
+  "kind": "seed",
+  "crop": "rice",
+  "icon": "icons:seed_rice",
+  "buy": 10
+ },
+ "seed_daikon": {
+  "name": "Daikon seeds",
+  "kind": "seed",
+  "crop": "daikon",
+  "icon": "icons:seed_daikon",
+  "buy": 5
+ },
+ "seed_tea": {
+  "name": "Tea seeds",
+  "kind": "seed",
+  "crop": "tea",
+  "icon": "icons:seed_tea",
+  "buy": 30
+ },
+ "rice": {
+  "name": "Rice",
+  "kind": "produce",
+  "icon": "icons:rice",
+  "sell": 16
+ },
+ "daikon": {
+  "name": "Daikon",
+  "kind": "produce",
+  "icon": "icons:daikon",
+  "sell": 12
+ },
+ "tea": {
+  "name": "Tea leaves",
+  "kind": "produce",
+  "icon": "icons:tea",
+  "sell": 34
+ },
+ "wildflower": {
+  "name": "Wildflowers",
+  "kind": "forage",
+  "icon": "vegetation:flowers_pink",
+  "sell": 12
+ },
+ "warabi": {
+  "name": "Warabi shoots",
+  "kind": "forage",
+  "icon": "vegetation:fern",
+  "sell": 22
+ },
+ "bait": {
+  "name": "Bait",
+  "kind": "bait",
+  "icon": "icons2:bait",
+  "buy": 8,
+  "unlock": "ebisu",
+  "hint": "Rare fish bite more often; one is used each time you land a fish"
+ },
+ "ayu": {
+  "name": "Ayu",
+  "kind": "fish",
+  "icon": "icons:ayu",
+  "sell": 30
+ },
+ "koi": {
+  "name": "Koi",
+  "kind": "fish",
+  "icon": "icons:koi",
+  "sell": 65
+ },
+ "tai": {
+  "name": "Tai",
+  "kind": "fish",
+  "icon": "icons:tai",
+  "sell": 75
+ },
+ "fugu": {
+  "name": "Fugu",
+  "kind": "fish",
+  "icon": "icons:fugu",
+  "sell": 120
+ },
+ "aji": {
+  "name": "Aji",
+  "kind": "fish",
+  "icon": "icons2:aji",
+  "sell": 32,
+  "unlock": "ebisu"
+ },
+ "saba": {
+  "name": "Saba",
+  "kind": "fish",
+  "icon": "icons2:saba",
+  "sell": 48,
+  "unlock": "ebisu"
+ },
+ "tako": {
+  "name": "Tako",
+  "kind": "fish",
+  "icon": "icons2:tako",
+  "sell": 85,
+  "unlock": "ebisu"
+ },
+ "ika": {
+  "name": "Ika",
+  "kind": "fish",
+  "icon": "icons2:ika",
+  "sell": 70,
+  "unlock": "ebisu"
+ },
+ "kintai": {
+  "name": "Golden tai",
+  "kind": "fish",
+  "icon": "icons2:kintai",
+  "sell": 420,
+  "unlock": "ebisu"
+ },
+ "prop_crate": {
+  "name": "Crate",
+  "kind": "prop",
+  "prop": "crate",
+  "icon": "asset:crate",
+  "buy": 20,
+  "sell": 10
+ },
+ "prop_pot": {
+  "name": "Clay pot",
+  "kind": "prop",
+  "prop": "pot",
+  "icon": "asset:pot",
+  "buy": 15,
+  "sell": 7
+ },
+ "prop_toro": {
+  "name": "Stone lantern",
+  "kind": "prop",
+  "prop": "toro",
+  "icon": "asset:toro",
+  "buy": 60,
+  "sell": 30
+ },
+ "prop_fence": {
+  "name": "Fence",
+  "kind": "prop",
+  "prop": "fence",
+  "icon": "asset:fence",
+  "buy": 8,
+  "sell": 4
+ },
+ "prop_minka": {
+  "name": "Minka house",
+  "kind": "prop",
+  "prop": "minka",
+  "icon": "asset:minka",
+  "buy": 320,
+  "sell": 160
+ },
+ "prop_torii": {
+  "name": "Torii gate",
+  "kind": "prop",
+  "prop": "torii",
+  "icon": "asset:torii",
+  "buy": 200,
+  "sell": 100
+ },
+ "prop_well": {
+  "name": "Well",
+  "kind": "prop",
+  "prop": "well",
+  "icon": "asset:well",
+  "buy": 120,
+  "sell": 60
+ },
+ "prop_bridge": {
+  "name": "Arched bridge",
+  "kind": "prop",
+  "prop": "bridge",
+  "icon": "asset:bridge",
+  "buy": 90,
+  "sell": 45
+ },
+ "prop_sakura": {
+  "name": "Sakura tree",
+  "kind": "prop",
+  "prop": "sakura",
+  "icon": "canopy:sakura_a",
+  "buy": 45,
+  "sell": 22
+ },
+ "prop_pine": {
+  "name": "Pine tree",
+  "kind": "prop",
+  "prop": "pine",
+  "icon": "canopy:pine_a",
+  "buy": 35,
+  "sell": 17
+ },
+ "prop_bamboo": {
+  "name": "Bamboo",
+  "kind": "prop",
+  "prop": "bamboo",
+  "icon": "vegetation:bamboo",
+  "buy": 25,
+  "sell": 12
+ }
+}

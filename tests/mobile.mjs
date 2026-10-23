@@ -104,6 +104,60 @@ async function runViewport(browser, base, vp) {
   await settle();
   await shot('01-village');
 
+  // ---- touch layout with the overflow tool: a registered group 'more' tool joins the bar as one more slot and a tools sheet
+  const bar = () => G(() => [...document.querySelectorAll('#hotbar .slot')].map((e) => { const r = e.getBoundingClientRect(); return { item: e.dataset.item, special: e.classList.contains('special'), sel: e.classList.contains('sel'), l: r.left, r: r.right, w: r.width, h: r.height, missing: e.querySelectorAll('.icon.missing').length }; }));
+  const checkBar = async (what) => {
+    const sl = await bar();
+    const iw = await G(() => innerWidth);
+    for (const r of sl) { assert.ok(r.w >= 44 && r.h >= 44, `${what}: slot ${r.item} >= 44px (${r.w}x${r.h})`); assert.ok(r.l >= 0 && r.r <= iw, `${what}: slot ${r.item} on screen`); }
+    return sl;
+  };
+  const plain = await bar();
+  assert.equal(plain.filter((r) => r.item === 'more').length, 0, 'no more slot without an overflow tool');
+  assert.ok(plain.some((r) => r.item === 'bag'), 'the bag has its slot');
+  await G(() => {
+    const c = __game.game.core;
+    c.tools.add('dummy', { use() {}, group: 'more' });
+    c.hotbar.add({ id: 'dummy', order: 100, compact: true, icon: 'icons:no_such_icon', name: 'Dummy', hint: 'does nothing' });
+    __game.ui.refresh();
+  });
+  let sl = await checkBar('with the more slot');
+  assert.equal(sl.filter((r) => r.item === 'dummy').length, 0, 'the overflow tool has no slot of its own');
+  assert.equal(sl.filter((r) => r.item === 'more').length, 1, 'one more slot');
+  assert.ok(sl.length <= plain.length, `the bar does not grow (${sl.length} vs ${plain.length})`);
+  assert.equal(sl.filter((r) => !r.special && r.item !== 'more').length + 1 <= 6, true, 'at most six tool slots');
+  if (vp.name === 'portrait') {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await sleep(400);
+    sl = await checkBar('360px wide');
+    assert.ok(sl.length <= 7 && sl.some((r) => r.item === 'more'), `360px: ${sl.length} slots with the more slot`);
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await sleep(400);
+  }
+  await tapEl('#hotbar .slot[data-item="more"]');
+  await page.waitForFunction(() => __game.ui.modal === 'tools', null, { timeout: 5000 });
+  await sleep(400);
+  assert.deepEqual(await G(() => [...document.querySelectorAll('#panel .bag-item')].map((e) => e.dataset.item)), ['dummy', 'bag'], 'the tools sheet lists the tool and the bag');
+  assert.equal(await G(() => document.querySelectorAll('#panel .bag-item[data-item="dummy"] .icon.missing').length), 1, 'an unknown icon shows the placeholder');
+  await shot('01b-tools-sheet');
+  await tapEl('#panel .bag-item[data-item="dummy"]');
+  await page.waitForFunction(() => __game.game.tool === 'dummy' && !__game.ui.modal, null, { timeout: 5000 });
+  sl = await checkBar('dummy in hand');
+  const more = sl.find((r) => r.item === 'more');
+  assert.ok(more.sel && more.missing === 1, 'the more slot shows the tool in hand');
+  await tapEl('#hotbar .slot[data-item="more"]');
+  await page.waitForFunction(() => __game.ui.modal === 'tools', null, { timeout: 5000 });
+  await sleep(400);
+  await tapEl('#panel .bag-item[data-item="bag"]');
+  await page.waitForFunction(() => __game.ui.modal === 'bag', null, { timeout: 5000 });
+  await G(() => __game.ui.closeModal());
+  await tapEl('#hotbar .slot[data-item="hand"]');
+  await page.waitForFunction(() => __game.game.tool === 'hand', null, { timeout: 5000 });
+  await G(() => { const c = __game.game.core; c.hotbar.remove('dummy'); c.tools.remove('dummy'); __game.ui.refresh(); });
+  sl = await checkBar('after the overflow tool is gone');
+  assert.deepEqual(sl.map((r) => r.item), plain.map((r) => r.item), 'the bar is back to what it was');
+  log('overflow tool: more slot + tools sheet ok');
+
   // ---- drag to move (floating joystick): finger goes right -> player goes right on screen
   const p0 = await G(() => ({ x: __game.game.player.pos.x, z: __game.game.player.pos.z }));
   const s0 = await screen(p0.x - 0.5, p0.z - 0.5);
@@ -172,6 +226,22 @@ async function runViewport(browser, base, vp) {
   await shot('03-today');
   await tapEl('#panel .close');
   await page.waitForFunction(() => __game.ui.modal === null, null, { timeout: 5000 });
+
+  // ---- the quiet shrine: tap it -> walk up -> offering sheet; offer with a thumb
+  const home = await G(() => { const g = __game.game; const p = [g.player.pos.x, g.player.pos.z]; g.player.pos.set(22.5, 0, 12.5); g.give('rice', 3); g.give('daikon', 1); return p; });
+  const shrineAt = await aim(22, 10, [0.6, 0.4, 0.8]);
+  await tap(shrineAt.x, shrineAt.y);
+  await page.waitForFunction(() => __game.ui.modal === 'shrine', null, { timeout: 60000 });
+  await tapEl('#panel [data-offering="harvest"] .offer');
+  await page.waitForFunction(() => __game.game.shrine.givenOf('ebisu', { id: 'harvest', items: { rice: 3 } }, 'rice') === 3, null, { timeout: 5000 });
+  await shot('03b-shrine');
+  await tapEl('#panel .close');
+  await page.waitForFunction(() => __game.ui.modal === null, null, { timeout: 5000 });
+  await G((p) => { const g = __game.game; g.player.path = null; g.player.pending = null; g.player.pos.set(p[0], 0, p[1]); }, home);
+  // wait for the follow-camera to come home before picking things on screen
+  await page.waitForFunction(() => { const g = __game.game, p = __game.tileToScreen(g.player.pos.x - 0.5, g.player.pos.z - 0.5); return Math.hypot(p.x - innerWidth / 2, p.y - innerHeight / 2) < 30; }, null, { timeout: 15000 });
+  await settle();
+  log('offered rice at the shrine');
 
   // ---- fishing: tap water -> walk to the shore, auto-select the rod, cast; reel on touch-down
   const water = await G(() => {

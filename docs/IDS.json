@@ -1,0 +1,110 @@
+{
+  "earth": {
+    "domain": "materials",
+    "owner": "wp21"
+  },
+  "stone": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "wood": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "bamboo": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "clay": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "shell": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "fibre": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "herb": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "mushroom": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "gravel": {
+    "domain": "materials",
+    "owner": "wp24"
+  },
+  "paver": {
+    "domain": "materials",
+    "owner": "wp25"
+  },
+  "plank": {
+    "domain": "materials",
+    "owner": "wp25"
+  },
+  "rope": {
+    "domain": "materials",
+    "owner": "wp25"
+  },
+  "nasu": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "kabocha": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "edamame": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "satsuma_imo": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "shiso": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "wasabi": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "lotus": {
+    "domain": "crops",
+    "owner": "wp26"
+  },
+  "sakuramasu": {
+    "domain": "fish",
+    "owner": "wp27"
+  },
+  "unagi": {
+    "domain": "fish",
+    "owner": "wp27"
+  },
+  "iwana": {
+    "domain": "fish",
+    "owner": "wp27"
+  },
+  "hirame": {
+    "domain": "fish",
+    "owner": "wp27"
+  },
+  "stairs_stone": {
+    "domain": "props",
+    "owner": "wp12"
+  },
+  "stairs_wood": {
+    "domain": "props",
+    "owner": "wp12"
+  },
+  "ramp": {
+    "domain": "props",
+    "owner": "wp12"
+  }
+}

@@ -1,16 +1,87 @@
 // Island terrain (painted tile textures blended in a Lambert shader) + sea.
 import * as THREE from 'three';
-import { W, H, T } from '../game/world.js';
+import { T } from '../world/kinds.js';
 import { NOISE_GLSL } from './materials.js';
+import { WATER_Y } from '../world/coords.js';
 
-export const WATER_Y = -0.32;
+export { WATER_Y };
 const CLIFF_DEPTH = 0.7;
+const BEVEL = 0.24;       // radius of the rounded top edge (stays above the water line)
+const BEVEL_STEPS = 4;
+const CORNER = 0.42;      // plan-view fillet radius at coastline corners (>= BEVEL, < 0.5)
+const CORNER_STEPS = 5;
+
+/**
+ * Closed coastline loops around the land, with land on the left. Each point
+ * carries its outward normal (nx, nz). Tiles that only touch diagonally stay
+ * separate, and every 90° turn is replaced by a CORNER-radius arc.
+ */
+function traceCoast(world) {
+  const key = (x, z) => x * 1000 + z;
+  const out = new Map(); // start vertex -> edges leaving it
+  const add = (x0, z0, x1, z1) => {
+    const e = { x0, z0, dx: x1 - x0, dz: z1 - z0, used: false };
+    const k = key(x0, z0);
+    if (!out.has(k)) out.set(k, []);
+    out.get(k).push(e);
+  };
+  for (let z = -1; z <= world.h; z++) for (let x = -1; x <= world.w; x++) {
+    if (!world.isLand(x, z)) continue;
+    if (!world.isLand(x, z - 1)) add(x, z, x + 1, z);
+    if (!world.isLand(x + 1, z)) add(x + 1, z, x + 1, z + 1);
+    if (!world.isLand(x, z + 1)) add(x + 1, z + 1, x, z + 1);
+    if (!world.isLand(x - 1, z)) add(x, z + 1, x, z);
+  }
+  const loops = [];
+  for (const list of out.values()) for (const first of list) {
+    if (first.used) continue;
+    // walk the loop, collecting the corners (direction changes)
+    const corners = [];
+    let e = first;
+    do {
+      e.used = true;
+      const x = e.x0 + e.dx, z = e.z0 + e.dz;
+      const next = out.get(key(x, z)).filter((n) => !n.used || n === first);
+      // two ways on at a diagonal pinch: turn towards the land to keep the tiles apart
+      const n = next.length > 1 ? next.find((c) => c.dx === -e.dz && c.dz === e.dx) || next[0] : next[0];
+      if (n.dx !== e.dx || n.dz !== e.dz) corners.push({ x, z, ax: e.dx, az: e.dz, bx: n.dx, bz: n.dz });
+      e = n;
+    } while (e !== first);
+    const pts = [];
+    for (const c of corners) for (let i = 0; i <= CORNER_STEPS; i++) {
+      // fillet from C - a·R to C + b·R around O = C - a·R + b·R
+      const t = (i / CORNER_STEPS) * Math.PI / 2, ct = Math.cos(t), st = Math.sin(t);
+      const ox = c.x - c.ax * CORNER + c.bx * CORNER, oz = c.z - c.az * CORNER + c.bz * CORNER;
+      const tx = c.ax * ct + c.bx * st, tz = c.az * ct + c.bz * st; // tangent
+      pts.push({ x: ox - c.bx * CORNER * ct + c.ax * CORNER * st, z: oz - c.bz * CORNER * ct + c.az * CORNER * st, nx: tz, nz: -tx });
+    }
+    loops.push(pts);
+  }
+  return loops;
+}
+
+/** Signed area in the xz plane: positive for outer coastlines, negative for ponds. */
+function area(l) {
+  let s = 0;
+  for (let i = 0; i < l.length; i++) { const a = l[i], b = l[(i + 1) % l.length]; s += a.x * b.z - b.x * a.z; }
+  return s / 2;
+}
+
+function pointInLoop(p, l) {
+  let inside = false;
+  for (let i = 0, j = l.length - 1; i < l.length; j = i++) {
+    const a = l[i], b = l[j];
+    if ((a.z > p.z) !== (b.z > p.z) && p.x < ((b.x - a.x) * (p.z - a.z)) / (b.z - a.z) + a.x) inside = !inside;
+  }
+  return inside;
+}
 
 export class Ground {
   constructor(world, sheets) {
     this.world = world;
     this.group = new THREE.Group();
     // type map: R = sand, G = path, B = soil, A = wet soil
+    const { w: W, h: H } = world;
     this.typeData = new Uint8Array(W * H * 4);
     this.typeTex = new THREE.DataTexture(this.typeData, W, H, THREE.RGBAFormat);
     this.typeTex.magFilter = THREE.LinearFilter; this.typeTex.minFilter = THREE.LinearFilter;
@@ -49,11 +120,14 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
 {
   vec2 p = vWPos.xz;
   float n1 = rcvNoise(vec3(p * 0.9, 1.0)), n2 = rcvNoise(vec3(p * 3.1, 7.0));
-  vec3 col;
-  if (vWNormal.y < 0.5) {
+  vec3 col = vec3(0.0);
+  // the rounded rim keeps the top texture until it turns over into the cliff
+  float top = smoothstep(0.4, 0.78, normalize(vWNormal).y);
+  if (top < 1.0) {
     vec2 cp = vec2(vWPos.x + vWPos.z, vWPos.y * 1.6) * 0.35;
     col = tri(uCliff, cp) * mix(0.75, 1.0, smoothstep(-0.7, 0.0, vWPos.y));
-  } else {
+  }
+  if (top > 0.0) {
     vec2 q = p + (vec2(n1, n2) - 0.5) * 0.55;            // wobbly, painterly borders
     vec4 ty = texture2D(uType, q / uMapSize);
     vec2 cell = floor(p);
@@ -70,29 +144,66 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
     vec3 dirt = tri(uSoil, p * 0.5) * mix(1.0, 0.62, wet) * mix(0.72, 1.0, edge);
     float sw = smoothstep(0.35, 0.6, ty.r + (n2 - 0.5) * 0.25);
     float pw = smoothstep(0.35, 0.6, ty.g + (n2 - 0.5) * 0.25);
-    col = mix(grass, sand, sw);
-    col = mix(col, path, pw);
-    col = mix(col, dirt, soil);
+    vec3 tcol = mix(grass, sand, sw);
+    tcol = mix(tcol, path, pw);
+    tcol = mix(tcol, dirt, soil);
+    col = mix(col, tcol * mix(0.9, 1.0, top), top);
   }
   diffuseColor.rgb *= col;
 }`);
     };
-    mat.customProgramCacheKey = () => 'ground-v1';
+    mat.customProgramCacheKey = () => 'ground-v2';
     return mat;
   }
 
+  /**
+   * Land as one soft block: the coastline (sea, river and pond banks) is traced
+   * into closed loops, every grid corner is filleted in plan view, and a
+   * quarter-round profile rolls the top over into a vertical cliff.
+   */
   rebuildMesh() {
     const pos = [], nor = [];
-    const quad = (a, b, c, d, n) => { pos.push(...a, ...b, ...c, ...a, ...c, ...d); for (let i = 0; i < 6; i++) nor.push(...n); };
-    const w = this.world;
-    for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
-      if (!w.isLand(x, z)) continue;
-      quad([x, 0, z], [x, 0, z + 1], [x + 1, 0, z + 1], [x + 1, 0, z], [0, 1, 0]);
-      const y0 = 0, y1 = -CLIFF_DEPTH;
-      if (!w.isLand(x + 1, z)) quad([x + 1, y0, z + 1], [x + 1, y1, z + 1], [x + 1, y1, z], [x + 1, y0, z], [1, 0, 0]);
-      if (!w.isLand(x - 1, z)) quad([x, y0, z], [x, y1, z], [x, y1, z + 1], [x, y0, z + 1], [-1, 0, 0]);
-      if (!w.isLand(x, z + 1)) quad([x, y0, z + 1], [x, y1, z + 1], [x + 1, y1, z + 1], [x + 1, y0, z + 1], [0, 0, 1]);
-      if (!w.isLand(x, z - 1)) quad([x + 1, y0, z], [x + 1, y1, z], [x, y1, z], [x, y0, z], [0, 0, -1]);
+    const tri = (a, b, c, na, nb, nc) => {
+      // keep every triangle facing the way its normals point
+      const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+      const gx = uy * vz - uz * vy, gy = uz * vx - ux * vz, gz = ux * vy - uy * vx;
+      if (gx * (na[0] + nb[0] + nc[0]) + gy * (na[1] + nb[1] + nc[1]) + gz * (na[2] + nb[2] + nc[2]) < 0) { [b, c] = [c, b]; [nb, nc] = [nc, nb]; }
+      pos.push(...a, ...b, ...c); nor.push(...na, ...nb, ...nc);
+    };
+    const UP = [0, 1, 0];
+    const loops = traceCoast(this.world);
+    // flat top: the outline inset by the bevel radius, holes (ponds, river) cut out
+    const inset = loops.map((l) => l.map((p) => new THREE.Vector2(p.x - p.nx * BEVEL, p.z - p.nz * BEVEL)));
+    const outers = [], holes = [];
+    loops.forEach((l, i) => (area(l) > 0 ? outers : holes).push(i));
+    const holesOf = new Map(outers.map((i) => [i, []]));
+    for (const h of holes) {
+      const inside = outers.filter((o) => pointInLoop(loops[h][0], loops[o])).sort((a, b) => area(loops[a]) - area(loops[b]));
+      if (inside.length) holesOf.get(inside[0]).push(h);
+    }
+    for (const [o, hs] of holesOf) {
+      const verts = [inset[o], ...hs.map((h) => inset[h])].flat();
+      for (const [a, b, c] of THREE.ShapeUtils.triangulateShape(inset[o], hs.map((h) => inset[h]))) {
+        const v = (i) => [verts[i].x, 0, verts[i].y];
+        tri(v(a), v(b), v(c), UP, UP, UP);
+      }
+    }
+    // rounded rim + cliff, swept along each loop
+    const ring = [];
+    for (let j = 0; j <= BEVEL_STEPS; j++) {
+      const th = (j / BEVEL_STEPS) * Math.PI / 2;
+      ring.push({ out: -BEVEL * (1 - Math.sin(th)), y: -BEVEL * (1 - Math.cos(th)), s: Math.sin(th), c: Math.cos(th) });
+    }
+    ring.push({ out: 0, y: -CLIFF_DEPTH, s: 1, c: 0 });
+    for (const l of loops) for (let k = 0; k < l.length; k++) {
+      const p = l[k], q = l[(k + 1) % l.length];
+      const at = (P, r) => [P.x + P.nx * r.out, r.y, P.z + P.nz * r.out];
+      const nAt = (P, r) => [P.nx * r.s, r.c, P.nz * r.s];
+      for (let j = 0; j < ring.length - 1; j++) {
+        const r0 = ring[j], r1 = ring[j + 1];
+        tri(at(p, r0), at(q, r0), at(q, r1), nAt(p, r0), nAt(q, r0), nAt(q, r1));
+        tri(at(p, r0), at(q, r1), at(p, r1), nAt(p, r0), nAt(q, r1), nAt(p, r1));
+      }
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -105,11 +216,13 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
   }
 
   updateTypes() {
-    const d = this.typeData, w = this.world;
+    const d = this.typeData, w = this.world, W = w.w, H = w.h;
     for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
       const t = w.get(x, z), i = (z * W + x) * 4;
       // water tiles next to sand read as sand so beaches blend under the waterline
-      d[i] = t === T.SAND ? 255 : 0;
+      let sand = t === T.SAND;
+      if (t === T.WATER) for (let dz = -1; dz <= 1 && !sand; dz++) for (let dx = -1; dx <= 1; dx++) if (w.get(x + dx, z + dz) === T.SAND) sand = true;
+      d[i] = sand ? 255 : 0;
       d[i + 1] = t === T.PATH ? 255 : 0;
       d[i + 2] = t === T.SOIL ? 255 : 0;
       d[i + 3] = t === T.SOIL && this.wet.has(z * W + x) ? 255 : 0;
@@ -119,6 +232,7 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
 
   makeWater(waterTex) {
     // distance-to-land field for shallows + foam
+    const { w: W, h: H } = this.world;
     const S = 2, fw = W * S, fh = H * S;
     const land = new Float32Array(fw * fh);
     for (let z = 0; z < fh; z++) for (let x = 0; x < fw; x++) land[z * fw + x] = this.world.isLand(Math.floor(x / S), Math.floor(z / S)) ? 0 : 99;

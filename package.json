@@ -10,6 +10,7 @@
     "pipeline:paint": "node pipeline/paint.mjs",
     "pipeline:post": "python3 pipeline/postprocess.py",
     "pipeline": "npm run pipeline:render && npm run pipeline:paint && npm run pipeline:post",
+    "test:logic": "node tests/logic.mjs",
     "test": "node tests/smoke.mjs && node tests/mobile.mjs",
     "test:desktop": "node tests/smoke.mjs",
     "test:mobile": "node tests/mobile.mjs"

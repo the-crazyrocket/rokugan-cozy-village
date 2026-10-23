@@ -109,13 +109,24 @@ Each phase should be playable on its own.
 
 | Phase | Scope | Why this order |
 |---|---|---|
-| 0. Foundations | PWA/offline, persistent storage, save export, save v2 migration, time service + dev time-skip, audio bus | everything after this depends on it |
-| 1. Rhythm | local-clock day/night, daily seeded refresh, crop retune (snack + main tiers), swipe-harvest, "while you were away" card | gives the reason to come back |
-| 2. Shrine, chapter 1 | shrine prop, offering UI, Ebisu wakes (pier + sea fish) | gives the long-term goal |
+| 0. Foundations ✓ | PWA/offline, persistent storage, save export, save v2 migration, time service + dev time-skip, audio bus | everything after this depends on it |
+| 1. Rhythm ✓ | local-clock day/night, daily seeded refresh, crop retune (snack + main tiers), swipe-harvest, "while you were away" card | gives the reason to come back |
+| 2. Shrine, chapter 1 ✓ | shrine prop, offering UI, Ebisu wakes (pier + sea fish) | gives the long-term goal |
 | 3. Visitors | arrangement rules, 4–6 creatures, gifts, scrapbook | makes decorating a game |
 | 4. Villagers | Hana deepened, 1–2 residents, requests, friendship, decor comments | adds people to care about |
 | 5. Collection | fish expansion, conditions, weather, collection book | reasons to try new hours and places |
 | 6. Seasons and more Fortunes | festivals, seasonal crops, processing, land expansion, house interior | long tail of content |
+
+## Status
+
+Phases 0–2 are playable (✓ above). What chapter 1 ended up as:
+
+- **The quiet shrine** sits across the river from the plaza, overgrown, with Daikoku's roped stone beside it (the hook for chapter 2).
+- **Ebisu's four offerings:** 3 rice + 2 daikon, 1 ayu + 1 koi, 2 tea + 2 wildflowers, 1 tai + 1 fugu. All of it can be found on day one: the starter field has tea, and three wildflowers spawn every day. Partial hand-ins are kept.
+- **Ringing the bell** restores the shrine, builds the pier at the end of the south road, gives 5 bait, and tours the camera over both before a "Fortune wakes" card.
+- **Deep water** off the pier: aji (any time), saba (5–11 h), tako (16–21 h), ika (19–5 h), golden tai (rare). Bait triples rare-fish odds and is used only when a fish is landed. Hana sells bait from then on.
+- **Terrain:** the land got Pokopia-style rounded top edges and filleted coastlines.
+- **Save v3** adds `shrine`. Landmarks are placed on load, so old saves get the shrine too: decorations in the way go back to the bag.
 
 ## Open questions
 

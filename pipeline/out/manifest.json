@@ -1,8 +1,8 @@
 {
- "generated": "2026-10-22T20:14:13+00:00",
+ "generated": "2026-10-23T01:55:07+00:00",
  "codexCalls": {
-  "total": 25,
-  "succeeded": 25,
+  "total": 36,
+  "succeeded": 36,
   "failed": 0
  },
  "assets": {
@@ -419,12 +419,12 @@
      "azimuth": 45,
      "codexPainted": true,
      "source": "codex",
-     "iouBeforeAlign": 0.975,
-     "iouAfterAlign": 0.975,
+     "iouBeforeAlign": 0.978,
+     "iouAfterAlign": 0.978,
      "alignApplied": false,
      "alignScale": [
       1.0011,
-      1.0073
+      1.0078
      ],
      "alignOffsetPx": [
       0,
@@ -439,14 +439,14 @@
      "codexPainted": true,
      "source": "codex",
      "iouBeforeAlign": 0.973,
-     "iouAfterAlign": 0.976,
+     "iouAfterAlign": 0.978,
      "alignApplied": true,
      "alignScale": [
-      0.9989,
-      1.0059
+      1.0022,
+      1.0062
      ],
      "alignOffsetPx": [
-      1,
+      -1,
       -3
      ],
      "note": null,
@@ -455,6 +455,186 @@
     }
    ],
    "icon": "assets/painted/icons/bridge.png"
+  },
+  "shrine_old": {
+   "label": "Quiet shrine",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.99,
+     "iouAfterAlign": 0.99,
+     "alignApplied": false,
+     "alignScale": [
+      1.0,
+      1.0
+     ],
+     "alignOffsetPx": [
+      -1,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/shrine_old_a45.webp",
+     "depth": "assets/painted/shrine_old_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.857,
+     "iouAfterAlign": 0.985,
+     "alignApplied": true,
+     "alignScale": [
+      1.0172,
+      1.026
+     ],
+     "alignOffsetPx": [
+      -6,
+      -37
+     ],
+     "note": null,
+     "texture": "assets/painted/shrine_old_a225.webp",
+     "depth": "assets/painted/shrine_old_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/shrine_old.png"
+  },
+  "shrine": {
+   "label": "Ebisu shrine",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.981,
+     "iouAfterAlign": 0.985,
+     "alignApplied": true,
+     "alignScale": [
+      0.9948,
+      1.0087
+     ],
+     "alignOffsetPx": [
+      1,
+      -6
+     ],
+     "note": null,
+     "texture": "assets/painted/shrine_a45.webp",
+     "depth": "assets/painted/shrine_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.979,
+     "iouAfterAlign": 0.985,
+     "alignApplied": true,
+     "alignScale": [
+      1.0052,
+      1.0054
+     ],
+     "alignOffsetPx": [
+      -3,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/shrine_a225.webp",
+     "depth": "assets/painted/shrine_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/shrine.png"
+  },
+  "pier": {
+   "label": "Fishing pier",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.972,
+     "iouAfterAlign": 0.977,
+     "alignApplied": true,
+     "alignScale": [
+      1.0045,
+      1.0045
+     ],
+     "alignOffsetPx": [
+      -2,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/pier_a45.webp",
+     "depth": "assets/painted/pier_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.953,
+     "iouAfterAlign": 0.957,
+     "alignApplied": true,
+     "alignScale": [
+      1.0045,
+      1.0079
+     ],
+     "alignOffsetPx": [
+      -2,
+      -4
+     ],
+     "note": null,
+     "texture": "assets/painted/pier_a225.webp",
+     "depth": "assets/painted/pier_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/pier.png"
+  },
+  "stone": {
+   "label": "Sleeping stone",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.988,
+     "iouAfterAlign": 0.99,
+     "alignApplied": true,
+     "alignScale": [
+      1.0018,
+      1.0031
+     ],
+     "alignOffsetPx": [
+      -1,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/stone_a45.webp",
+     "depth": "assets/painted/stone_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.977,
+     "iouAfterAlign": 0.985,
+     "alignApplied": true,
+     "alignScale": [
+      1.0054,
+      1.0036
+     ],
+     "alignOffsetPx": [
+      0,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/stone_a225.webp",
+     "depth": "assets/painted/stone_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/stone.png"
   }
  },
  "sheets": {
@@ -534,6 +714,21 @@
     "fugu",
     "koku",
     "basket"
+   ]
+  },
+  "icons2": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/icons2_atlas.png",
+   "cells": [
+    "aji",
+    "saba",
+    "ika",
+    "tako",
+    "kintai",
+    "bait",
+    "bell",
+    "ebisu"
    ]
   }
  }

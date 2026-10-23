@@ -3,7 +3,7 @@
 // backing a village up or moving it to another browser / the installed app.
 export const SAVE_KEY = 'rokugan-cozy-village/save/v1'; // slot name kept from v1 so old saves still load
 export const BACKUP_KEY = 'rokugan-cozy-village/save/backup';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 const CODE_PREFIX = 'RCV2';
 
 // v1 stored crop growth in ms at these stage lengths; v2 stores progress in stages.
@@ -18,6 +18,8 @@ export function migrate(s) {
       farm: (s.farm || []).map((c) => ({ type: c.type, x: c.x, z: c.z, progress: c.growth / (V1_STAGE_MS[c.type] || 60_000), last: c.last, wet: !!c.wet })),
     };
   }
+  // v3: the shrine (offerings given, Fortunes awake); landmarks are placed on load
+  if (s.v === 2) s = { ...s, v: 3, shrine: null };
   return s.v === SAVE_VERSION ? s : null;
 }
 

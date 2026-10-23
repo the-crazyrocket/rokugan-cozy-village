@@ -1,0 +1,25 @@
+// The quiet shrine and the Seven Fortunes. Each Fortune sleeps until its
+// offerings (small bundles of things from around the island) are all made;
+// waking it changes the island for good. Offerings can be made a little at a
+// time: whatever has been given stays given.
+import { addBase } from '../../core/content.js';
+
+addBase('fortunes', 'ebisu', {
+  name: 'Ebisu', title: 'Fortune of fishermen and luck', icon: 'icons2:ebisu',
+  sleeping: 'Moss covers the roof and the bell lies in the grass. Somewhere inside, Ebisu is fast asleep. Fill the offering box to wake him.',
+  awake: 'Ebisu laughs from his little hall. The sea feels deeper and kinder: the old pier is back, and stranger fish swim below it.',
+  offerings: [
+    { id: 'harvest', name: 'A farmer’s thanks', items: { rice: 3, daikon: 2 } },
+    { id: 'river', name: 'Gifts of the river', items: { ayu: 1, koi: 1 } },
+    { id: 'grove', name: 'Field and grove', items: { tea: 2, wildflower: 2 } },
+    { id: 'sea', name: 'Gifts of the sea', items: { tai: 1, fugu: 1 } },
+  ],
+  unlocks: [
+    ['asset:pier', 'Ebisu’s pier: walk out to sea and fish the deep water'],
+    ['icons2:saba', 'Five deep-sea fish: some only bite in the morning, at dusk or at night'],
+    ['icons2:bait', 'Bait at Hana’s stall: rare fish bite more often (only used when you land one)'],
+  ],
+  gift: { bait: 5 },
+});
+
+export const FORTUNE_ORDER = ['ebisu'];

@@ -1,0 +1,48 @@
+{
+ "rice": {
+  "name": "Rice",
+  "seed": "seed_rice",
+  "stageMs": 720000,
+  "yield": [
+   2,
+   3
+  ],
+  "sprite": "rice",
+  "height": [
+   0.45,
+   0.75,
+   0.95
+  ]
+ },
+ "daikon": {
+  "name": "Daikon",
+  "seed": "seed_daikon",
+  "stageMs": 120000,
+  "yield": [
+   1,
+   2
+  ],
+  "sprite": "daikon",
+  "height": [
+   0.4,
+   0.6,
+   0.8
+  ]
+ },
+ "tea": {
+  "name": "Tea",
+  "seed": "seed_tea",
+  "stageMs": 4800000,
+  "yield": [
+   3,
+   4
+  ],
+  "sprite": "tea",
+  "height": [
+   0.4,
+   0.6,
+   0.85
+  ],
+  "regrow": true
+ }
+}

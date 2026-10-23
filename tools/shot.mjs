@@ -11,7 +11,7 @@ const browser = await launchChrome();
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) console.log('[console.' + m.type() + ']', m.text()); });
 page.on('pageerror', (e) => console.log('[pageerror]', e.message));
-await page.goto(srv.url);
+await page.goto(srv.url + (process.env.SHOT_QUERY || ''));
 await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 3, null, { timeout: 90000 });
 await page.evaluate(() => document.getElementById('help').classList.add('hidden'));
 if (script) console.log(JSON.stringify(await page.evaluate(script)));

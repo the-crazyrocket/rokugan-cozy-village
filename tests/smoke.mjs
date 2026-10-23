@@ -236,15 +236,59 @@ try {
   await page.screenshot({ path: path.join(SCREENS, '05-today.png') });
   await G(() => __game.ui.closeModal());
 
-  // ---- save v2 + reload round trip
+  // ---- shrine chapter 1: offerings -> Ebisu wakes -> pier, deep-sea fish, bait
+  const landmarks = () => G(() => __game.game.props.list.map((p) => p.type).filter((t) => ['shrine_old', 'shrine', 'stone', 'pier'].includes(t)).sort());
+  assert.deepEqual(await landmarks(), ['shrine_old', 'stone'], 'a new island has the quiet shrine and the sleeping stone');
+  await G(() => { const g = __game.game; g.cancelFishing(); g.queue.length = 0; g.player.path = null; g.player.pending = null; g.player.pos.set(22.5, 0, 12.5); g.give('rice', 3); g.give('daikon', 2); g.give('ayu', 1); });
+  await settled();
+  const shrineAt = await G(() => __game.tileToScreen(22.5, 9.5, 0.7));
+  await page.mouse.click(shrineAt.x, shrineAt.y);
+  await page.waitForFunction(() => __game.ui.modal === 'shrine', null, { timeout: 60000 });
+  await page.click('#panel [data-offering="harvest"] .offer');
+  await page.click('#panel [data-offering="river"] .offer');
+  const part = await G(() => ({ given: __game.game.shrine.given, done: __game.game.shrine.doneCount('ebisu'), rice: __game.game.count('rice') }));
+  assert.equal(part.done, 1, 'harvest offering complete');
+  assert.deepEqual(part.given['ebisu.river'], { ayu: 1 }, 'partial river offering kept');
+  await G(() => { const g = __game.game; for (const [k, n] of Object.entries({ koi: 1, tea: 2, wildflower: 2, tai: 1, fugu: 1 })) g.give(k, n); });
+  for (const id of ['river', 'grove', 'sea']) await page.click(`#panel [data-offering="${id}"] .offer`);
+  assert.equal(await G(() => __game.game.shrine.ready('ebisu')), true, 'all offerings made');
+  await page.click('#panel .btn.wake');
+  await page.waitForFunction(() => __game.ui.modal === 'wake', null, { timeout: 30000 });
+  await page.screenshot({ path: path.join(SCREENS, '06-ebisu-wakes.png') });
+  await G(() => __game.ui.closeModal());
+  assert.deepEqual(await landmarks(), ['pier', 'shrine', 'stone'], 'shrine restored and pier built');
+  assert.equal(await G(() => __game.game.count('bait')), 5, 'Ebisu left bait');
+  await G(() => { __game.ui.shopTab = 'seeds'; __game.ui.openShop(); });
+  await page.waitForSelector('#panel .row[data-item="bait"]', { timeout: 5000 });
+  await G(() => __game.ui.closeModal());
+  // walk out on the pier: deep-sea fish bite there, by the hour
+  await G(() => { const g = __game.game; g.player.pos.set(20.5, 0, 32.5); g.walkTo({ x: 20, z: 36 }); });
+  await page.waitForFunction(() => { const g = __game.game; return !g.player.path && Math.floor(g.player.pos.z) === 36; }, null, { timeout: 90000 });
+  assert.ok(await G(() => __game.game.player.pos.y) > 0.1, 'standing on the pier deck');
+  const pools = await G(() => {
+    const g = __game.game, names = (fresh, pier, h) => g.fishPool(fresh, pier, h).map(([k]) => k);
+    return { beach: names(false, false, 12), morning: names(false, true, 7), night: names(false, true, 23), river: names(true, true, 12) };
+  });
+  assert.ok(!pools.beach.includes('aji') && pools.beach.includes('tai'), 'no deep-sea fish from the beach');
+  assert.ok(pools.morning.includes('saba') && !pools.morning.includes('ika'), 'saba bites in the morning');
+  assert.ok(pools.night.includes('ika') && !pools.night.includes('saba'), 'ika bites at night');
+  assert.ok(pools.river.every((k) => ['ayu', 'koi'].includes(k)), 'river fish unchanged');
+  await G(() => { const g = __game.game; g.player.facing = Math.PI / 2; g.tap({ x: 21, z: 36 }); });
+  await page.waitForFunction(() => !!__game.game.fishing, null, { timeout: 10000 });
+  await G(() => __game.game.cancelFishing());
+  log('Ebisu woke: pier, deep-sea fish, bait');
+
+  // ---- save v3 + reload round trip
   const money = await G(() => __game.game.money);
   await G(() => __game.game.save());
   const saved = await G(() => JSON.parse(localStorage.getItem('rokugan-cozy-village/save/v1')));
-  assert.ok(saved && saved.v === 2 && saved.props.length > 10 && saved.farm.length > 0 && saved.daily?.requests?.length === 3, 'saved v2 to localStorage');
+  assert.ok(saved && saved.v === 3 && saved.props.length > 10 && saved.farm.length > 0 && saved.daily?.requests?.length === 3, 'saved v3 to localStorage');
+  assert.deepEqual(saved.shrine?.awake, ['ebisu'], 'shrine state saved');
   assert.ok(!JSON.stringify(saved).match(/stamina|energy|fatigue/i), 'no energy system in the save');
   await page.reload();
   await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2, null, { timeout: 120000 });
   assert.equal(await G(() => __game.game.money), money, 'money restored from save');
+  assert.deepEqual(await landmarks(), ['pier', 'shrine', 'stone'], 'landmarks restored from save');
   assert.equal(await G(() => document.getElementById('help').classList.contains('hidden')), true, 'no welcome card when loading a save');
 
   // ---- backup code -> restore round trip
@@ -265,14 +309,76 @@ try {
     __game.game.frozen = true;
     const s = JSON.parse(localStorage.getItem('rokugan-cozy-village/save/v1'));
     const v1 = { ...s, v: 1, farm: [{ type: 'rice', x: 11, z: 26, growth: 150000, last: Date.now(), wet: false }] };
-    delete v1.daily; delete v1.timeOffset; delete v1.stats;
+    v1.props = s.props.filter((p) => !['shrine_old', 'shrine', 'stone', 'pier'].includes(p.type));
+    delete v1.daily; delete v1.timeOffset; delete v1.stats; delete v1.shrine;
     localStorage.setItem('rokugan-cozy-village/save/v1', JSON.stringify(v1));
     localStorage.removeItem('rokugan-cozy-village/save/backup');
   });
   await page.reload();
   await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2, null, { timeout: 120000 });
   assert.equal(await G(() => __game.game.stage(__game.game.crop(11, 26))), 2, 'v1 crop migrated (2.5 of 3 stages)');
+  assert.deepEqual(await landmarks(), ['shrine_old', 'stone'], 'old saves get the quiet shrine');
   log('v1 save migrated');
+
+  // ---- missing art: a blockout, a sheet cell and an icon with no paint get placeholders and raise no error (the error list is asserted at the end)
+  const art = await G(async () => {
+    const THREE = await import('three');
+    const at = (f) => import(new URL(f, document.baseURI).href);
+    const { defineBlockout } = await at('src/assets/blockouts/registry.js');
+    const { defineSheet } = await at('src/assets/sheets/registry.js');
+    defineBlockout('mat_test', { label: 'Unpainted', footprint: [1, 1], parts: [{ shape: 'box', size: [0.6, 0.6, 0.6], pos: [0, 0.3, 0], part: 'wood' }], desc: 'a box nobody painted' });
+    defineSheet('mat_test', { cols: 1, rows: 1, width: 256, height: 256, cell: 256, subject: 'nothing', cells: [['cell', 'an icon nobody painted']] });
+    const g = __game.game, ui = __game.ui;
+    const mat = g.props.material('mat_test');
+    const mesh = new THREE.Mesh(g.props.geometry('mat_test'), mat);
+    const c = g.playerCell();
+    mesh.position.set(c.x + 2.5, 0, c.z + 0.5);
+    mesh.name = 'mat_test';
+    g.props.group.add(mesh);
+    const host = document.createElement('div');
+    host.innerHTML = ['mat_test:cell', 'mat_test:nope', 'asset:mat_test', 'nosheet:x'].map((i) => ui.iconHTML(i)).join('');
+    return { vertex: !!(mat.isMeshLambertMaterial && mat.vertexColors), tris: mesh.geometry.attributes.position.count, icons: host.querySelectorAll('.icon.missing').length };
+  });
+  assert.deepEqual(art, { vertex: true, tris: art.tris, icons: 4 }, 'an unpainted blockout gets the vertex-colour material and unknown icons the placeholder');
+  assert.ok(art.tris > 0);
+  const f0 = await G(() => __game.frames);
+  await page.waitForFunction((n) => __game.frames > n + 10, f0, { timeout: 20000 });
+  await G(() => { const g = __game.game; g.props.group.remove(g.props.group.getObjectByName('mat_test')); });
+  log('unpainted blockout, sheet cell and icons: placeholders, no errors');
+
+  // ---- registered tools and ctx.hud slots: a group 'more' tool is inline on desktop (the more slot is for compact bars), and a hud entry follows its condition
+  await G(() => {
+    const c = __game.game.core;
+    c.tools.add('dummy', { use() {}, group: 'more' });
+    c.hotbar.add({ id: 'dummy', order: 100, compact: true, icon: 'mat_test:cell', name: 'Dummy', hint: 'does nothing' });
+    const chip = (text) => () => { const b = document.createElement('button'); b.className = 'hud-chip'; b.textContent = text; return b; };
+    c.hud.add({ id: 'dummy-toolbar', slot: 'toolbar', order: 100, when: { flag: 'hud_test' }, render: chip('Toolbar chip') });
+    c.hud.add({ id: 'dummy-corner', slot: 'corner', order: 100, render: chip('Corner chip') });
+    __game.ui.refresh();
+  });
+  assert.equal(await G(() => document.querySelectorAll('#hotbar .slot[data-item="more"]').length), 0, 'no more slot on a wide screen');
+  assert.equal(await G(() => document.querySelectorAll('#hotbar .slot[data-item="dummy"] .icon.missing').length), 1, 'the tool has its own slot with the placeholder icon');
+  assert.equal(await G(() => document.querySelectorAll('#hotbar .slot').length), (await G(() => __game.ui.bar().length)) + 2, 'one slot per tool, build and bag');
+  assert.equal(await G(() => document.querySelector('#hud-corner')?.textContent), 'Corner chip', 'corner slot drawn');
+  assert.equal(await G(() => document.querySelector('#hud-toolbar')?.classList.contains('hidden') ?? true), true, 'toolbar entry hidden while its condition fails');
+  await G(() => { __game.game.core.flags.set('hud_test', true); });
+  await page.waitForFunction(() => document.querySelector('#hud-toolbar')?.textContent === 'Toolbar chip' && !document.querySelector('#hud-toolbar').classList.contains('hidden'), null, { timeout: 5000 });
+  assert.equal(await G(() => document.querySelector('#hud-toolbar').nextElementSibling?.id), 'hotbar', 'the toolbar slot sits right above the hotbar');
+  await G(() => __game.game.selectSlot(__game.ui.slotOf('dummy')));
+  await page.waitForFunction(() => __game.game.tool === 'dummy', null, { timeout: 5000 });
+  assert.match(await G(() => document.querySelector('#tool-hint').textContent), /Dummy — does nothing/, 'hint line of a tool that is not an item');
+  await page.waitForTimeout(400); // the action button redraws with the tool's icon
+  await page.screenshot({ path: path.join(SCREENS, '99-hud-dummy.png') });
+  await G(() => {
+    const g = __game.game, c = g.core;
+    g.selectSlot(0);
+    c.hotbar.remove('dummy'); c.tools.remove('dummy'); c.hud.remove('dummy-toolbar'); c.hud.remove('dummy-corner');
+    c.flags.set('hud_test', false);
+    __game.ui.refresh();
+  });
+  await page.waitForFunction(() => document.querySelector('#hud-corner').classList.contains('hidden') && document.querySelector('#hud-toolbar').classList.contains('hidden'), null, { timeout: 5000 });
+  assert.equal(await G(() => __game.game.tool), 'hand');
+  log('more-tool inline on desktop, hud slots follow their registry');
 
   // ---- offline: the service worker serves the cached game
   await page.waitForFunction(() => navigator.serviceWorker?.controller, null, { timeout: 20000 });
