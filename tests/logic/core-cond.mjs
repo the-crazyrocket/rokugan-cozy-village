@@ -233,12 +233,13 @@ export default function () {
 
   // today's fish become data: the pools equal the old Game.fishPool for 24 hours x fresh / shore / pier x bait
   const when = (f) => ({ water: f.water, ...(f.deep ? { standing: 'pier' } : {}), ...(f.hours ? { hour: f.hours } : {}) });
-  const oldPool = (fresh, onPier, h, bait) => Object.entries(FISH)
+  const OLD_FISH = Object.entries(FISH).filter(([, f]) => !f.when); // the fish from before conditions
+  const oldPool = (fresh, onPier, h, bait) => OLD_FISH
     .filter(([, f]) => (fresh ? f.water === 'fresh' : f.water === 'sea' && (onPier || !f.deep)) && fishBiting(f, h))
     .map(([k, f]) => [k, f.weight * (bait && f.rare ? BAIT_RARE : 1)]);
   const newPool = (water, standing, h, bait) => {
     const x = ctx({ hour: h, at: { x: 1, z: 1 }, world: world({ '1,1': { kind: TERRAIN.water, water } }), standing, inv: inv(bait ? { bait: 1 } : {}) });
-    return Object.entries(FISH).filter(([, f]) => cond.evaluate(when(f), x)).map(([k, f]) => [k, f.weight * (bait && f.rare ? BAIT_RARE : 1)]);
+    return OLD_FISH.filter(([, f]) => cond.evaluate(when(f), x)).map(([k, f]) => [k, f.weight * (bait && f.rare ? BAIT_RARE : 1)]);
   };
   let compared = 0;
   for (let h = 0; h < 24; h += 0.5) for (const bait of [false, true]) {

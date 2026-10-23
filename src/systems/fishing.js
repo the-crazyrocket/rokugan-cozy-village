@@ -35,7 +35,9 @@ export default defineSystem({
   },
   api(ctx) {
     // cast: null or { phase: 'wait' | 'bite', t0, biteAt, fish, spot, bait, x, z, window?, biteEnd? }; caught: fish id -> how many
-    const s = Object.assign(ctx.state, { cast: null, lastCatch: null, caught: {}, tests: new Map() });
+    const s = Object.assign(ctx.state, { cast: null, lastCatch: null, caught: {}, best: {}, tests: new Map() });
+    // the fish book's records: fish id -> the biggest one caught (cm); travels in the save's ext
+    ctx.part('fishbook', { serialize: () => ({ best: s.best }), load: (d) => { s.best = { ...(d?.best || {}) }; }, defaults: () => ({ best: {} }) });
     const props = () => ctx.use('props');
     const player = () => ctx.use('player');
     const fishDef = (id) => ctx.content.fish.get(id);
@@ -54,6 +56,13 @@ export default defineSystem({
       get cast() { return s.cast; }, set cast(v) { s.cast = v; },
       get lastCatch() { return s.lastCatch; }, set lastCatch(v) { s.lastCatch = v; },
       get caught() { return s.caught; }, set caught(v) { s.caught = v; },
+      get best() { return s.best; },
+      /** A size for a fish of this kind (cm): most are middling, a few are big. 0 for a fish without a size range. */
+      size(def) {
+        if (!def.size) return 0;
+        const r = (ctx.rng() + ctx.rng() + ctx.rng() * ctx.rng()) / 2.2;
+        return Math.round(def.size[0] + (def.size[1] - def.size[0]) * Math.min(1, r));
+      },
 
       /** Which fish bite: by water, the pier, the hour and bait (rare fish x BAIT_RARE), as [id, weight]. Hour and bait default to now. */
       pool(fresh, onPier, h, bait = baited()) {
@@ -125,14 +134,17 @@ export default defineSystem({
           const first = !s.caught[f.fish];
           const used = f.bait && ctx.inv.take('bait');
           if (used) ctx.invalidate('ui');
-          ctx.say((first ? `Your first ${def.name}!` : `You caught a ${def.name}!`) + (used ? ' (1 bait used)' : ''), item.icon);
+          const size = api.size(def), record = size > 0 && !first && size > (s.best[f.fish] || 0);
+          if (size > (s.best[f.fish] || 0)) s.best[f.fish] = size;
+          const cm = size ? `${size} cm ` : '';
+          ctx.say((first ? `Your first ${def.name}!${size ? ` (${size} cm)` : ''}` : `You caught a ${cm}${def.name}!${record ? ' A new record!' : ''}`) + (used ? ' (1 bait used)' : ''), item.icon);
           ctx.sfx(first ? 'fanfare' : 'catch');
           ctx.bus.emit('haptic', { ms: 30 });
           s.lastCatch = f.fish;
           s.caught[f.fish] = (s.caught[f.fish] || 0) + 1;
           api.cancel();
           ctx.bus.emit('catch', {
-            kind: 'fish', id: f.fish, size: def.size ? Math.round((def.size[0] + def.size[1]) / 2) : 0,
+            kind: 'fish', id: f.fish, size,
             water: ctx.world.isFresh(f.spot.x, f.spot.z) ? 'fresh' : 'sea', spot: { x: f.spot.x, z: f.spot.z },
             bait: used ? 'bait' : null, first, via: 'rod',
           });

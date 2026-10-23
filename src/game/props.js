@@ -26,6 +26,9 @@ export class PropManager {
     this.core = core;
     this.api = core.use('props');
     this.view = new PropsView(scene, painted);
+    // a prop stands on the level of its land cells (flat, by the terrain rules); a bridge on the sea-level shore
+    this.view.baseY = (p) => { const c = p.cells.find((q) => world.isLand(q.x, q.z)); return c ? world.levelY(c.x, c.z) : 0; };
+    this.baseY = this.view.baseY;
     this.group = this.view.group;
     this.geos = this.view.geos;
     this.mats = this.view.mats;
@@ -118,7 +121,8 @@ export class Ghost {
     if (!type) return;
     const { cells, cx, cz } = propCells(type, x, z, rot);
     this.lastCells = cells;
-    this.body.position.set(cx, 0.02, cz);
+    const land = cells.find((c) => this.props.world.isLand(c.x, c.z));
+    this.body.position.set(cx, (land ? this.props.world.levelY(land.x, land.z) : 0) + 0.02, cz);
     this.body.rotation.y = rot * HALF_PI;
     const mat = ok ? this.okMat : this.badMat;
     this.body.material = mat;
@@ -130,7 +134,7 @@ export class Ghost {
       m.visible = i < cells.length;
       if (!m.visible) return;
       const c = cells[i];
-      const y = this.props.world.isWater(c.x, c.z) ? -0.28 : 0.03;
+      const y = this.props.world.isWater(c.x, c.z) ? -0.28 : this.props.world.levelY(c.x, c.z) + 0.03;
       m.position.set(c.x + 0.5, y, c.z + 0.5);
       m.material = ok ? this.cellOk : this.cellBad;
     });

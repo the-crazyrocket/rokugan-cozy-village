@@ -4,7 +4,8 @@ import { defineSystem } from '../core/system.js';
 
 export const DEMAND_BONUS = 1.5;
 export const SPECIAL_DISCOUNT = 0.7;
-export const SELLABLE_KINDS = new Set(['produce', 'fish', 'forage']); // things Hana buys (and the "sell all" button sells)
+export const SELLABLE_KINDS = new Set(['produce', 'fish', 'forage', 'dish', 'bug']);
+const DEMAND_KINDS = new Set(['produce', 'fish', 'forage']); // what Hana may pay extra for (the daily roll's base draw) // things Hana buys (and the "sell all" button sells)
 
 // Game's side of the facade: `this` is the Game, which reads the api ungated
 const NAME = 'market';
@@ -96,8 +97,9 @@ export default defineSystem({
       roll(rnd, c, { pick, shuffle }) {
         const shrine = ctx.use('shrine');
         const all = [...ctx.content.itemMap()];
-        const sellables = all.filter(([, it]) => SELLABLE_KINDS.has(it.kind) && (!it.unlock || shrine.isAwake(it.unlock))).map(([id]) => id);
-        const decor = all.filter(([, it]) => it.kind === 'prop').map(([id]) => id);
+        const open = (it) => !it.unlock || shrine.isAwake(it.unlock);
+        const sellables = all.filter(([, it]) => DEMAND_KINDS.has(it.kind) && open(it)).map(([id]) => id);
+        const decor = all.filter(([, it]) => it.kind === 'prop' && open(it)).map(([id]) => id);
         return { demand: pick(sellables), specials: shuffle(decor).slice(0, 2) };
       },
     });

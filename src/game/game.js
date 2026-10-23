@@ -14,7 +14,9 @@ import { BillboardLayer, BlobShadows } from '../render/vegetation.js';
 import { buildCharacter, animateCharacter } from '../render/character.js';
 import { Particles } from '../render/particles.js';
 import { PALETTE } from '../assets/palette.js';
-import { LANDMARKS } from '../content/base/landmarks.js';
+import { LANDMARKS, HOME } from '../content/base/landmarks.js';
+import { LEGACY_OFF } from '../world/coords.js';
+import { growSave } from './grow.js';
 import { createCore } from '../core/core.js';
 import { wrapRng } from '../core/rng.js';
 import { PRIO } from '../core/bus.js';
@@ -23,6 +25,7 @@ import { installSystems } from '../systems/install.js';
 import { systems } from '../systems/index.js';
 import { installViews } from '../render/views/install.js';
 import { merchantSpot } from '../systems/shared.js';
+import { rleEncode, rleDecode } from '../core/rle.js';
 
 export { LANDMARKS };
 
@@ -55,7 +58,7 @@ export class Game {
     // until the slices are registered (S10): offerings, a waking Fortune and a handed-in request are saved at once
     for (const name of ['offer', 'wake', 'requestClaimed']) this.core.bus.on(name, (p, m) => { if (!m.away) this.save(); }, { priority: PRIO.VIEW, owner: 'game' });
     this.core.bus.on('buildMode', () => { this.player.path = null; this.player.pending = null; }, { priority: PRIO.STATE, owner: 'game' });
-    this.core.bus.on('invalidate', (p) => { if (p.what === 'veg' || p.what === 'crops' || p.what === 'ground') this.dirty[p.what] = true; else if (p.what === 'terrain') this.dirty.ground = true; }, { priority: PRIO.STATE, owner: 'game' });
+    this.core.bus.on('invalidate', (p) => { if (p.what === 'veg' || p.what === 'crops' || p.what === 'ground') this.dirty[p.what] = true; else if (p.what === 'terrain') this.dirty.ground = this.dirty.terrain = true; }, { priority: PRIO.STATE, owner: 'game' });
     this.ground = new Ground(this.world, painted.sheets);
     scene.add(this.ground.group);
     this.props = new PropManager(scene, painted, this.world, this.core);
@@ -63,9 +66,14 @@ export class Game {
     this.ghost = new Ghost(scene, this.props);
     this.veg = new BillboardLayer(painted.sheets.vegetation, { capacity: 5000, name: 'vegetation' });
     this.cropLayer = new BillboardLayer(painted.sheets.crops, { capacity: 1500, name: 'crops' });
+    // one layer per crop sheet: { sheet name -> layer }
+    this.cropLayers = { crops: this.cropLayer, crops2: new BillboardLayer(painted.sheets.crops2, { capacity: 800, name: 'crops2' }), crops3: new BillboardLayer(painted.sheets.crops3, { capacity: 800, name: 'crops3' }) };
     this.canopy = new BillboardLayer(painted.sheets.canopy, { capacity: 600, name: 'canopy' });
+    this.gatherLayer = new BillboardLayer(painted.sheets.gather, { capacity: 200, name: 'gather' });
+    this.visitorLayer = new BillboardLayer(painted.sheets.visitors, { capacity: 16, name: 'visitors' });
+    this.bugLayer = new BillboardLayer(painted.sheets.bugs, { capacity: 16, name: 'bugs' });
     this.blobs = new BlobShadows(400);
-    scene.add(this.veg.mesh, this.cropLayer.mesh, this.canopy.mesh, this.blobs.mesh);
+    scene.add(this.veg.mesh, ...Object.values(this.cropLayers).map((l) => l.mesh), this.canopy.mesh, this.gatherLayer.mesh, this.visitorLayer.mesh, this.bugLayer.mesh, this.blobs.mesh);
     this.particles = new Particles(scene);
     for (let z = 0; z < this.world.h; z++) for (let x = 0; x < this.world.w; x++) {
       if (this.world.isLand(x, z) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => this.world.isFresh(x + dx, z + dz))) this.particles.fireflySources.push({ x, z });
@@ -98,8 +106,10 @@ export class Game {
   newGame() {
     this.money = START_MONEY;
     this.inv = [['hand', 1], ['hoe', 1], ['can', 1], ['rod', 1], ...Object.entries(START_INVENTORY)];
+    // the layout is authored on the old 40x40 island, which sits LEGACY_OFF tiles into the world
+    const O = LEGACY_OFF;
     const place = (type, x, z, rot = 0) => {
-      if (this.props.canPlace(type, x, z, rot, { via: 'load' })) return this.props.add(type, x, z, rot, 0, { via: 'load' });
+      if (this.props.canPlace(type, x + O, z + O, rot, { via: 'load' })) return this.props.add(type, x + O, z + O, rot, 0, { via: 'load' });
       return null;
     };
     // village layout
@@ -112,7 +122,7 @@ export class Game {
     for (const [x, z] of [[19, 26], [22, 26], [19, 23], [22, 23]]) place('toro', x, z);
     // bridge across the river where the north road meets it
     let rz = 0;
-    for (let z = 10; z < 20; z++) if (this.world.isWater(25, z)) { rz = z; break; }
+    for (let z = 10; z < 20; z++) if (this.world.isWater(25 + O, z + O)) { rz = z; break; }
     if (rz) for (const dz of [0, -1, 1]) if (place('bridge', 25, rz + dz, 0)) break; // the anchor that puts both ends on the banks
     for (const [x, z] of [[12, 30], [17, 28], [23, 16], [29, 21], [9, 24], [27, 29], [15, 16], [18, 13]]) place('sakura', x, z);
     for (const [x, z] of [[8, 15], [31, 26], [14, 33], [24, 33], [32, 17], [7, 27], [20, 9], [28, 10], [11, 10]]) place('pine', x, z, (x + z) % 4);
@@ -121,31 +131,33 @@ export class Game {
     place('crate', 16, 26); place('pot', 12, 23); place('pot', 16, 23); place('crate', 21, 17);
     // starter field
     const t0 = this.now();
-    for (let x = 11; x <= 14; x++) for (let z = 26; z <= 28; z++) this.world.set(x, z, T.SOIL);
+    for (let x = 11; x <= 14; x++) for (let z = 26; z <= 28; z++) this.world.set(x + O, z + O, T.SOIL);
     // progress is in stages; the starter field has some ready, some growing
     const crop = (type, x, z, stage) => {
-      this.farm.set(z * this.world.w + x, { type, x, z, progress: stage + 0.02, last: t0, wet: false });
+      this.farm.set((z + O) * this.world.w + x + O, { type, x: x + O, z: z + O, progress: stage + 0.02, last: t0, wet: false });
     };
     crop('rice', 11, 26, 2); crop('rice', 12, 26, 2); crop('daikon', 13, 26, 3); crop('daikon', 14, 26, 3);
     crop('tea', 11, 27, 1); crop('rice', 12, 27, 1);
-    this.player.pos.set(17.5, 0, 23.5);
+    this.player.pos.set(HOME.x + 0.5, 0, HOME.z + 0.5);
     this.ensureLandmarks();
     this.placeMerchant();
     this.daily.ensure();
     this.core.start({ fresh: true });
-    this.dirty.veg = this.dirty.crops = this.dirty.ground = true;
+    this.dirty.veg = this.dirty.crops = this.dirty.ground = this.dirty.terrain = true;
     this.save();
   }
 
   serialize() {
     return {
-      v: SAVE_VERSION, savedAt: this.now(), timeOffset: this.timeOffset,
+      v: SAVE_VERSION, size: [this.world.w, this.world.h], savedAt: this.now(), timeOffset: this.timeOffset,
       money: this.money, inv: [...this.inv], slot: this.slot,
       player: [this.player.pos.x, this.player.pos.z, this.player.facing],
       props: this.props.serialize(), tiles: this.world.diff(),
+      ...(this.world.height.some((h) => h) && { heights: rleEncode(this.world.height) }), // raised ground (absent while all flat)
       farm: [...this.farm.values()].map((c) => ({ type: c.type, x: c.x, z: c.z, progress: c.progress, last: c.last, wet: c.wet })),
       wetSoil: [...this.wetSoil],
       daily: this.daily.serialize(), stats: this.stats, shrine: this.shrine.serialize(),
+      ext: this.core.saveParts(), // what the newer systems keep (reclaim, projects, ...)
     };
   }
 
@@ -160,10 +172,12 @@ export class Game {
   /** Restore from localStorage (or from given save data, e.g. an imported code). */
   load(s = readSave()) {
     if (!s) return false;
+    s = growSave(s, this.world.w, this.world.h); // a village from the 40x40 days moves to the middle of the bigger world
     this.timeOffset = s.timeOffset || 0;
     this.money = s.money; this.inv = s.inv; this.slot = s.slot || 0;
     this.shrine.load(s.shrine);
     this.world.applyDiff(s.tiles);
+    if (s.heights) this.loadHeights(s.heights);
     // old saves: bridges were 1x3 and may hang over the water
     const fixed = fixBridges(s.props, this.world, (p) => propCells(p.type, p.x, p.z, p.rot).cells);
     for (const r of fixed.report) if (r.action === 'bag') this.give('prop_bridge');
@@ -180,13 +194,21 @@ export class Game {
     this.placeMerchant();
     const before = this.farmSnapshot();
     this.tickCrops(true);
+    this.core.loadParts(s.ext);
     this.daily.load(s.daily);
     const newDay = this.daily.ensure();
     this.core.start();
     const awayMs = this.now() - (s.savedAt || this.now());
     if (awayMs > AWAY_MS || newDay) this.away = this.awaySummary(before, awayMs, newDay);
-    this.dirty.veg = this.dirty.crops = this.dirty.ground = true;
+    this.dirty.veg = this.dirty.crops = this.dirty.ground = this.dirty.terrain = true;
     return true;
+  }
+
+  /** Raised ground from a save; a damaged array is ignored (the village stays flat rather than not loading). */
+  loadHeights(runs) {
+    let h;
+    try { h = rleDecode(runs, this.world.w * this.world.h); } catch { return; }
+    for (let i = 0; i < h.length; i++) if (h[i]) this.world.setHeight(i % this.world.w, Math.floor(i / this.world.w), h[i]);
   }
 
   static clearSave() { clearSave(); }
@@ -204,12 +226,16 @@ export class Game {
       if (s > s0) grew++;
       if (s >= RIPE && s0 < RIPE) ripe[c.type] = (ripe[c.type] || 0) + 1;
     }
-    return { awayMs, ripe, grew, newDay, forage: newDay ? this.daily.forageLeft() : 0 };
+    const built = this.core.use('projects').takeFresh().map((id) => this.core.content.projects.get(id).name);
+    const visited = this.core.use('visitors').takeFresh().map((id) => this.core.content.visitors.get(id).name);
+    return { awayMs, ripe, grew, newDay, forage: newDay ? this.daily.forageLeft() : 0, built, visited };
   }
 
   /** Back from a long break without reloading (phone app resumed): catch up + summary. */
   resume(hiddenAt, before) {
     this.tickCrops(true);
+    this.core.use('projects').check(); // a project that came due while the app was in the background
+    this.core.use('visitors').check(true); // and who came by meanwhile
     const newDay = this.daily.ensure();
     if (newDay) this.dirty.veg = true;
     const awayMs = this.now() - hiddenAt;
@@ -279,6 +305,7 @@ export class Game {
       this.nextCropTick = t + 0.5;
       this.daily.poll(); // the clock passed 5:00 while playing: a new day, announced
     }
+    this.core.update(dt, t); // the systems' own frame work (a project coming due)
     this.shrine.tick(dt); // glitter over the shrine while a Fortune's waking is celebrated
     // little glints so ripe crops and wild greens are easy to spot on a quick look
     this.sparkleT -= dt;
@@ -290,12 +317,14 @@ export class Game {
         this.particles.sparkle(s.x + 0.3 + this.rng() * 0.4, 0.35 + this.rng() * 0.4, s.z + 0.3 + this.rng() * 0.4);
       }
     }
+    if (this.dirty.terrain) { this.ground.rebuildTerrain(); this.dirty.terrain = false; }
     if (this.dirty.ground) { this.ground.wet = new Set([...[...this.farm.values()].filter((c) => c.wet).map((c) => c.z * this.world.w + c.x), ...this.wetSoil.keys()]); this.ground.updateTypes(); this.dirty.ground = false; }
     if (this.dirty.crops) { this.rebuildCrops(); this.dirty.crops = false; }
     if (this.dirty.veg) { this.rebuildVegetation(); this.dirty.veg = false; }
-    this.veg.update(t); this.cropLayer.update(t); this.canopy.update(t); this.ground.update(t);
+    this.veg.update(t); for (const l of Object.values(this.cropLayers)) l.update(t); this.canopy.update(t); this.gatherLayer.update(t); this.visitorLayer.update(t); this.bugLayer.update(t); this.ground.update(t);
     this.particles.update(dt);
     if (this.merchant) animateCharacter(this.merchant, t + 3, {});
+    this.updateVillagers(t);
     if (!this.lastSave || this.now() - this.lastSave > 10_000) this.save();
   }
 

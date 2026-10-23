@@ -23,6 +23,16 @@ export function render(ui) {
   }
   if (!grid.children.length) grid.appendChild(el('p', 'muted', 'Your bag is empty.'));
   body.appendChild(grid);
+  const books = el('div', 'books');
+  if (Object.keys(g.core.use('fishing').caught).length) {
+    const book = el('button', 'btn fishbook-open', 'Collection');
+    book.onclick = () => ui.openModal('fishbook');
+    books.appendChild(book);
+  }
+  const scrap = el('button', 'btn scrapbook-open', 'Scrapbook');
+  scrap.onclick = () => ui.openModal('scrapbook');
+  books.appendChild(scrap);
+  body.appendChild(books);
   body.appendChild(el('p', 'muted', ui.touch
     ? 'Tip: tap a decoration to place it, or seeds to plant them. Sell produce and fish at Hana’s stall.'
     : 'Tip: click a decoration to place it. Sell produce and fish at Hana’s stall in the plaza.'));

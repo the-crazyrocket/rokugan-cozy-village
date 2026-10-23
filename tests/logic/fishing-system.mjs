@@ -12,7 +12,7 @@ import { FISH } from '../../src/game/data.js';
 import { fishPoolOld, SPOTS } from '../lib/golden-data.mjs';
 
 const at = (h) => new Date(2026, 0, 15, h).getTime();
-const same = (a, b, msg) => assert.deepEqual(a, b, msg);
+const same = (a, b, msg) => assert.deepEqual(a.filter(([id]) => !FISH[id]?.when), b, msg); // the old fish (the Wave 2 ones carry conditions)
 
 /** A shore tile with water east of it: { x, z } of the land tile, `fresh` picks the river or pond. */
 function shore(world, fresh) {
@@ -70,14 +70,14 @@ function conditions() {
 
   // content with a `when` condition (a spring-only fish) joins the pool through core/cond
   const content = createContent({ packs: false });
-  content.add('fish', 'sakuramasu', { name: 'Sakura masu', sell: 90, weight: 4, window: 800, when: { water: 'fresh', season: ['spring'], hour: [5, 10] }, size: [30, 55], shadow: 'm' });
+  content.add('fish', 'oikawa', { name: 'Oikawa', sell: 90, weight: 4, window: 800, when: { water: 'fresh', season: ['spring'], hour: [5, 10] }, size: [30, 55], shadow: 'm' });
   const spring = boot({ content, hour: 8 });
   const ids = (pool) => pool.map(([id]) => id);
   spring.clock.hour = 8;
   const inSeason = (h, month) => { const t = new Date(2026, month, 15, h).getTime(); const c = createCore({ strict: true, now: () => t, mono: () => 0, content }); c.provide('world', new World()); c.boot([props, defineSystem({ name: 'player', api: () => ({}) }), fishing]); return ids(c.use('fishing').pool(true, false)); };
-  assert.ok(inSeason(8, 3).includes('sakuramasu'), 'April morning');
-  assert.ok(!inSeason(8, 6).includes('sakuramasu'), 'July morning');
-  assert.ok(!inSeason(14, 3).includes('sakuramasu'), 'April afternoon');
+  assert.ok(inSeason(8, 3).includes('oikawa'), 'April morning');
+  assert.ok(!inSeason(8, 6).includes('oikawa'), 'July morning');
+  assert.ok(!inSeason(14, 3).includes('oikawa'), 'April afternoon');
 }
 
 function casting() {
@@ -120,7 +120,8 @@ function casting() {
   sea.me.cell = ss;
   sea.f.start({ x: ss.x + 1, z: ss.z });
   assert.deepEqual(sea.flush(), ['sfx:cast', 'fx:10', 'say:Cast into the sea... wait for a bite!']);
-  assert.equal(sea.f.cast.fish, 'fugu', 'the last of the shore pool at 0.99');
+  assert.equal(sea.f.cast.fish, sea.f.pool(false, false).at(-1)[0], 'the last of the shore pool at 0.99');
+  assert.ok(!FISH[sea.f.cast.fish].deep);
 
   const pier = boot({ rolls: [0.999, 0], hour: 12 });
   const ps = shore(pier.world, false);
@@ -133,8 +134,8 @@ function casting() {
   assert.deepEqual(pier.flush(), ['sfx:cast', 'fx:10', 'say:Cast from the pier into deep water...']);
   assert.equal(pier.f.cast.bait, true);
   assert.equal(pier.f.cast.biteAt, 1000 + (2000 + 0 * 4000) * 0.7, 'bait cuts the wait by 30%');
-  assert.ok(['aji', 'saba', 'tako', 'ika', 'kintai', 'tai', 'fugu'].includes(pier.f.cast.fish));
-  assert.equal(pier.f.cast.fish, 'kintai', '0.999 lands on the last, rarest entry');
+  assert.ok(pier.f.pool(false, true).some(([id]) => id === pier.f.cast.fish));
+  assert.equal(pier.f.cast.fish, 'maguro', '0.999 lands on the last, rarest entry');
 
   // a core of its own
   assert.equal(boot().f.cast, null);
@@ -219,19 +220,19 @@ function reeling() {
   f.reel();
   assert.deepEqual(flush().slice(0, 6), ['itemGain:ayu', 'ui', 'fx:22', 'say:You caught a Ayu!', 'sfx:catch', 'haptic:30']);
   assert.equal(caught[2].bait, null);
-
+  // a fish with a size rolls one in its range (the rolls here land just past the middle)
   // a fish with a size reports the middle of its range
   const content = createContent({ packs: false });
-  content.add('fish', 'sakuramasu', { name: 'Sakura masu', sell: 90, weight: 1e6, window: 800, when: { water: 'fresh' }, size: [30, 55], shadow: 'm' });
+  content.add('fish', 'oikawa', { name: 'Oikawa', sell: 90, weight: 1e6, window: 800, when: { water: 'fresh' }, size: [30, 55], shadow: 'm' });
   const big = boot({ content, rolls: [0.5, 0] });
   big.me.cell = s;
   big.core.bus.on('catch', (p) => caught.push(p));
   big.f.start({ x: s.x + 1, z: s.z });
-  assert.equal(big.f.cast.fish, 'sakuramasu');
+  assert.equal(big.f.cast.fish, 'oikawa');
   big.clock.mono = 1000 + 2000;
   big.f.tick();
   big.f.reel();
-  assert.deepEqual([caught.at(-1).id, caught.at(-1).size], ['sakuramasu', 43]);
+  assert.deepEqual([caught.at(-1).id, caught.at(-1).size], ['oikawa', 44]);
 
   // the catch counter can be swapped (Game keeps stats.caught pointing at it)
   const table = { koi: 3 };
@@ -267,7 +268,7 @@ function facade() {
   assert.equal(game.fishing, f.cast);
   assert.equal(game.fishing.phase, 'wait');
   same(game.fishPool(true, false, 12, false), fishPoolOld(true, false, 12, false));
-  assert.equal(game.rollFish(true, false), 'ayu');
+  assert.ok(f.pool(true, false).some(([id]) => id === game.rollFish(true, false)));
   game.cancelFishing();
   assert.equal(game.fishing, null);
   game.lastCatch = 'koi';

@@ -6,7 +6,7 @@
 import { defineSystem } from '../core/system.js';
 import { hash2 } from '../core/rng.js';
 import { MIN } from '../core/time.js';
-import { T } from '../world/kinds.js';
+import { T, WK } from '../world/kinds.js';
 import { hotbarEntry } from './shared.js';
 
 export const RIPE = 3; // stages: 0 planted seed, 1 sprout, 2 growing, 3 ripe (the same number as game/data.js)
@@ -45,7 +45,8 @@ export default defineSystem({
     const idx = (x, z) => z * ctx.world.w + x;
     const def = (type) => ctx.content.crops.get(type);
     const item = (id) => ctx.content.itemMap().get(id);
-    const seeds = () => ctx.content.crops.all().map(([, d]) => d.seed);
+    const seedOf = (id) => def(id).seed || `seed_${id}`; // a crop without one names its derived seed item
+    const seeds = () => ctx.content.crops.all().map(([id]) => seedOf(id));
     const give = (id, n) => { ctx.inv.give(id, n, { reason: 'harvest' }); ctx.invalidate('ui'); };
 
     const api = {
@@ -79,6 +80,20 @@ export default defineSystem({
       /** Tile indices the ground draws as wet: crops that are watered, and watered empty soil. */
       wetTiles: () => new Set([...[...s.farm.values()].filter((c) => c.wet).map((c) => idx(c.x, c.z)), ...s.wetSoil.keys()]),
 
+      /** A pond tile with nothing growing in it (where a pond crop is planted). */
+      isPond: (x, z) => ctx.world.isWater(x, z) && ctx.world.waterKind(x, z) === WK.POND && !ctx.use('props').at(x, z),
+      /** One more at harvest: in season, and for tea grown on raised ground. */
+      bonus(c) {
+        const d = def(c.type);
+        return (d.seasons?.includes(ctx.condCtx().season) ? 1 : 0) + (c.type === 'tea' && ctx.world.heightAt(c.x, c.z) > 0 ? 1 : 0)
+          + (api.near(c.x, c.z, 'scarecrow', 2) ? 1 : 0);
+      },
+      /** A prop of `type` within r tiles of (x, z). */
+      near(x, z, type, r) {
+        for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) if (ctx.use('props').at(x + dx, z + dz)?.type === type) return true;
+        return false;
+      },
+
       /** The 'hoe' branch of useTool. */
       till(x, z, p, c, tile) {
         if (p) { ctx.say('Something is in the way.'); return; }
@@ -111,12 +126,15 @@ export default defineSystem({
       plant(x, z, p, c, tile, tool) {
         const it = item(tool);
         if (it?.kind !== 'seed') return;
-        if (tile !== T.SOIL) { ctx.say('Till the soil with the hoe first.'); return; }
+        const d = def(it.crop), pond = d.kind === 'pond';
+        if (pond && !api.isPond(x, z)) { ctx.say(`${d.name} is planted straight into a pond.`); return; }
+        if (!pond && tile !== T.SOIL) { ctx.say('Till the soil with the hoe first.'); return; }
         if (c) { ctx.say('Something is already growing here.'); return; }
+        if (d.niche && !ctx.cond.evaluate(d.niche, ctx.condCtx({ at: { x, z } }))) { ctx.say(`${d.name} only grows ${ctx.cond.describe?.(d.niche) || 'in its own spot'}.`); return; }
         if (!ctx.inv.take(tool)) { ctx.say(`No ${it.name.toLowerCase()} left. Buy more at the stall.`); return; }
         ctx.invalidate('ui');
         const i = idx(x, z), now = ctx.now();
-        const wet = (s.wetSoil.get(i) || 0) > now;
+        const wet = pond || (s.wetSoil.get(i) || 0) > now;
         s.wetSoil.delete(i);
         s.farm.set(i, { type: it.crop, x, z, progress: 0, last: now, wet });
         player().swing();
@@ -129,9 +147,9 @@ export default defineSystem({
 
       harvest(c, via = 'hand') {
         const d = def(c.type), it = item(c.type);
-        const n = d.yield[0] + Math.floor(hash2(c.x, c.z, Math.floor(ctx.now() / 1000)) * (d.yield[1] - d.yield[0] + 1));
+        const n = d.yield[0] + Math.floor(hash2(c.x, c.z, Math.floor(ctx.now() / 1000)) * (d.yield[1] - d.yield[0] + 1)) + api.bonus(c);
         give(c.type, n);
-        if (d.regrow) { c.progress = 2; c.last = ctx.now(); c.wet = false; }
+        if (d.regrow) { c.progress = 2; c.last = ctx.now(); c.wet = d.kind === 'pond'; }
         else s.farm.delete(idx(c.x, c.z));
         player().swing();
         ctx.sfx('harvest');
@@ -153,6 +171,7 @@ export default defineSystem({
           let dt = Math.max(0, now - c.last);
           c.last = now;
           if (c.progress >= RIPE) continue;
+          if (def(c.type).kind === 'pond' || api.near(c.x, c.z, 'kakei', 1)) c.wet = true; // in the water, or beside a kakei: always watered
           const before = api.stage(c);
           if (c.wet) {
             // watered: the current stage runs at double speed, then the soil dries
@@ -175,7 +194,7 @@ export default defineSystem({
         if (crop) s.farm.delete(i);
         s.wetSoil.delete(i);
         if (crop || wet) { ctx.invalidate('crops'); ctx.invalidate('ground'); }
-        return crop ? def(crop.type).seed : null;
+        return crop ? seedOf(crop.type) : null;
       },
 
       /** Makes room for something else on a tile: the crop goes (its seed is handed back), tilled soil returns to grass. -> the seed id or null */
@@ -193,6 +212,7 @@ export default defineSystem({
   init(ctx) {
     const { api } = ctx.state;
     const item = (id) => ctx.content.itemMap().get(id);
+    const def = (type) => ctx.content.crops.get(type);
     const props = () => ctx.use('props');
     // nothing is built on a crop
     ctx.guards.add('place', (p) => (p.cells.some((q) => api.crop(q.x, q.z)) ? 'crop' : null));
@@ -220,6 +240,14 @@ export default defineSystem({
       },
     });
     ctx.resolvers.add({
+      id: 'pond-plant', priority: 55, // a pond seed in hand over open pond water: before the rod's fishing
+      fn(t, ix) {
+        const seed = ix.tool();
+        if (item(seed)?.kind !== 'seed' || def(item(seed).crop).kind !== 'pond' || api.crop(t.x, t.z) || !api.isPond(t.x, t.z)) return null;
+        return { kind: 'plant', t, seed, icon: item(seed).icon, label: 'Plant' };
+      },
+    });
+    ctx.resolvers.add({
       id: 'till', priority: 30,
       fn(t, ix) {
         const tile = ctx.world.get(t.x, t.z);
@@ -236,9 +264,11 @@ export default defineSystem({
     const at = (t) => [t.x, t.z, props().at(t.x, t.z), api.crop(t.x, t.z), ctx.world.get(t.x, t.z)];
     ctx.tools.add('can', { use: (t) => api.water(...at(t)) });
     ctx.hotbar.add(hotbarEntry(ctx, 'can', 30));
-    ctx.content.crops.all().forEach(([, def], i) => {
-      ctx.tools.add(def.seed, { use: (t) => api.plant(...at(t), def.seed) });
-      ctx.hotbar.add(hotbarEntry(ctx, def.seed, 50 + i, 'seeds'));
+    ctx.content.crops.all().forEach(([id, def], i) => {
+      const seed = def.seed || `seed_${id}`;
+      ctx.tools.add(seed, { use: (t) => api.plant(...at(t), seed) });
+      // the first three seeds always have their slot; the later ones only while there are some in the bag
+      ctx.hotbar.add({ ...hotbarEntry(ctx, seed, 50 + i, 'seeds'), ...(i >= 3 && { when: { has: seed } }) });
     });
   },
 });

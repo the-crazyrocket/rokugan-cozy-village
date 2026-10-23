@@ -2,7 +2,8 @@
 import * as THREE from 'three';
 import { T } from '../world/kinds.js';
 import { NOISE_GLSL } from './materials.js';
-import { WATER_Y } from '../world/coords.js';
+import { WATER_Y, LEVEL_Y, MAX_HEIGHT } from '../world/coords.js';
+import { surfaceGeometry, fallsGeometry, makeFallsMaterial } from './highwater.js';
 
 export { WATER_Y };
 const CLIFF_DEPTH = 0.7;
@@ -16,7 +17,7 @@ const CORNER_STEPS = 5;
  * carries its outward normal (nx, nz). Tiles that only touch diagonally stay
  * separate, and every 90° turn is replaced by a CORNER-radius arc.
  */
-function traceCoast(world) {
+function traceCoast(world, solid = (x, z) => world.isLand(x, z)) {
   const key = (x, z) => x * 1000 + z;
   const out = new Map(); // start vertex -> edges leaving it
   const add = (x0, z0, x1, z1) => {
@@ -26,11 +27,11 @@ function traceCoast(world) {
     out.get(k).push(e);
   };
   for (let z = -1; z <= world.h; z++) for (let x = -1; x <= world.w; x++) {
-    if (!world.isLand(x, z)) continue;
-    if (!world.isLand(x, z - 1)) add(x, z, x + 1, z);
-    if (!world.isLand(x + 1, z)) add(x + 1, z, x + 1, z + 1);
-    if (!world.isLand(x, z + 1)) add(x + 1, z + 1, x, z + 1);
-    if (!world.isLand(x - 1, z)) add(x, z + 1, x, z);
+    if (!solid(x, z)) continue;
+    if (!solid(x, z - 1)) add(x, z, x + 1, z);
+    if (!solid(x + 1, z)) add(x + 1, z, x + 1, z + 1);
+    if (!solid(x, z + 1)) add(x + 1, z + 1, x, z + 1);
+    if (!solid(x - 1, z)) add(x, z + 1, x, z);
   }
   const loops = [];
   for (const list of out.values()) for (const first of list) {
@@ -99,6 +100,7 @@ export class Ground {
     this.rebuildMesh();
     this.water = this.makeWater(tiles.water);
     this.group.add(this.water);
+    this.rebuildHighWater();
     this.updateTypes();
   }
 
@@ -126,6 +128,7 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
   if (top < 1.0) {
     vec2 cp = vec2(vWPos.x + vWPos.z, vWPos.y * 1.6) * 0.35;
     col = tri(uCliff, cp) * mix(0.75, 1.0, smoothstep(-0.7, 0.0, vWPos.y));
+    if (vWPos.y > 0.02) col *= mix(0.78, 1.0, smoothstep(0.0, 0.3, fract(vWPos.y / ${LEVEL_Y.toFixed(3)}))); // shade at the foot of each step
   }
   if (top > 0.0) {
     vec2 q = p + (vec2(n1, n2) - 0.5) * 0.55;            // wobbly, painterly borders
@@ -152,27 +155,68 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
   diffuseColor.rgb *= col;
 }`);
     };
-    mat.customProgramCacheKey = () => 'ground-v2';
+    mat.customProgramCacheKey = () => 'ground-v3';
     return mat;
   }
 
   /**
-   * Land as one soft block: the coastline (sea, river and pond banks) is traced
-   * into closed loops, every grid corner is filleted in plan view, and a
-   * quarter-round profile rolls the top over into a vertical cliff.
+   * Land as soft blocks, one per height level: the land at level >= L (sea, river and pond banks, and the foot of every
+   * higher step) is traced into closed loops, every grid corner is filleted in plan view, and a quarter-round profile rolls
+   * the top (y = L * LEVEL_Y) over into a vertical cliff. Level 0 drops into the sea; a higher level's cliff reaches just
+   * below the rim of the level under it, so the steps read as stacked rounded blocks.
    */
   rebuildMesh() {
-    const pos = [], nor = [];
-    const tri = (a, b, c, na, nb, nc) => {
-      // keep every triangle facing the way its normals point
-      const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
-      const gx = uy * vz - uz * vy, gy = uz * vx - ux * vz, gz = ux * vy - uy * vx;
-      if (gx * (na[0] + nb[0] + nc[0]) + gy * (na[1] + nb[1] + nc[1]) + gz * (na[2] + nb[2] + nc[2]) < 0) { [b, c] = [c, b]; [nb, nc] = [nc, nb]; }
-      pos.push(...a, ...b, ...c); nor.push(...na, ...nb, ...nc);
+    const sink = () => {
+      const pos = [], nor = [];
+      const tri = (a, b, c, na, nb, nc) => {
+        // keep every triangle facing the way its normals point
+        const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+        const gx = uy * vz - uz * vy, gy = uz * vx - ux * vz, gz = ux * vy - uy * vx;
+        if (gx * (na[0] + nb[0] + nc[0]) + gy * (na[1] + nb[1] + nc[1]) + gz * (na[2] + nb[2] + nc[2]) < 0) { [b, c] = [c, b]; [nb, nc] = [nc, nb]; }
+        pos.push(...a, ...b, ...c); nor.push(...na, ...nb, ...nc);
+      };
+      const geometry = () => {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+        return g;
+      };
+      return { tri, geometry };
     };
+    const ground = sink(), walls = sink(); // walls: the cliffs of raised levels, the only ground that casts shadows
+    const world = this.world;
+    let top = 0;
+    for (let i = 0; i < world.height.length; i++) if (world.kind[i] !== T.WATER && world.height[i] > top) top = world.height[i];
+    for (let level = 0; level <= Math.min(top, MAX_HEIGHT); level++) {
+      // land stands up to its level; water on raised ground has ground under it up to the level below its own (the basin floor)
+      const solid = (x, z) => (world.isLand(x, z) ? world.heightAt(x, z) >= level : world.heightAt(x, z) > level);
+      const y0 = level * LEVEL_Y, floor = level === 0 ? -CLIFF_DEPTH : y0 - LEVEL_Y - BEVEL - 0.02;
+      this.addBlock(traceCoast(world, solid), y0, floor, ground.tri, level > 0 ? walls.tri : null);
+    }
+    const g = ground.geometry(), cg = walls.geometry();
+    if (this.mesh) {
+      this.mesh.geometry.dispose(); this.mesh.geometry = g;
+      this.caster.geometry.dispose(); this.caster.geometry = cg;
+      return;
+    }
+    this.mesh = new THREE.Mesh(g, this.material);
+    this.mesh.receiveShadow = true;
+    this.mesh.name = 'ground';
+    this.group.add(this.mesh);
+    // drawn only into the shadow map (no colour, no depth): raised ground shades what lies below it without the tops shadowing themselves
+    this.caster = new THREE.Mesh(cg, new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
+    this.caster.castShadow = true;
+    this.caster.name = 'ground-shadow';
+    this.group.add(this.caster);
+  }
+
+  /**
+   * One level's block: the flat top at y0 (holes cut out), then the rounded rim and the cliff down to `floor`, swept along each loop.
+   * `wall`, when given, also gets the rim and the cliff (the shadow caster).
+   */
+  addBlock(loops, y0, floor, tri, wall = null) {
     const UP = [0, 1, 0];
-    const loops = traceCoast(this.world);
-    // flat top: the outline inset by the bevel radius, holes (ponds, river) cut out
+    // flat top: the outline inset by the bevel radius, holes (ponds, river, lower ground) cut out
     const inset = loops.map((l) => l.map((p) => new THREE.Vector2(p.x - p.nx * BEVEL, p.z - p.nz * BEVEL)));
     const outers = [], holes = [];
     loops.forEach((l, i) => (area(l) > 0 ? outers : holes).push(i));
@@ -184,35 +228,28 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
     for (const [o, hs] of holesOf) {
       const verts = [inset[o], ...hs.map((h) => inset[h])].flat();
       for (const [a, b, c] of THREE.ShapeUtils.triangulateShape(inset[o], hs.map((h) => inset[h]))) {
-        const v = (i) => [verts[i].x, 0, verts[i].y];
+        const v = (i) => [verts[i].x, y0, verts[i].y];
         tri(v(a), v(b), v(c), UP, UP, UP);
       }
     }
-    // rounded rim + cliff, swept along each loop
     const ring = [];
     for (let j = 0; j <= BEVEL_STEPS; j++) {
       const th = (j / BEVEL_STEPS) * Math.PI / 2;
-      ring.push({ out: -BEVEL * (1 - Math.sin(th)), y: -BEVEL * (1 - Math.cos(th)), s: Math.sin(th), c: Math.cos(th) });
+      ring.push({ out: -BEVEL * (1 - Math.sin(th)), y: y0 - BEVEL * (1 - Math.cos(th)), s: Math.sin(th), c: Math.cos(th) });
     }
-    ring.push({ out: 0, y: -CLIFF_DEPTH, s: 1, c: 0 });
+    ring.push({ out: 0, y: floor, s: 1, c: 0 });
     for (const l of loops) for (let k = 0; k < l.length; k++) {
       const p = l[k], q = l[(k + 1) % l.length];
       const at = (P, r) => [P.x + P.nx * r.out, r.y, P.z + P.nz * r.out];
       const nAt = (P, r) => [P.nx * r.s, r.c, P.nz * r.s];
       for (let j = 0; j < ring.length - 1; j++) {
         const r0 = ring[j], r1 = ring[j + 1];
-        tri(at(p, r0), at(q, r0), at(q, r1), nAt(p, r0), nAt(q, r0), nAt(q, r1));
-        tri(at(p, r0), at(q, r1), at(p, r1), nAt(p, r0), nAt(q, r1), nAt(p, r1));
+        for (const f of wall ? [tri, wall] : [tri]) {
+          f(at(p, r0), at(q, r0), at(q, r1), nAt(p, r0), nAt(q, r0), nAt(q, r1));
+          f(at(p, r0), at(q, r1), at(p, r1), nAt(p, r0), nAt(q, r1), nAt(p, r1));
+        }
       }
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
-    if (this.mesh) { this.mesh.geometry.dispose(); this.mesh.geometry = g; return; }
-    this.mesh = new THREE.Mesh(g, this.material);
-    this.mesh.receiveShadow = true;
-    this.mesh.name = 'ground';
-    this.group.add(this.mesh);
   }
 
   updateTypes() {
@@ -230,8 +267,8 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
     this.typeTex.needsUpdate = true;
   }
 
-  makeWater(waterTex) {
-    // distance-to-land field for shallows + foam
+  /** Distance-to-land field (in the uDist texture): shallows and foam follow the shore, and every dug pond's banks. */
+  updateWaterField() {
     const { w: W, h: H } = this.world;
     const S = 2, fw = W * S, fh = H * S;
     const land = new Float32Array(fw * fh);
@@ -246,14 +283,45 @@ vec3 tri(sampler2D t, vec2 p){ return texture2D(t, p).rgb; }`)
       if (xx + s >= 0 && xx + s < fw && zz + s >= 0 && zz + s < fh) v = Math.min(v, land[idx(xx + s, zz + s)] + 1.414);
       land[idx(xx, zz)] = v;
     }
-    const data = new Uint8Array(fw * fh * 4);
+    if (!this.distTex) {
+      this.distTex = new THREE.DataTexture(new Uint8Array(fw * fh * 4), fw, fh, THREE.RGBAFormat);
+      this.distTex.magFilter = this.distTex.minFilter = THREE.LinearFilter;
+    }
+    const data = this.distTex.image.data;
     for (let i = 0; i < fw * fh; i++) {
       const v = Math.min(255, (land[i] / S) * 40);
       data[i * 4] = v; data[i * 4 + 1] = v; data[i * 4 + 2] = v; data[i * 4 + 3] = 255;
     }
-    const distTex = new THREE.DataTexture(data, fw, fh, THREE.RGBAFormat);
-    distTex.magFilter = distTex.minFilter = THREE.LinearFilter;
-    distTex.needsUpdate = true;
+    this.distTex.needsUpdate = true;
+  }
+
+  /** Water on raised ground and its waterfalls, rebuilt with the terrain; the sea plane covers level 0. */
+  rebuildHighWater() {
+    const swap = (mesh, g) => { mesh.geometry.dispose(); mesh.geometry = g; };
+    if (!this.high) {
+      this.high = new THREE.Mesh(surfaceGeometry(this.world), this.waterMat);
+      this.high.name = 'high-water';
+      this.falls = new THREE.Mesh(fallsGeometry(this.world), makeFallsMaterial());
+      this.falls.name = 'waterfalls';
+      this.falls.renderOrder = 3;
+      this.group.add(this.high, this.falls);
+      return;
+    }
+    swap(this.high, surfaceGeometry(this.world));
+    swap(this.falls, fallsGeometry(this.world));
+  }
+
+  /** After the ground changed shape: the blocks, the water on top of them and the shallows. */
+  rebuildTerrain() {
+    this.rebuildMesh();
+    this.updateWaterField();
+    this.rebuildHighWater();
+  }
+
+  makeWater(waterTex) {
+    const { w: W, h: H } = this.world;
+    this.updateWaterField();
+    const distTex = this.distTex;
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 }, uDist: { value: distTex }, uTex: { value: waterTex }, uMapSize: { value: new THREE.Vector2(W, H) },
@@ -294,5 +362,5 @@ void main(){
     return mesh;
   }
 
-  update(t) { this.waterMat.uniforms.uTime.value = t; }
+  update(t) { this.waterMat.uniforms.uTime.value = t; this.falls.material.uniforms.uTime.value = t; }
 }

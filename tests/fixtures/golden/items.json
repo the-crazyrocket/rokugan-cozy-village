@@ -23,6 +23,12 @@
   "icon": "icons:rod",
   "hint": "Face water and cast"
  },
+ "shovel": {
+  "name": "Shovel",
+  "kind": "tool",
+  "icon": "icons3:shovel",
+  "hint": "Cut a hill’s edge down, or dig a pond into flat ground; the earth goes in your bag"
+ },
  "seed_rice": {
   "name": "Rice seeds",
   "kind": "seed",
@@ -82,6 +88,121 @@
   "unlock": "ebisu",
   "hint": "Rare fish bite more often; one is used each time you land a fish"
  },
+ "komeko": {
+  "name": "Rice flour",
+  "kind": "craft",
+  "icon": "dishes:komeko",
+  "hint": "Milled rice, for mochi and dango"
+ },
+ "matcha": {
+  "name": "Matcha",
+  "kind": "craft",
+  "icon": "dishes:matcha",
+  "hint": "Stone-ground green tea"
+ },
+ "kinako": {
+  "name": "Kinako",
+  "kind": "craft",
+  "icon": "dishes:kinako",
+  "hint": "Roasted soybean flour, sweet and nutty"
+ },
+ "net": {
+  "name": "Bug net",
+  "kind": "tool",
+  "icon": "bugs:net",
+  "hint": "Tap a bug nearby to catch it"
+ },
+ "seed_edamame": {
+  "name": "Edamame seeds",
+  "kind": "seed",
+  "crop": "edamame",
+  "icon": "icons4:seed_edamame",
+  "buy": 4
+ },
+ "edamame": {
+  "name": "Edamame",
+  "kind": "produce",
+  "icon": "icons4:edamame",
+  "sell": 9
+ },
+ "seed_nasu": {
+  "name": "Nasu seeds",
+  "kind": "seed",
+  "crop": "nasu",
+  "icon": "icons4:seed_nasu",
+  "buy": 12
+ },
+ "nasu": {
+  "name": "Nasu",
+  "kind": "produce",
+  "icon": "icons4:nasu",
+  "sell": 22
+ },
+ "seed_satsuma_imo": {
+  "name": "Sweet potato seeds",
+  "kind": "seed",
+  "crop": "satsuma_imo",
+  "icon": "icons4:seed_satsuma_imo",
+  "buy": 20
+ },
+ "satsuma_imo": {
+  "name": "Sweet potato",
+  "kind": "produce",
+  "icon": "icons4:satsuma_imo",
+  "sell": 38
+ },
+ "seed_kabocha": {
+  "name": "Kabocha seeds",
+  "kind": "seed",
+  "crop": "kabocha",
+  "icon": "icons4:seed_kabocha",
+  "buy": 40
+ },
+ "kabocha": {
+  "name": "Kabocha",
+  "kind": "produce",
+  "icon": "icons4:kabocha",
+  "sell": 120
+ },
+ "seed_shiso": {
+  "name": "Shiso seeds",
+  "kind": "seed",
+  "crop": "shiso",
+  "icon": "icons4:seed_shiso",
+  "buy": 15
+ },
+ "shiso": {
+  "name": "Shiso",
+  "kind": "produce",
+  "icon": "icons4:shiso",
+  "sell": 14
+ },
+ "seed_wasabi": {
+  "name": "Wasabi seeds",
+  "kind": "seed",
+  "crop": "wasabi",
+  "icon": "icons4:seed_wasabi",
+  "buy": 60
+ },
+ "wasabi": {
+  "name": "Wasabi",
+  "kind": "produce",
+  "icon": "icons4:wasabi",
+  "sell": 140
+ },
+ "seed_lotus": {
+  "name": "Lotus root seeds",
+  "kind": "seed",
+  "crop": "lotus",
+  "icon": "icons4:seed_lotus",
+  "buy": 50
+ },
+ "lotus": {
+  "name": "Lotus root",
+  "kind": "produce",
+  "icon": "icons4:lotus",
+  "sell": 110
+ },
  "ayu": {
   "name": "Ayu",
   "kind": "fish",
@@ -140,6 +261,159 @@
   "icon": "icons2:kintai",
   "sell": 420,
   "unlock": "ebisu"
+ },
+ "iwana": {
+  "name": "Iwana",
+  "kind": "fish",
+  "icon": "icons5:iwana",
+  "sell": 55
+ },
+ "yamame": {
+  "name": "Yamame",
+  "kind": "fish",
+  "icon": "icons5:yamame",
+  "sell": 40
+ },
+ "unagi": {
+  "name": "Unagi",
+  "kind": "fish",
+  "icon": "icons5:unagi",
+  "sell": 110
+ },
+ "sakuramasu": {
+  "name": "Sakuramasu",
+  "kind": "fish",
+  "icon": "icons5:sakuramasu",
+  "sell": 160
+ },
+ "funa": {
+  "name": "Funa",
+  "kind": "fish",
+  "icon": "icons5:funa",
+  "sell": 18
+ },
+ "namazu": {
+  "name": "Namazu",
+  "kind": "fish",
+  "icon": "icons5:namazu",
+  "sell": 90
+ },
+ "kingyo": {
+  "name": "Kingyo",
+  "kind": "fish",
+  "icon": "icons5:kingyo",
+  "sell": 85
+ },
+ "dojo": {
+  "name": "Dojo",
+  "kind": "fish",
+  "icon": "icons5:dojo",
+  "sell": 16
+ },
+ "kisu": {
+  "name": "Kisu",
+  "kind": "fish",
+  "icon": "icons5:kisu",
+  "sell": 28
+ },
+ "haze": {
+  "name": "Haze",
+  "kind": "fish",
+  "icon": "icons5:haze",
+  "sell": 20
+ },
+ "mebaru": {
+  "name": "Mebaru",
+  "kind": "fish",
+  "icon": "icons5:mebaru",
+  "sell": 45
+ },
+ "hirame": {
+  "name": "Hirame",
+  "kind": "fish",
+  "icon": "icons5:hirame",
+  "sell": 180
+ },
+ "isaki": {
+  "name": "Isaki",
+  "kind": "fish",
+  "icon": "icons5:isaki",
+  "sell": 50
+ },
+ "buri": {
+  "name": "Buri",
+  "kind": "fish",
+  "icon": "icons5:buri",
+  "sell": 150,
+  "unlock": "ebisu"
+ },
+ "katsuo": {
+  "name": "Katsuo",
+  "kind": "fish",
+  "icon": "icons5:katsuo",
+  "sell": 130,
+  "unlock": "ebisu"
+ },
+ "maguro": {
+  "name": "Maguro",
+  "kind": "fish",
+  "icon": "icons5:maguro",
+  "sell": 600,
+  "unlock": "ebisu"
+ },
+ "monshiro": {
+  "name": "Cabbage white",
+  "kind": "bug",
+  "icon": "bugs:monshiro",
+  "sell": 20
+ },
+ "ageha": {
+  "name": "Swallowtail",
+  "kind": "bug",
+  "icon": "bugs:ageha",
+  "sell": 60
+ },
+ "hotaru": {
+  "name": "Firefly",
+  "kind": "bug",
+  "icon": "bugs:hotaru",
+  "sell": 80
+ },
+ "tonbo": {
+  "name": "Red dragonfly",
+  "kind": "bug",
+  "icon": "bugs:tonbo",
+  "sell": 45
+ },
+ "semi": {
+  "name": "Cicada",
+  "kind": "bug",
+  "icon": "bugs:semi",
+  "sell": 35
+ },
+ "suzumushi": {
+  "name": "Bell cricket",
+  "kind": "bug",
+  "icon": "bugs:suzumushi",
+  "sell": 70
+ },
+ "kabutomushi": {
+  "name": "Rhinoceros beetle",
+  "kind": "bug",
+  "icon": "bugs:kabutomushi",
+  "sell": 250
+ },
+ "tentomushi": {
+  "name": "Ladybird",
+  "kind": "bug",
+  "icon": "bugs:tentomushi",
+  "sell": 15
+ },
+ "yukimushi": {
+  "name": "Snow fly",
+  "kind": "bug",
+  "icon": "bugs:yukimushi",
+  "sell": 90
  },
  "prop_crate": {
   "name": "Crate",
@@ -228,5 +502,192 @@
   "icon": "vegetation:bamboo",
   "buy": 25,
   "sell": 12
+ },
+ "prop_stairs": {
+  "name": "Stone stairs",
+  "kind": "prop",
+  "prop": "stairs",
+  "icon": "asset:stairs",
+  "buy": 30,
+  "sell": 15
+ },
+ "prop_workbench": {
+  "name": "Workbench",
+  "kind": "prop",
+  "prop": "workbench",
+  "icon": "asset:workbench",
+  "buy": 80,
+  "sell": 40
+ },
+ "prop_kakei": {
+  "name": "Bamboo water pipe",
+  "kind": "prop",
+  "prop": "kakei",
+  "icon": "asset:kakei",
+  "buy": 60,
+  "sell": 30
+ },
+ "prop_mill": {
+  "name": "Stone mill",
+  "kind": "prop",
+  "prop": "mill",
+  "icon": "asset:mill",
+  "buy": 400,
+  "sell": 200,
+  "unlock": "daikoku"
+ },
+ "prop_kitchen": {
+  "name": "Kitchen",
+  "kind": "prop",
+  "prop": "kitchen",
+  "icon": "asset:kitchen",
+  "buy": 500,
+  "sell": 250,
+  "unlock": "daikoku"
+ },
+ "prop_scarecrow": {
+  "name": "Scarecrow",
+  "kind": "prop",
+  "prop": "scarecrow",
+  "icon": "asset:scarecrow",
+  "buy": 70,
+  "sell": 35
+ },
+ "earth": {
+  "name": "Earth",
+  "kind": "material",
+  "icon": "icons3:earth"
+ },
+ "stone": {
+  "name": "Stone",
+  "kind": "material",
+  "icon": "icons3:stone"
+ },
+ "wood": {
+  "name": "Wood",
+  "kind": "material",
+  "icon": "icons3:wood"
+ },
+ "bamboo": {
+  "name": "Bamboo",
+  "kind": "material",
+  "icon": "vegetation:bamboo"
+ },
+ "clay": {
+  "name": "Clay",
+  "kind": "material",
+  "icon": "icons3:clay"
+ },
+ "shell": {
+  "name": "Shell",
+  "kind": "material",
+  "icon": "icons3:shell"
+ },
+ "fibre": {
+  "name": "Fibre",
+  "kind": "material",
+  "icon": "icons3:fibre"
+ },
+ "herb": {
+  "name": "Herbs",
+  "kind": "material",
+  "icon": "vegetation:fern"
+ },
+ "mushroom": {
+  "name": "Mushrooms",
+  "kind": "material",
+  "icon": "icons3:mushroom"
+ },
+ "gravel": {
+  "name": "Gravel",
+  "kind": "material",
+  "icon": "tiles:path"
+ },
+ "paver": {
+  "name": "Paving stone",
+  "kind": "material",
+  "icon": "tiles:cliff"
+ },
+ "plank": {
+  "name": "Plank",
+  "kind": "material",
+  "icon": "icons:basket"
+ },
+ "rope": {
+  "name": "Rope",
+  "kind": "material",
+  "icon": "icons:basket"
+ },
+ "onigiri": {
+  "name": "Onigiri",
+  "kind": "dish",
+  "icon": "dishes:onigiri",
+  "sell": 70
+ },
+ "mochi": {
+  "name": "Mochi",
+  "kind": "dish",
+  "icon": "dishes:mochi",
+  "sell": 80
+ },
+ "kinako_dango": {
+  "name": "Kinako dango",
+  "kind": "dish",
+  "icon": "dishes:kinako_dango",
+  "sell": 110
+ },
+ "usucha": {
+  "name": "Usucha",
+  "kind": "dish",
+  "icon": "dishes:usucha",
+  "sell": 140
+ },
+ "dengaku": {
+  "name": "Nasu dengaku",
+  "kind": "dish",
+  "icon": "dishes:dengaku",
+  "sell": 90
+ },
+ "kabocha_nimono": {
+  "name": "Kabocha nimono",
+  "kind": "dish",
+  "icon": "dishes:kabocha_nimono",
+  "sell": 120
+ },
+ "yaki_imo": {
+  "name": "Yaki imo",
+  "kind": "dish",
+  "icon": "dishes:yaki_imo",
+  "sell": 70
+ },
+ "zunda_mochi": {
+  "name": "Zunda mochi",
+  "kind": "dish",
+  "icon": "dishes:zunda_mochi",
+  "sell": 130
+ },
+ "unadon": {
+  "name": "Unadon",
+  "kind": "dish",
+  "icon": "dishes:unadon",
+  "sell": 260
+ },
+ "taimeshi": {
+  "name": "Taimeshi",
+  "kind": "dish",
+  "icon": "dishes:taimeshi",
+  "sell": 220
+ },
+ "sashimi": {
+  "name": "Maguro sashimi",
+  "kind": "dish",
+  "icon": "dishes:sashimi",
+  "sell": 900
+ },
+ "zosui": {
+  "name": "Village stew",
+  "kind": "dish",
+  "icon": "dishes:zosui",
+  "sell": 40
  }
 }

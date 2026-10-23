@@ -9,12 +9,14 @@
 import { defineSystem } from '../core/system.js';
 import { LANDMARKS, HOME } from '../content/base/landmarks.js';
 import { T, WK } from '../world/kinds.js';
+import { STAIR_DIRS } from '../world/coords.js';
 import { changedTiles, propsOn, viewAfter } from '../world/edit.js';
 import { merchantSpot, SHRINE_TYPES } from './shared.js';
 
 const KINDS = ['terraform', 'dig', 'reclaim'];
 const FLOOD = 4096; // tiles one flood fill may visit
 const TILLABLE = new Set([T.GRASS, T.SAND, T.SOIL]);
+const SIDES = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 const AROUND = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
 const LANDMARK_PROPS = [['stone', 'stone'], ['shrine_old', 'shrine'], ['shrine', 'shrine'], ['pier', 'pier']]; // [prop type, LANDMARKS key]
 
@@ -62,7 +64,9 @@ export default defineSystem({
         const land = api.landmarkCells();
         for (const t of changed) {
           if (land.has(key(t.x, t.z))) return 'That ground belongs to the shrine.';
-          if (props().isBridge(t.x, t.z)) return 'That ground holds up a bridge.';
+          if (props().isBridge(t.x, t.z)) return world.stairsAt(t.x, t.z) ? 'Stairs stand there.' : 'That ground holds up a bridge.';
+          const below = props().list.find((p) => ctx.content.props.get(p.type)?.stairs && world.climbsTo(p.x, p.z) === key(t.x, t.z));
+          if (below) return 'Stairs lead up there.';
           const p = props().at(t.x, t.z);
           if (p && ctx.content.props.get(p.type)?.fixed) return 'That ground is not yours to change.';
         }
@@ -70,6 +74,16 @@ export default defineSystem({
         const leaving = new Set(propsOn(ctx, changed).map((p) => p.id));
         const before = viewAfter(ctx, { ...edit, to: {} });
         const after = viewAfter(ctx, edit, leaving);
+
+        // water stays in its basin: raised water is walled by ground at least as high, or runs on into water at most one level
+        // down (a waterfall); beyond the map is the sea at level 0
+        const wet = (x, z) => !world.inBounds(x, z) || after.kind(x, z) === T.WATER;
+        const hAt = (x, z) => (world.inBounds(x, z) ? after.height(x, z) : 0);
+        for (let z = edit.z - 1; z <= edit.z + (edit.h ?? 1); z++) for (let x = edit.x - 1; x <= edit.x + (edit.w ?? 1); x++) {
+          if (!world.inBounds(x, z) || !wet(x, z) || !hAt(x, z)) continue;
+          const h = hAt(x, z);
+          for (const [dx, dz] of SIDES) if (wet(x + dx, z + dz) ? hAt(x + dx, z + dz) < h - 1 : hAt(x + dx, z + dz) < h) return 'The water would spill out there.';
+        }
         const seenBefore = before.reach(HOME, FLOOD), seenAfter = after.reach(HOME, FLOOD);
 
         const reached = (seen, a) => {
@@ -107,5 +121,19 @@ export default defineSystem({
   init(ctx) {
     const { api } = ctx.state;
     for (const kind of KINDS) ctx.guards.add(kind, (edit) => api.check(edit));
+    // what stands on the ground stands level: stairs need the step up behind them, bridges reach from the shore at sea level
+    ctx.guards.add('place', (p) => {
+      const world = ctx.world, def = ctx.content.props.get(p.prop);
+      if (!def) return null;
+      const land = p.cells.filter((c) => world.isLand(c.x, c.z));
+      if (def.stairs) {
+        const c = p.cells[0], [dx, dz] = STAIR_DIRS[p.rot & 3];
+        const up = world.isLand(c.x + dx, c.z + dz) && world.heightAt(c.x + dx, c.z + dz) === world.heightAt(c.x, c.z) + 1;
+        return up ? null : 'Stairs go at the foot of a step, facing up it.';
+      }
+      if (land.length < p.cells.length) return land.some((c) => world.heightAt(c.x, c.z) > 0) ? 'A bridge needs shore at sea level.' : null;
+      const h = land.length ? world.heightAt(land[0].x, land[0].z) : 0;
+      return land.every((c) => world.heightAt(c.x, c.z) === h) ? null : 'The ground there is not level.';
+    });
   },
 });

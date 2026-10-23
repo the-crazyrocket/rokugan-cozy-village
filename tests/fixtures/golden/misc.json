@@ -6,7 +6,14 @@
   "rod",
   "seed_rice",
   "seed_daikon",
-  "seed_tea"
+  "seed_tea",
+  "seed_edamame",
+  "seed_nasu",
+  "seed_satsuma_imo",
+  "seed_kabocha",
+  "seed_shiso",
+  "seed_wasabi",
+  "seed_lotus"
  ],
  "START_INVENTORY": {
   "seed_rice": 4,

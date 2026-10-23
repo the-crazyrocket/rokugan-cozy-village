@@ -7,6 +7,7 @@ import { createCore } from '../../src/core/core.js';
 import { PRIO } from '../../src/core/bus.js';
 import { defineSystem } from '../../src/core/system.js';
 import { World } from '../../src/game/world.js';
+import { LEGACY_OFF as O } from '../../src/world/coords.js';
 
 function boot(opts = {}) {
   const world = new World();
@@ -73,67 +74,67 @@ function placing() {
   const events = [];
   core.bus.on('haptic', (p) => events.push(['haptic', p]));
   core.bus.on('fx', (p) => events.push(['fx', p.kind, p.opts.n]));
-  assert.equal(b.buildAt(20, 20), true);
+  assert.equal(b.buildAt(20 + O, 20 + O), true);
   assert.deepEqual(flush(), ['itemLoss:prop_crate', 'ui', 'place:crate:build', 'sfx:place', 'haptic', 'fx', 'say:Placed crate.']);
   assert.deepEqual(events, [['haptic', { ms: 12 }], ['fx', 'burst', 16]]);
-  assert.equal(pr.at(20, 20).type, 'crate');
+  assert.equal(pr.at(20 + O, 20 + O).type, 'crate');
   assert.equal(core.inv.count('prop_crate'), 1);
 
   // the same cell is taken; the player's tile and a crop are other systems' vetoes (place guards)
-  assert.equal(b.buildAt(20, 20), false);
+  assert.equal(b.buildAt(20 + O, 20 + O), false);
   assert.deepEqual(flush(), ['say:Can\'t place that here.']);
-  core.guards.add('place', (p) => (p.cells.some((c) => c.x === 22 && c.z === 20) ? 'crop' : null));
-  assert.equal(b.buildAt(22, 20), false);
+  core.guards.add('place', (p) => (p.cells.some((c) => c.x === 22 + O && c.z === 20 + O) ? 'crop' : null));
+  assert.equal(b.buildAt(22 + O, 20 + O), false);
   assert.equal(core.inv.count('prop_crate'), 1);
   flush();
 
   // the last one: the selection falls back to storing
-  assert.equal(b.buildAt(24, 20), true);
+  assert.equal(b.buildAt(24 + O, 20 + O), true);
   assert.equal(b.sel, 'pickup');
   assert.deepEqual(flush(), ['itemLoss:prop_crate', 'ui', 'place:crate:build', 'sfx:place', 'haptic', 'fx', 'say:Placed crate.', 'ui']);
   b.sel = 'prop_crate';
-  assert.equal(b.buildAt(26, 20), false);
+  assert.equal(b.buildAt(26 + O, 20 + O), false);
   assert.deepEqual(flush(), ['say:You have none left. Buy more at the stall.']);
   b.sel = 'bamboo';
-  assert.equal(b.buildAt(26, 20), false, 'not a prop');
+  assert.equal(b.buildAt(26 + O, 20 + O), false, 'not a prop');
   flush();
 
   // the preview says what the ghost shows
   core.inv.give('prop_crate');
   b.sel = 'prop_crate';
-  assert.deepEqual(b.preview({ x: 28, z: 20 }), { type: 'crate', rot: b.rot, ok: true });
-  assert.deepEqual(b.preview({ x: 20, z: 20 }), { type: 'crate', rot: b.rot, ok: false });
-  assert.deepEqual(b.preview({ x: 22, z: 20 }), { type: 'crate', rot: b.rot, ok: false }, 'vetoed by a guard');
+  assert.deepEqual(b.preview({ x: 28 + O, z: 20 + O }), { type: 'crate', rot: b.rot, ok: true });
+  assert.deepEqual(b.preview({ x: 20 + O, z: 20 + O }), { type: 'crate', rot: b.rot, ok: false });
+  assert.deepEqual(b.preview({ x: 22 + O, z: 20 + O }), { type: 'crate', rot: b.rot, ok: false }, 'vetoed by a guard');
   b.sel = 'bamboo';
-  assert.equal(b.preview({ x: 28, z: 20 }), null);
+  assert.equal(b.preview({ x: 28 + O, z: 20 + O }), null);
   b.sel = 'pickup';
-  assert.deepEqual(b.preview({ x: 20, z: 20 }), { pickup: true, ok: true });
-  assert.deepEqual(b.preview({ x: 28, z: 20 }), { pickup: true, ok: false });
-  const stall = pr.add('stall', 19, 18, 0);
+  assert.deepEqual(b.preview({ x: 20 + O, z: 20 + O }), { pickup: true, ok: true });
+  assert.deepEqual(b.preview({ x: 28 + O, z: 20 + O }), { pickup: true, ok: false });
+  const stall = pr.add('stall', 19 + O, 18 + O, 0);
   assert.deepEqual(b.preview({ x: stall.x, z: stall.z }), { pickup: true, ok: false }, 'a fixed prop cannot be taken');
-  assert.equal(world.isLand(28, 20), true);
+  assert.equal(world.isLand(28 + O, 20 + O), true);
 }
 
 function storing() {
   const { core, b, at, pr, flush } = boot({ crates: 0 });
   b.sel = 'pickup';
-  assert.equal(b.buildAt(20, 20), false);
+  assert.equal(b.buildAt(20 + O, 20 + O), false);
   assert.deepEqual(flush(), ['say:Nothing to pick up here.']);
-  const crate = pr.add('crate', 20, 20, 0);
+  const crate = pr.add('crate', 20 + O, 20 + O, 0);
   flush();
-  assert.equal(b.buildAt(20, 20), true);
+  assert.equal(b.buildAt(20 + O, 20 + O), true);
   assert.deepEqual(flush(), ['remove:crate:bag', 'itemGain:prop_crate', 'ui', 'sfx:pickup', 'fx', 'say:Picked up crate.']);
   assert.equal(core.inv.count('prop_crate'), 1);
-  assert.equal(pr.at(20, 20), null);
+  assert.equal(pr.at(20 + O, 20 + O), null);
 
-  const stall = pr.add('stall', 19, 18, 0);
+  const stall = pr.add('stall', 19 + O, 18 + O, 0);
   flush();
   assert.equal(b.pickUp(stall), false);
   assert.deepEqual(flush(), ['say:The merchant would miss their stall!']);
   assert.equal(pr.get(stall.id), stall);
 
   // a bridge cannot go while the player stands on it
-  const bridge = pr.add('bridge', 25, 15, 0);
+  const bridge = pr.add('bridge', 25 + O, 15 + O, 0);
   flush();
   at.cell = { x: bridge.cells[1].x, z: bridge.cells[1].z };
   assert.equal(b.pickUp(bridge), false);
@@ -146,7 +147,7 @@ function storing() {
 
 function rotating() {
   const { b, pr, flush } = boot();
-  const a = pr.add('crate', 20, 20, 0);
+  const a = pr.add('crate', 20 + O, 20 + O, 0);
   const id = a.id;
   flush();
   const r = b.rotateProp(a);
@@ -155,15 +156,15 @@ function rotating() {
   assert.deepEqual(flush(), ['remove:crate:gone', 'place:crate:move']);
   assert.equal(pr.get(id), r);
 
-  const stall = pr.add('stall', 19, 18, 0);
+  const stall = pr.add('stall', 19 + O, 18 + O, 0);
   flush();
   assert.equal(b.rotateProp(stall), false);
   assert.deepEqual(flush(), ['say:Hana likes her stall just where it is.']);
 
   // a long prop that does not fit turned stays as it was
-  const torii = pr.add('torii', 20, 30, 0);
+  const torii = pr.add('torii', 20 + O, 30 + O, 0);
   const now = new Set(torii.cells.map((c) => `${c.x},${c.z}`));
-  const extra = pr.cells('torii', 20, 30, 1).cells.find((c) => !now.has(`${c.x},${c.z}`));
+  const extra = pr.cells('torii', 20 + O, 30 + O, 1).cells.find((c) => !now.has(`${c.x},${c.z}`));
   pr.add('crate', extra.x, extra.z, 0);
   flush();
   assert.equal(b.rotateProp(torii), false);
@@ -173,34 +174,34 @@ function rotating() {
 
 function moving() {
   const { core, b, pr, flush } = boot({ crates: 0 });
-  const crate = pr.add('crate', 20, 20, 2);
+  const crate = pr.add('crate', 20 + O, 20 + O, 2);
   flush();
   b.toggle(true); flush();
   assert.equal(b.moveProp(crate), true);
   assert.deepEqual(flush(), ['remove:crate:bag', 'itemGain:prop_crate', 'ui', 'sfx:pickup', 'fx', 'ui']);
-  assert.deepEqual([b.sel, b.rot, b.cursor, b.moving], ['prop_crate', 2, { x: 20, z: 20 }, { type: 'crate', x: 20, z: 20, rot: 2, id: crate.id }]);
+  assert.deepEqual([b.sel, b.rot, b.cursor, b.moving], ['prop_crate', 2, { x: 20 + O, z: 20 + O }, { type: 'crate', x: 20 + O, z: 20 + O, rot: 2, id: crate.id }]);
   assert.deepEqual(b.preview(b.cursor), { type: 'crate', rot: 2, ok: true });
 
   // drag it elsewhere and confirm: the placement counts as a move
-  b.cursor = { x: 24, z: 20 };
+  b.cursor = { x: 24 + O, z: 20 + O };
   assert.equal(b.confirm(), true);
   assert.deepEqual(flush().filter((x) => x.startsWith('place') || x.startsWith('say')), ['place:crate:move', 'say:Placed crate.']);
   assert.deepEqual([b.moving, b.cursor, b.sel], [null, null, 'pickup']);
-  assert.equal(pr.at(24, 20).type, 'crate');
+  assert.equal(pr.at(24 + O, 20 + O).type, 'crate');
   assert.equal(b.confirm(), false, 'nothing to confirm');
 
   // cancel puts the prop back where it was, with its id
-  const c2 = pr.at(24, 20);
+  const c2 = pr.at(24 + O, 20 + O);
   b.moveProp(c2); flush();
-  b.cursor = { x: 30, z: 20 };
+  b.cursor = { x: 30 + O, z: 20 + O };
   b.cancelPreview();
   assert.deepEqual(flush(), ['itemLoss:prop_crate', 'ui', 'place:crate:move', 'ui']);
-  assert.equal(pr.at(24, 20).id, c2.id);
+  assert.equal(pr.at(24 + O, 20 + O).id, c2.id);
   assert.equal(core.inv.count('prop_crate'), 0);
 
   // cancel with the spot taken keeps the prop in the bag
-  b.moveProp(pr.at(24, 20)); flush();
-  pr.add('crate', 24, 20, 0, 0, { via: 'project' }); flush();
+  b.moveProp(pr.at(24 + O, 20 + O)); flush();
+  pr.add('crate', 24 + O, 20 + O, 0, 0, { via: 'project' }); flush();
   b.cancelPreview();
   assert.deepEqual(flush(), ['ui']);
   assert.equal(core.inv.count('prop_crate'), 1);
@@ -218,13 +219,13 @@ function ghost() {
   const game = {
     core: { use: () => b }, ghost: { show: (...a) => shown.push(a), hide: () => hid.push(1) },
     cursor: { material: { color: { setHex: (c) => shown.push(['color', c]) } } },
-    hoverTile: { x: 21, z: 21 }, targetTile: () => ({ x: 22, z: 22 }),
+    hoverTile: { x: 21 + O, z: 21 + O }, targetTile: () => ({ x: 22 + O, z: 22 + O }),
   };
   for (const [name, fn] of Object.entries(ghostView.facade)) game[name] = fn.bind(game);
   game.updateGhost();
   assert.deepEqual([shown.length, hid.length], [0, 1], 'hidden outside build mode');
   b.toggle(true);
-  pr.add('crate', 21, 21, 0);
+  pr.add('crate', 21 + O, 21 + O, 0);
   game.updateGhost();
   assert.deepEqual(shown.pop(), ['color', 0x9fe08a], 'storing: the cursor tells whether there is a prop');
   game.hoverTile = null;
@@ -235,10 +236,10 @@ function ghost() {
   assert.equal(hid.length, 4, 'not a prop: hidden');
   b.sel = 'prop_crate';
   game.updateGhost();
-  assert.deepEqual(shown.pop().slice(0, 4), ['crate', 22, 22, 1]);
-  b.cursor = { x: 21, z: 21 };
+  assert.deepEqual(shown.pop().slice(0, 4), ['crate', 22 + O, 22 + O, 1]);
+  b.cursor = { x: 21 + O, z: 21 + O };
   game.updateGhost();
-  assert.deepEqual(shown.pop(), ['crate', 21, 21, 1, false]);
+  assert.deepEqual(shown.pop(), ['crate', 21 + O, 21 + O, 1, false]);
 }
 
 export default function () {

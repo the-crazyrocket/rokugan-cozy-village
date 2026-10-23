@@ -10,10 +10,11 @@ schema.define('crops', {
   seed: { ref: 'items', optional: true },
   stageMs: stage,
   yield: { tuple: [stage, stage], ordered: true },
-  sprite: { type: 'cell', sheet: 'crops', frames: 3 },
+  sheet: { enum: ['crops', 'crops2', 'crops3'], optional: true }, // the sprite sheet (default crops)
+  sprite: { any: ['crops', 'crops2', 'crops3'].map((sheet) => ({ type: 'cell', sheet, frames: 3 })) },
   height: { tuple: ['number', 'number', 'number'] },
   regrow: { any: ['bool', stage], optional: true },
-  kind: { enum: ['field', 'paddy', 'tree'], optional: true },
+  kind: { enum: ['field', 'paddy', 'tree', 'pond'], optional: true }, // pond: planted straight into a pond, no soil
   sell: { type: 'int', min: 1, optional: true },
   seedPrice: { type: 'int', min: 1, optional: true },
   icon: 'icon?',

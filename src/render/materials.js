@@ -27,7 +27,8 @@ export const paintUniforms = {
  * weight smoothstep(dot(normal, -viewDir)) * depth-visibility; uncovered faces
  * fall back to the palette vertex colour.
  */
-export function makePaintedMaterial(asset) {
+/** `attr`: the vertex attribute the paint is projected from ('position'; a character's limbs use their rest-pose 'paintPos'). */
+export function makePaintedMaterial(asset, { attr = 'position' } = {}) {
   const angles = asset.angles.slice(0, 2);
   const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
   const uniforms = { ...paintUniforms };
@@ -42,8 +43,8 @@ export function makePaintedMaterial(asset) {
   mat.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vAssetPos;\nvarying vec3 vAssetNormal;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvAssetPos = position;\nvAssetNormal = normal;');
+      .replace('#include <common>', `#include <common>\nvarying vec3 vAssetPos;\nvarying vec3 vAssetNormal;${attr === 'position' ? '' : `\nattribute vec3 ${attr};`}`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>\nvAssetPos = ${attr};\nvAssetNormal = normal;`);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
 varying vec3 vAssetPos; varying vec3 vAssetNormal;
@@ -80,7 +81,7 @@ vec4 paintSample(sampler2D tex, sampler2D dep, mat4 vp, vec3 dir, float range, v
 outgoingLight = mix(diffuseColor.rgb * 1.02 * uUnlit, outgoingLight, uLightMix);
 #include <opaque_fragment>`);
   };
-  mat.customProgramCacheKey = () => 'painted-projection-v2';
+  mat.customProgramCacheKey = () => `painted-projection-v2-${attr}`;
   return mat;
 }
 

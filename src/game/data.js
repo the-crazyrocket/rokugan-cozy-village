@@ -2,11 +2,8 @@
 import { content } from '../content/index.js';
 import { deriveItems } from '../core/content-check.js';
 
-// materials are registered for later work packages and are not part of the shipped item list yet
-const items = (() => {
-  const { map, from } = deriveItems(content);
-  return Object.freeze(Object.fromEntries([...map].filter(([id]) => !from.get(id).startsWith('materials.')).map(([id, it]) => [id, Object.freeze(it)])));
-})();
+// every item, materials included (earth is dug and carried since Wave 1; the others only show up once something gives them)
+const items = Object.freeze(Object.fromEntries([...deriveItems(content).map].map(([id, it]) => [id, Object.freeze(it)])));
 
 export const ITEMS = items;
 export const PROPS = content.props.view();
@@ -26,7 +23,7 @@ export function fishBiting(f, h) {
 }
 
 // the order of the hotbar registry (systems register the entries); the saved v3 `slot` indexes this list
-export const HOTBAR = Object.freeze(['hand', 'hoe', 'can', 'rod', ...content.crops.all().map(([, def]) => def.seed)]);
+export const HOTBAR = Object.freeze(['hand', 'hoe', 'can', 'rod', ...content.crops.all().map(([id, def]) => def.seed || `seed_${id}`)]);
 
 /** Things Hana buys (and the "sell all" button sells). */
 export const SELLABLE_KINDS = new Set(['produce', 'fish', 'forage']);

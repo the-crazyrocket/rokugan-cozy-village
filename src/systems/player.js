@@ -41,7 +41,7 @@ export default defineSystem({
   },
   api(ctx) {
     const pl = ctx.state.player = {
-      pos: new THREE.Vector3(17.5, 0, 22.5), facing: Math.PI * 0.25, path: null, pending: null,
+      pos: new THREE.Vector3(HOME.x + 0.5, 0, HOME.z - 0.5), facing: Math.PI * 0.25, path: null, pending: null,
       swing: 0, swingT: 0, moving: false,
     };
     const blockers = [];
@@ -64,10 +64,18 @@ export default defineSystem({
         for (const fn of blockers) if (fn(x, z)) return false;
         return world.isLand(x, z) && !P().isBlocked(x, z);
       },
+      /** Can the body stand at (px, pz)? Every tile it touches is walkable and one step from the tile under its centre (no cliffs). */
       walkablePos(px, pz) {
-        for (const [ox, oz] of BODY) if (!api.walkable(Math.floor(px + ox), Math.floor(pz + oz))) return false;
+        const cx = Math.floor(px), cz = Math.floor(pz);
+        for (const [ox, oz] of BODY) {
+          const x = Math.floor(px + ox), z = Math.floor(pz + oz);
+          if (!api.walkable(x, z)) return false;
+          if ((x !== cx || z !== cz) && !ctx.world.canStep(cx, cz, x, z)) return false;
+        }
         return true;
       },
+      /** The terrain's rule for one move between neighbouring tiles (findPath's `step`). */
+      step: (x0, z0, x1, z1) => ctx.world.canStep(x0, z0, x1, z1),
       /** Is the player standing somewhere walkable? */
       canStand: () => api.walkablePos(pl.pos.x, pl.pos.z),
       warp(x, z) { pl.pos.set(x, 0, z); },
@@ -124,7 +132,7 @@ export default defineSystem({
       /** Walk to tile t; `pending` is the action to perform on arrival. False when there is no way (and says so, unless quiet). */
       walkTo(t, pending = null, { quiet = false } = {}) {
         const start = api.cell();
-        const path = findPath(start, t, (x, z) => api.walkable(x, z), ctx.world.w, ctx.world.h);
+        const path = findPath(start, t, (x, z) => api.walkable(x, z), ctx.world.w, ctx.world.h, undefined, api.step);
         if (!path) { if (pending && !quiet) ctx.say("Can't reach that spot."); return false; }
         pl.pending = pending;
         pl.path = path.slice(1).map((c) => new THREE.Vector2(c.x + 0.5, c.z + 0.5));
@@ -185,8 +193,9 @@ export default defineSystem({
           const n = Math.max(1, Math.ceil(dist / 0.09)), step = dist / n;
           for (let i = 0; i < n; i++) {
             const nx = pl.pos.x + move.x * step, nz = pl.pos.z + move.z * step;
-            if (api.walkablePos(nx, pl.pos.z)) pl.pos.x = nx;
-            if (api.walkablePos(pl.pos.x, nz)) pl.pos.z = nz;
+            const ok = (x0, z0, x1, z1) => api.walkablePos(x1, z1) && ctx.world.canStep(Math.floor(x0), Math.floor(z0), Math.floor(x1), Math.floor(z1));
+            if (ok(pl.pos.x, pl.pos.z, nx, pl.pos.z)) pl.pos.x = nx;
+            if (ok(pl.pos.x, pl.pos.z, pl.pos.x, nz)) pl.pos.z = nz;
           }
           const target = Math.atan2(move.x, move.z);
           let da = target - pl.facing;

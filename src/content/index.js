@@ -24,6 +24,12 @@ import './base/items.js';
 import './base/materials.js';
 import './base/shared.js';
 import './base/fortunes.js';
+import './base/recipes.js';
+import './base/projects.js';
+import './base/villagers.js';
+import './base/visitors.js';
+import './base/kitchen.js';
+import './base/bugs.js';
 import '../packs/index.js';
 import { content as registries } from '../core/content.js';
 

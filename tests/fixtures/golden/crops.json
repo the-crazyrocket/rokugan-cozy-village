@@ -44,5 +44,173 @@
    0.85
   ],
   "regrow": true
+ },
+ "edamame": {
+  "name": "Edamame",
+  "sheet": "crops2",
+  "sprite": "edamame",
+  "stageMs": 180000,
+  "yield": [
+   2,
+   4
+  ],
+  "sell": 9,
+  "seedPrice": 4,
+  "seasons": [
+   "summer"
+  ],
+  "height": [
+   0.35,
+   0.55,
+   0.7
+  ],
+  "icon": "icons4:edamame",
+  "seedIcon": "icons4:seed_edamame"
+ },
+ "nasu": {
+  "name": "Nasu",
+  "sheet": "crops2",
+  "sprite": "nasu",
+  "stageMs": 420000,
+  "yield": [
+   2,
+   3
+  ],
+  "sell": 22,
+  "seedPrice": 12,
+  "seasons": [
+   "summer",
+   "autumn"
+  ],
+  "height": [
+   0.4,
+   0.62,
+   0.85
+  ],
+  "icon": "icons4:nasu",
+  "seedIcon": "icons4:seed_nasu"
+ },
+ "satsuma_imo": {
+  "name": "Sweet potato",
+  "sheet": "crops2",
+  "sprite": "satsuma_imo",
+  "stageMs": 900000,
+  "yield": [
+   2,
+   3
+  ],
+  "sell": 38,
+  "seedPrice": 20,
+  "seasons": [
+   "autumn"
+  ],
+  "height": [
+   0.35,
+   0.5,
+   0.6
+  ],
+  "icon": "icons4:satsuma_imo",
+  "seedIcon": "icons4:seed_satsuma_imo"
+ },
+ "kabocha": {
+  "name": "Kabocha",
+  "sheet": "crops2",
+  "sprite": "kabocha",
+  "stageMs": 1800000,
+  "yield": [
+   1,
+   1
+  ],
+  "sell": 120,
+  "seedPrice": 40,
+  "seasons": [
+   "autumn"
+  ],
+  "height": [
+   0.35,
+   0.55,
+   0.65
+  ],
+  "icon": "icons4:kabocha",
+  "seedIcon": "icons4:seed_kabocha"
+ },
+ "shiso": {
+  "name": "Shiso",
+  "sheet": "crops3",
+  "sprite": "shiso",
+  "stageMs": 600000,
+  "yield": [
+   2,
+   3
+  ],
+  "sell": 14,
+  "seedPrice": 15,
+  "seasons": [
+   "summer"
+  ],
+  "height": [
+   0.4,
+   0.62,
+   0.85
+  ],
+  "icon": "icons4:shiso",
+  "seedIcon": "icons4:seed_shiso",
+  "regrow": true
+ },
+ "wasabi": {
+  "name": "Wasabi",
+  "sheet": "crops3",
+  "sprite": "wasabi",
+  "stageMs": 3600000,
+  "yield": [
+   1,
+   2
+  ],
+  "sell": 140,
+  "seedPrice": 60,
+  "seasons": [
+   "spring",
+   "autumn"
+  ],
+  "height": [
+   0.4,
+   0.62,
+   0.85
+  ],
+  "icon": "icons4:wasabi",
+  "seedIcon": "icons4:seed_wasabi",
+  "niche": {
+   "near": {
+    "water": "stream",
+    "r": 1
+   }
+  },
+  "tags": [
+   "stream"
+  ]
+ },
+ "lotus": {
+  "name": "Lotus root",
+  "sheet": "crops3",
+  "sprite": "lotus",
+  "stageMs": 4200000,
+  "yield": [
+   1,
+   2
+  ],
+  "sell": 110,
+  "seedPrice": 50,
+  "seasons": [
+   "summer"
+  ],
+  "height": [
+   0.35,
+   0.55,
+   0.9
+  ],
+  "icon": "icons4:lotus",
+  "seedIcon": "icons4:seed_lotus",
+  "kind": "pond",
+  "regrow": true
  }
 }

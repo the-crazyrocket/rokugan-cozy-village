@@ -1,5 +1,6 @@
 // Content contracts: the 16 schemas, the base content moved out of data.js, shared ids, validateAll in both modes.
 import assert from 'node:assert/strict';
+import { LEGACY_OFF } from '../../src/world/coords.js';
 import fs from 'node:fs';
 import { content, schema, LANDMARKS, FORTUNE_ORDER } from '../../src/content/index.js';
 import { createContent, DOMAINS } from '../../src/core/content.js';
@@ -44,14 +45,19 @@ export default function () {
   verbatim(base.fortunes.view(), readGolden('fortunes').FORTUNES, 'fortunes');
   assert.deepEqual(FORTUNE_ORDER, readGolden('fortunes').FORTUNE_ORDER);
   const itemMap = [...base.itemMap()];
-  verbatim(Object.fromEntries(itemMap.slice(0, 33)), readGolden('items'), 'items (explicit plus derived)');
-  assert.equal(itemMap.length, 33 + 13, 'after today\'s items come only the placeholder materials');
-  assert.ok(itemMap.slice(33).every(([, it]) => it.kind === 'material'));
+  verbatim(Object.fromEntries(itemMap), readGolden('items'), 'items (explicit plus derived)');
+  assert.equal(itemMap.length, 108, 'the Wave 0-3 items: the workbench, the Wave 2 crops and fish, kakei and scarecrow, the mill and the kitchen, flour and dishes, bugs and the net');
+  assert.ok(itemMap.slice(-25, -12).every(([, it]) => it.kind === 'material') && itemMap.slice(-12).every(([, it]) => it.kind === 'dish'), 'the materials, then the dishes, come last');
   assert.deepEqual(base.items.ids().slice(0, 4), ['hand', 'hoe', 'can', 'rod']);
-  assert.equal(base.items.size, 13, 'items.js holds tools, seeds, produce, forage and bait only');
+  assert.equal(base.items.size, 18, 'items.js holds tools, seeds, produce, forage and bait; kitchen.js the mill\'s three flours');
   assert.equal(base.materials.size, 13);
   assert.ok(base.materials.all().every(([, m]) => m.placeholder === true), 'every base material is a placeholder');
-  for (const d of ['bugs', 'recipes', 'blueprints', 'projects', 'regions', 'villagers', 'visitors', 'festivals', 'stamps']) assert.equal(base[d].size, 0, `${d} starts empty`);
+  assert.equal(base.recipes.size, 10 + 3 + 12, 'the workbench recipes (Wave 2), the mill\'s and the kitchen\'s (Daikoku)');
+  assert.deepEqual(base.projects.ids(), ['grove', 'hill', 'islet', 'ume_house']);
+  assert.deepEqual(base.villagers.ids(), ['kenji', 'ume']);
+  assert.deepEqual(base.visitors.ids(), ['tsuru', 'kitsune', 'kappa', 'tanuki', 'neko', 'shika']);
+  assert.equal(base.bugs.size, 9);
+  for (const d of ['blueprints', 'regions', 'festivals', 'stamps']) assert.equal(base[d].size, 0, `${d} starts empty`);
 
   // every base entry validates (types, references, icons in SHEETS, assets in BLOCKOUTS, every when parses)
   assert.deepEqual(base.validateAll({ ...OPTS, mode: 'fork' }), []);
@@ -90,32 +96,32 @@ export default function () {
   assert.deepEqual(items.get('prop_toro'), { name: 'Stone lantern', kind: 'prop', prop: 'toro', icon: 'asset:toro', buy: 60, sell: 30 });
   assert.ok(items.has('earth') && items.get('earth').kind === 'material' && !items.has('prop_stall'), 'materials give items, fixed props none');
 
-  // landmarks: fixed props inside the 40x40 island
+  // landmarks: fixed props inside the 40x40 island, which sits LEGACY_OFF tiles into the world
   assert.deepEqual(Object.keys(LANDMARKS), ['shrine', 'stone', 'pier']);
   for (const [id, p] of Object.entries(LANDMARKS)) {
     assert.ok(content.props.get(id)?.fixed, `${id} is a fixed prop`);
-    assert.ok(Number.isInteger(p.x) && Number.isInteger(p.z) && p.x >= 0 && p.x < 40 && p.z >= 0 && p.z < 40, `${id} position`);
+    assert.ok(Number.isInteger(p.x) && Number.isInteger(p.z) && p.x >= LEGACY_OFF && p.x < 40 + LEGACY_OFF && p.z >= LEGACY_OFF && p.z < 40 + LEGACY_OFF, `${id} position`);
   }
 
   // a new crop, fish and dish that carry their own data derive their items and pass
   assert.deepEqual(problems((c) => {
-    c.add('crops', 'nasu', { name: 'Nasu', stageMs: 60_000, yield: [1, 2], sprite: 'tea', height: [0.4, 0.6, 0.8], sell: 40, seedPrice: 20, icon: 'icons:tea', seedIcon: 'icons:seed_tea', kind: 'field', seasons: ['summer'], niche: { terrain: 'soil' } });
-    c.add('fish', 'iwana', { name: 'Iwana', sell: 50, weight: 3, window: 800, size: [20, 40], shadow: 'm', when: { water: 'fresh', season: ['spring'], hour: [5, 10] }, icon: 'icons:ayu' });
-    c.add('bugs', 'hotaru', { name: 'Firefly', sell: 30, weight: 2, when: { season: 'summer', hour: [19, 23] }, icon: 'icons:basket' });
-    c.add('recipes', 'nasu_dengaku', { name: 'Nasu dengaku', kind: 'dish', inputs: { nasu: 2, iwana: 1 }, out: { nasu_dengaku: 1 }, bench: 'kitchen', item: { icon: 'icons:rice', sell: 120 }, discover: true });
+    c.add('crops', 'okra', { name: 'Okra', stageMs: 60_000, yield: [1, 2], sprite: 'tea', height: [0.4, 0.6, 0.8], sell: 40, seedPrice: 20, icon: 'icons:tea', seedIcon: 'icons:seed_tea', kind: 'field', seasons: ['summer'], niche: { terrain: 'soil' } });
+    c.add('fish', 'oikawa', { name: 'Oikawa', sell: 50, weight: 3, window: 800, size: [20, 40], shadow: 'm', when: { water: 'fresh', season: ['spring'], hour: [5, 10] }, icon: 'icons:ayu' });
+    c.add('bugs', 'kirigirisu', { name: 'Katydid', sell: 30, weight: 2, when: { season: 'summer', hour: [19, 23] }, icon: 'icons:basket' });
+    c.add('recipes', 'nasu_dengaku', { name: 'Nasu dengaku', kind: 'dish', inputs: { okra: 2, oikawa: 1 }, out: { nasu_dengaku: 1 }, bench: 'kitchen', item: { icon: 'icons:rice', sell: 120 }, discover: true });
     c.add('blueprints', 'tea_garden', { name: 'Tea garden', set: 'tea_garden', recipes: ['nasu_dengaku'], unlock: { flag: 'shrine.ebisu' } });
     c.add('regions', 'grove', { name: 'Bamboo grove', rect: { x: 2, z: 10, w: 8, h: 8 }, lockedUntil: { project: 'clear_grove' } });
     c.add('projects', 'clear_grove', { name: 'Clear the grove', region: 'grove', cost: { koku: 300, items: { wood: 4 } }, buildMs: 3_600_000, requires: {}, unlocks: [{ type: 'region', id: 'grove' }, { type: 'prop', id: 'toro' }] });
     c.add('stamps', 'first_fish', { name: 'First fish', icon: 'icons:rod', when: { has: { item: 'ayu' } } });
-    c.add('fortunes', 'daikoku', { name: 'Daikoku', title: 'Fortune of harvest', icon: 'icons2:bell', order: 2, sleeping: 'zzz', awake: 'hello', offerings: [{ id: 'a', name: 'A', items: { nasu: 1 } }], unlocks: [['icons2:bell', 'A bell']], landmarks: [{ prop: 'toro', x: 5, z: 5 }] });
-    c.add('festivals', 'hanami', { name: 'Hanami', span: { month: 4, day: 1, days: 7 }, decor: ['toro'], dish: 'nasu_dengaku', visitor: 'kitsune' });
-    c.add('visitors', 'kitsune', { name: 'Kitsune', body: { blockout: 'crate', rig: 'quad' }, arrive: { near: { prop: 'torii', r: 3 } }, spot: { near: { prop: 'torii' } }, stayMs: [60_000, 120_000], gifts: ['rice'], hint: 'She likes tofu.' });
-    c.add('villagers', 'ume', { name: 'Ume', body: { blockout: 'crate', rig: 'biped', height: 1 }, look: { robe: '#fff' }, home: { project: 'clear_grove', door: { x: 4, z: 4 } }, wish: { terrain: 'grass' }, likes: { items: ['tea'], tags: ['flower'] }, schedule: [{ hours: [6, 9], at: 'home.door', do: 'sweep' }, { hours: [9, 12], at: { near: { prop: 'tea' } }, do: 'idle', when: { weather: '!rain' } }], hearts: [{ n: 2, unlock: { recipe: 'nasu_dengaku' } }], dialogue: [{ id: 'hello', once: true, lines: ['Hello.'] }] });
+    c.add('fortunes', 'benten', { name: 'Benten', title: 'Fortune of music', icon: 'icons2:bell', order: 2, sleeping: 'zzz', awake: 'hello', offerings: [{ id: 'a', name: 'A', items: { okra: 1 } }], unlocks: [['icons2:bell', 'A bell']], landmarks: [{ prop: 'toro', x: 5, z: 5 }] });
+    c.add('festivals', 'hanami', { name: 'Hanami', span: { month: 4, day: 1, days: 7 }, decor: ['toro'], dish: 'nasu_dengaku', visitor: 'okami' });
+    c.add('visitors', 'okami', { name: 'Okami', body: { blockout: 'crate', rig: 'quad' }, arrive: { near: { prop: 'torii', r: 3 } }, spot: { near: { prop: 'torii' } }, stayMs: [60_000, 120_000], gifts: ['rice'], hint: 'She likes tofu.' });
+    c.add('villagers', 'sora', { name: 'Sora', body: { blockout: 'crate', rig: 'biped', height: 1 }, look: { robe: '#fff' }, home: { project: 'clear_grove', door: { x: 4, z: 4 } }, wish: { terrain: 'grass' }, likes: { items: ['tea'], tags: ['flower'] }, schedule: [{ hours: [6, 9], at: 'home.door', do: 'sweep' }, { hours: [9, 12], at: { near: { prop: 'tea' } }, do: 'idle', when: { weather: '!rain' } }], hearts: [{ n: 2, unlock: { recipe: 'nasu_dengaku' } }], dialogue: [{ id: 'hello', once: true, lines: ['Hello.'] }] });
     const m = c.itemMap();
-    assert.deepEqual([m.get('seed_nasu'), m.get('nasu'), m.get('iwana'), m.get('nasu_dengaku')], [
-      { name: 'Nasu seeds', kind: 'seed', crop: 'nasu', icon: 'icons:seed_tea', buy: 20 },
-      { name: 'Nasu', kind: 'produce', icon: 'icons:tea', sell: 40 },
-      { name: 'Iwana', kind: 'fish', icon: 'icons:ayu', sell: 50 },
+    assert.deepEqual([m.get('seed_okra'), m.get('okra'), m.get('oikawa'), m.get('nasu_dengaku')], [
+      { name: 'Okra seeds', kind: 'seed', crop: 'okra', icon: 'icons:seed_tea', buy: 20 },
+      { name: 'Okra', kind: 'produce', icon: 'icons:tea', sell: 40 },
+      { name: 'Oikawa', kind: 'fish', icon: 'icons:ayu', sell: 50 },
       { name: 'Nasu dengaku', kind: 'dish', icon: 'icons:rice', sell: 120 },
     ]);
   }, { mode: 'merged' }).filter((e) => !/listed in IDS/.test(e)), []);
@@ -139,7 +145,7 @@ export default function () {
   has(problems((c) => c.add('props', 'bad', { name: 'Bad', asset: 'crate', price: 5, fixed: true })), /^props\.bad\.price: fixed props are not for sale/);
   has(problems((c) => c.add('props', 'bad', { name: 'Bad', asset: 'crate', price: 0 })), /^props\.bad\.price: a prop for sale needs a price/);
   has(problems((c) => c.add('crops', 'bad', { name: 'Bad', stageMs: 1000, yield: [3, 1], sprite: 'rice', height: [1, 2, 3], sell: 1, seedPrice: 1, icon: 'icons:rice' })), /^crops\.bad\.yield: expected ascending/);
-  has(problems((c) => c.add('crops', 'bad', { name: 'Bad', stageMs: 1000, yield: [1, 3], sprite: 'nothing', height: [1, 2, 3] })), /^crops\.bad\.sprite: sheet "crops" has no cell "nothing_1"/);
+  has(problems((c) => c.add('crops', 'bad', { name: 'Bad', stageMs: 1000, yield: [1, 3], sprite: 'nothing', height: [1, 2, 3] })), /^crops\.bad\.sprite: "nothing" matches none/); // no crops, crops2 or crops3 cell of that name
   has(problems((c) => c.add('crops', 'bad', { name: 'Bad', stageMs: 1000, yield: [1, 3], sprite: 'rice', height: [1, 2, 3] })), /^crops\.bad: unknown items "bad"/);
   has(problems((c) => c.add('crops', 'bad', { name: 'Bad', stageMs: 1000, yield: [1, 3], sprite: 'rice', height: [1, 2, 3], sell: 1, seedPrice: 1, icon: 'icons:rice', seasons: ['monsoon'] })), /^crops\.bad\.seasons\[0\]: expected one of/);
   has(problems((c) => c.add('crops', 'bad', { name: 'Bad', seed: 'seed_rice', stageMs: 1000, yield: [1, 3], sprite: 'rice', height: [1, 2, 3], sell: 1, icon: 'icons:rice' })), /^crops\.bad\.seed: item seed_rice belongs to crop rice/);
@@ -180,16 +186,16 @@ export default function () {
 
   // fork mode: an id that IDS.json lists is soft until its owner adds it; an unlisted one is an error. merged: always an error
   const dish = (id) => (c) => c.add('recipes', 'stew', { name: 'Stew', kind: 'craft', inputs: { [id]: 1 }, out: { rice: 1 }, bench: 'kitchen' });
-  assert.deepEqual(problems(dish('nasu')), []);
-  assert.deepEqual(problems(dish('seed_nasu')), [], 'the derived seed of a listed crop is soft too');
-  assert.deepEqual(problems(dish('prop_stairs_wood')), [], 'and the derived item of a listed prop');
-  has(problems(dish('nasu'), { mode: 'merged' }), /^recipes\.stew\.inputs\.nasu \(key\): unknown items "nasu"/);
+  // (the Wave 2 crops and fish are all registered now; wp12's stairs and ramp are still promises)
+  assert.deepEqual(problems(dish('prop_ramp')), []);
+  assert.deepEqual(problems(dish('prop_stairs_wood')), [], 'the derived item of a listed prop is soft too');
+  has(problems(dish('prop_ramp'), { mode: 'merged' }), /^recipes\.stew\.inputs\.prop_ramp \(key\): unknown items "prop_ramp"/);
   has(problems(dish('eggplant')), /^recipes\.stew\.inputs\.eggplant \(key\): unknown items "eggplant"/);
-  has(problems(dish('nasu'), { ids: {} }), /unknown items "nasu"/);
-  const own = problems(() => {}, { owner: 'wp26' });
-  assert.deepEqual(own.length, 7);
-  has(own, /^crops\.nasu: listed in IDS\.json for wp26 but not registered/);
-  assert.deepEqual(problems((c) => c.add('crops', 'nasu', { name: 'Nasu', stageMs: 1000, yield: [1, 2], sprite: 'tea', height: [1, 2, 3], sell: 4, seedPrice: 2, icon: 'icons:tea' }), { owner: 'wp26' }).length, 6, 'adding one promised id satisfies it');
+  has(problems(dish('prop_ramp'), { ids: {} }), /unknown items "prop_ramp"/);
+  const own = problems(() => {}, { owner: 'wp12' });
+  assert.deepEqual(own.length, 3);
+  has(own, /^props\.ramp: listed in IDS\.json for wp12 but not registered/);
+  assert.deepEqual(problems((c) => c.add('props', 'ramp', { name: 'Ramp', asset: 'stairs', price: 30 }), { owner: 'wp12' }).length, 2, 'adding one promised id satisfies it');
   has(problems(() => {}, { ids: { ghost: { domain: 'nowhere', owner: 'wp99' } } }), /^ids\.ghost: unknown domain "nowhere"/);
 
   // overrides replace placeholders in the merged view and still validate

@@ -9,6 +9,13 @@ export const LAZY = {
   backup: () => import('./backup.js'),
   restore: () => import('./restore.js'),
   tools: () => import('./tools.js'),
+  workbench: () => import('./workbench.js'),
+  projects: () => import('./projects.js'),
+  fishbook: () => import('./fishbook.js'),
+  villager: () => import('./villager.js'),
+  scrapbook: () => import('./scrapbook.js'),
+  mill: () => import('./mill.js'),
+  kitchen: () => import('./kitchen.js'),
 };
 
 const loading = new WeakMap(); // ctx -> Map(name -> promise)

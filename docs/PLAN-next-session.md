@@ -21,6 +21,24 @@ Decisions already made:
 
 This is too much for one sitting. The ultracode session should aim at Waves 0–3. Waves 4–6 follow in later sessions, built on the same foundations.
 
+## Progress (2026-10-23)
+
+**Done:** Waves 0–2, and Wave 3 in a first playable form.
+
+- **3.1** Kenji and Ume as painted 3D characters (`char_*` blockouts, cut up by bone, `render/painted-character.js`). Daily routines; talking and one gift a day for hearts; heart rewards. Ume moves in with the `ume_house` project.
+- **3.2** Six visitors drawn by arrangements of props. Visits are rolled per hour, so a catch-up after time away draws the same as watching. Each visitor leaves gifts.
+- **3.3** Tap a visitor to take its photo for the scrapbook. The collection book covers fish and bugs.
+- **3.4** Daikoku: his offerings, then the mill (timed batches) and the kitchen (12 dishes found by trying ingredients, plus a stew fallback).
+- **3.5** Nine bugs and the net.
+- **2.8** in part: fly-to-bag, the koku tick and the "to do" ribbon.
+
+**Not done yet:**
+
+- **3.1** letters and mail; house wishes
+- **3.3** stamps; a real photo-mode camera
+- **2.8** painted UI kit frames; the map
+- **Wave 2 extras:** compost, crop quality in the UI, paddies, fish shadows, traps
+
 ---
 
 ## 1. Depth, pillar by pillar

@@ -4,6 +4,7 @@ import { loadPaintedAssets } from './render/assets.js';
 import { PostFX } from './render/postfx.js';
 import { cameraOffsetDir, GAME_AZIMUTH } from './render/paintCamera.js';
 import { Game } from './game/game.js';
+import { LEGACY_OFF } from './world/coords.js';
 import { UI } from './game/ui.js';
 import { setupInput } from './game/input.js';
 import { Daylight } from './render/daylight.js';
@@ -201,6 +202,7 @@ window.__game = {
   input: input.debug,
   pick: input.pick,
   ready: true,
+  O: LEGACY_OFF, // tests author places on the old 40x40 island: x + __game.O
   tileToScreen(x, z, y = 0) {
     const v = new THREE.Vector3(x + 0.5, y, z + 0.5).project(camera);
     const r = canvas.getBoundingClientRect();

@@ -8,10 +8,11 @@ import { hashString } from '../core/rng.js';
 const round5 = (v) => Math.max(5, Math.round(v / 5) * 5);
 
 // what a `catch` request asks for: label, icon, which fish count, koku per fish
+const waterOf = (d) => d.water ?? d.when?.water; // the Wave 2 fish keep theirs in `when` (stream and pond are fresh water too)
 const FISH_TARGETS = (fish) => ({
   any: { label: (n) => (n > 1 ? `${n} fish` : 'a fish'), icon: 'icons:rod', match: () => true, value: 55 },
-  fresh: { label: (n) => `${n} river or pond fish`, icon: 'icons:ayu', match: (f) => fish.get(f).water === 'fresh', value: 45 },
-  sea: { label: (n) => `${n} sea fish`, icon: 'icons:tai', match: (f) => fish.get(f).water === 'sea', value: 90 },
+  fresh: { label: (n) => `${n} river or pond fish`, icon: 'icons:ayu', match: (f) => waterOf(fish.get(f)) !== 'sea', value: 45 },
+  sea: { label: (n) => `${n} sea fish`, icon: 'icons:tai', match: (f) => waterOf(fish.get(f)) === 'sea', value: 90 },
   koi: { label: () => 'a koi', icon: 'icons:koi', match: (f) => f === 'koi', value: 65 },
   tai: { label: () => 'a tai', icon: 'icons:tai', match: (f) => f === 'tai', value: 75 },
 });

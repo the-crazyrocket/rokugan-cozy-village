@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { CROPS, PROPS, RIPE } from '../game/data.js';
 import { TREE_CANOPIES } from '../assets/blockouts.js';
+import { MAX_HEIGHT, LEVEL_Y } from '../world/coords.js';
 
 const SNAP_PX = 28;
 
@@ -22,10 +23,18 @@ export function createPicker({ canvas, camera, game }) {
     raycaster.setFromCamera(new THREE.Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1), camera);
   }
 
-  /** Ground tile under a screen point (land at y=0, water lower). */
+  /**
+   * Ground tile under a screen point. From the highest level down, the first level plane the ray meets over ground at least
+   * that high is the top it sees (a cliff face picks the tile on top of it); then sea-level land, then the water surface.
+   */
   function groundTile(cx, cy) {
     setRay(cx, cy);
-    const pt = new THREE.Vector3();
+    const pt = new THREE.Vector3(), world = game.world;
+    for (let level = MAX_HEIGHT; level >= 1; level--) {
+      if (!raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -level * LEVEL_Y), pt)) continue;
+      const x = Math.floor(pt.x), z = Math.floor(pt.z);
+      if (world.heightAt(x, z) >= level) return { x, z }; // raised ground, or water standing on it
+    }
     if (!raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), pt)) return null;
     const t = { x: Math.floor(pt.x), z: Math.floor(pt.z) };
     if (game.world.isWater(t.x, t.z) && !game.props.isBridge(t.x, t.z)) {
@@ -65,11 +74,12 @@ export function createPicker({ canvas, camera, game }) {
     for (const c of game.farm.values()) {
       const s = game.stage(c), def = CROPS[c.type];
       const h = s === 0 ? 0.28 : def.height[s - 1];
-      const base = toScreen(c.x + 0.5, 0, c.z + 0.5), top = toScreen(c.x + 0.5, h, c.z + 0.5);
+      const y0 = game.world.levelY(c.x, c.z);
+      const base = toScreen(c.x + 0.5, y0, c.z + 0.5), top = toScreen(c.x + 0.5, y0 + h, c.z + 0.5);
       const hw = ppu * 0.42;
       if (cx > base.x - hw && cx < base.x + hw && cy > top.y - 4 && cy < base.y + ppu * 0.2) {
         // billboards lean toward the camera: measure at the tile's front edge
-        cands.push({ tile: { x: c.x, z: c.z }, dist: rayDist(c.x + 0.85, h * 0.4, c.z + 0.85) - (s >= RIPE ? 0.1 : 0) });
+        cands.push({ tile: { x: c.x, z: c.z }, dist: rayDist(c.x + 0.85, y0 + h * 0.4, c.z + 0.85) - (s >= RIPE ? 0.1 : 0) });
       }
     }
     // tree canopies + bamboo clumps belong to their prop tile
@@ -78,10 +88,11 @@ export function createPicker({ canvas, camera, game }) {
       if (!def.canopy && !def.sprite) continue;
       const sc = p.mesh.scale.x;
       const top = def.canopy ? TREE_CANOPIES[def.canopy][0].pos[1] * sc + 0.6 : 2.4;
-      const a = toScreen(p.cx, 0, p.cz), b = toScreen(p.cx, top, p.cz);
+      const y0 = game.props.baseY(p);
+      const a = toScreen(p.cx, y0, p.cz), b = toScreen(p.cx, y0 + top, p.cz);
       const hw = ppu * (def.canopy ? 0.8 : 0.4) * sc;
       if (cx > a.x - hw && cx < a.x + hw && cy > b.y - hw * 0.3 && cy < a.y + ppu * 0.15) {
-        cands.push({ tile: { x: p.x, z: p.z }, dist: rayDist(p.cx, top * 0.7, p.cz), prop: p, foliage: true });
+        cands.push({ tile: { x: p.x, z: p.z }, dist: rayDist(p.cx, y0 + top * 0.7, p.cz), prop: p, foliage: true });
       }
     }
     cands.sort((a, b) => a.dist - b.dist);
@@ -100,8 +111,8 @@ export function createPicker({ canvas, camera, game }) {
         const d = Math.hypot(s.x - cx, s.y - cy) - bonus;
         if (d < bd) { bd = d; bt = { x, z }; }
       };
-      for (const c of game.farm.values()) if (cheb(c, ground) <= 1) consider(c.x, c.z, 0.25, game.stage(c) >= RIPE ? 8 : 0);
-      if (game.merchantCell && cheb(game.merchantCell, ground) <= 1) consider(game.merchantCell.x, game.merchantCell.z, 0.5, 6);
+      for (const c of game.farm.values()) if (cheb(c, ground) <= 1) consider(c.x, c.z, game.world.levelY(c.x, c.z) + 0.25, game.stage(c) >= RIPE ? 8 : 0);
+      if (game.merchantCell && cheb(game.merchantCell, ground) <= 1) consider(game.merchantCell.x, game.merchantCell.z, game.world.levelY(game.merchantCell.x, game.merchantCell.z) + 0.5, 6);
       if (bt) best = { tile: bt, dist: 0, snapped: true };
     }
     return { tile: best ? best.tile : ground, ground, prop: best?.prop || (ground && game.props.at(ground.x, ground.z)) || null, foliage: !!best?.foliage };

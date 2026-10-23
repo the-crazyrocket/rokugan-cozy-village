@@ -3,6 +3,6 @@
 #hud-toolbar { justify-content: center; flex-wrap: wrap; max-width: calc(100vw - 16px); }
 #hud-preview { position: fixed; top: calc(112px + var(--sat)); left: 50%; transform: translateX(-50%); max-width: calc(100vw - 24px); }
 #hud-shutter { position: fixed; right: calc(14px + var(--sar)); bottom: calc(176px + var(--sab)); flex-direction: column; }
-#hud-corner { position: fixed; top: calc(60px + var(--sat)); left: calc(12px + var(--sal)); flex-direction: column; align-items: flex-start; }
+#hud-corner { position: fixed; top: calc(104px + var(--sat)); left: calc(12px + var(--sal)); flex-direction: column; align-items: flex-start; }
 .hud-chip { background: var(--paper); border: 2px solid var(--indigo); color: var(--indigo); border-radius: 12px; min-height: 44px; min-width: 44px; padding: 6px 12px; font-size: 15px; box-shadow: 0 3px 0 rgba(42,36,32,.35); }
 .bag-item.sel { border-color: var(--vermilion); background: #fff3d6; }

@@ -3,7 +3,7 @@
 import { mulberry32, hash2 } from '../core/rng.js';
 import { rleEncode, rleDecode } from '../core/rle.js';
 import { T, WK } from './kinds.js';
-import { WORLD_W, WORLD_H, CHUNK, MAX_HEIGHT, LEVEL_Y, WATER_Y, chunkCols } from './coords.js';
+import { WORLD_W, WORLD_H, CHUNK, MAX_HEIGHT, LEVEL_Y, WATER_Y, STAIR_DIRS, chunkCols } from './coords.js';
 
 export { mulberry32, hash2, T, WK };
 
@@ -55,13 +55,25 @@ export class World {
   waterY(x, z) { return this.levelY(x, z) + WATER_Y; }
 
   /**
-   * Whether one step between neighbouring tiles is allowed by the terrain: level ground, or a stair on either end for one level.
-   * `heightOf(x, z)` stands in for heightAt, to ask about terrain that is not there yet (world/edit.js).
+   * Whether one step between neighbouring tiles is allowed by the terrain: level ground, or one level up or down a stair that
+   * stands on the lower tile and climbs towards the higher one. `heightOf(x, z)` stands in for heightAt, to ask about terrain
+   * that is not there yet (world/edit.js).
    */
   canStep(x0, z0, x1, z1, heightOf = (x, z) => this.heightAt(x, z)) {
     if (!this.inBounds(x0, z0) || !this.inBounds(x1, z1)) return false;
-    const dh = Math.abs(heightOf(x0, z0) - heightOf(x1, z1));
-    return dh === 0 || (dh === 1 && (this.stairsAt(x0, z0) || this.stairsAt(x1, z1)) !== 0);
+    const h0 = heightOf(x0, z0), h1 = heightOf(x1, z1);
+    if (h0 === h1) return true;
+    if (Math.abs(h0 - h1) !== 1) return false;
+    const [lx, lz, hx, hz] = h0 < h1 ? [x0, z0, x1, z1] : [x1, z1, x0, z0];
+    return this.climbsTo(lx, lz) === hz * this.w + hx;
+  }
+
+  /** The tile index a stair on (x, z) climbs onto, or -1 when there is no stair. */
+  climbsTo(x, z) {
+    const s = this.stairsAt(x, z);
+    if (!s) return -1;
+    const [dx, dz] = STAIR_DIRS[(s - 1) & 3];
+    return this.inBounds(x + dx, z + dz) ? (z + dz) * this.w + x + dx : -1;
   }
 
   // old names
@@ -119,13 +131,15 @@ export class World {
       this.setKind(x, z, land ? T.GRASS : T.WATER);
       this.setWater(x, z, land ? WK.NONE : WK.SEA);
     }
-    // pond (north-west) and a river meandering to the east coast
+    // pond (north-west) and a river meandering to the east coast; authored on the 40x40 island, which sits O tiles in
+    // (LEGACY_OFF in the 64x64 world; a 40x40 World is the old island itself)
+    const O = (W - 40) >> 1;
     const carve = (x, z, k) => { if (this.inBounds(x, z)) { this.setKind(x, z, T.WATER); this.setWater(x, z, k); } };
     for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
-      if (((x + 0.5 - 13) / 3.2) ** 2 + ((z + 0.5 - 13.5) / 2.6) ** 2 < 1) carve(x, z, WK.POND);
+      if (((x - O + 0.5 - 13) / 3.2) ** 2 + ((z - O + 0.5 - 13.5) / 2.6) ** 2 < 1) carve(x, z, WK.POND);
     }
-    for (let x = 15; x < W; x++) {
-      const zc = 14 + Math.round(Math.sin((x - 15) * 0.32) * 1.6 + (x - 15) * 0.12);
+    for (let x = 15 + O; x < W; x++) {
+      const zc = 14 + O + Math.round(Math.sin((x - O - 15) * 0.32) * 1.6 + (x - O - 15) * 0.12);
       const seaHere = [zc, zc + 1].every((z) => this.isWater(x, z) && !this.isFresh(x, z));
       if (seaHere) break; // reached the coast
       for (const z of [zc, zc + 1]) if (this.isLand(x, z)) carve(x, z, WK.STREAM);
@@ -136,10 +150,10 @@ export class World {
       if (!this.isLand(x, z)) continue;
       let nearSea = false;
       for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) if (sea(x + dx, z + dz) && this.inBounds(x + dx, z + dz)) nearSea = true;
-      if (nearSea || (sea(x + 2, z) && hash2(x, z) < 0.5) || (sea(x, z + 2) && hash2(x, z, 1) < 0.5)) this.setKind(x, z, T.SAND);
+      if (nearSea || (sea(x + 2, z) && hash2(x - O, z - O) < 0.5) || (sea(x, z + 2) && hash2(x - O, z - O, 1) < 0.5)) this.setKind(x, z, T.SAND);
     }
     // village paths: plaza + roads
-    const path = (x, z) => { if (this.isLand(x, z)) this.setKind(x, z, T.PATH); };
+    const path = (x, z) => { if (this.isLand(x + O, z + O)) this.setKind(x + O, z + O, T.PATH); };
     for (let z = 19; z <= 22; z++) for (let x = 18; x <= 22; x++) path(x, z);
     for (let z = 22; z <= 33; z++) { path(20, z); path(21, z); }
     for (let x = 22; x <= 27; x++) path(x, 20);

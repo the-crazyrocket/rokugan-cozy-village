@@ -63,11 +63,12 @@ export class Daylight {
     for (const p of props.list) {
       if (p.type !== 'toro') continue;
       const halo = new THREE.Sprite(this.haloMat);
-      halo.position.set(p.cx, 0.86, p.cz);
+      const y0 = this.game.props.baseY(p);
+      halo.position.set(p.cx, y0 + 0.86, p.cz);
       halo.scale.setScalar(1.1);
       halo.renderOrder = 7;
       const pool = new THREE.Mesh(this.poolGeo, this.poolMat);
-      pool.position.set(p.cx, 0.02, p.cz);
+      pool.position.set(p.cx, y0 + 0.02, p.cz);
       pool.scale.setScalar(3.4);
       pool.renderOrder = 2;
       this.glows.add(halo, pool);
@@ -98,7 +99,7 @@ export class Daylight {
     const u = this.post.material.uniforms;
     u.uTint.value.set(...k.tint); u.uExposure.value = k.exp; u.uSat.value = k.sat; u.uNight.value = k.night;
     paintUniforms.uUnlit.value.setRGB(...k.unlit);
-    for (const layer of [this.game.veg, this.game.cropLayer, this.game.canopy]) layer.material.uniforms.uLight.value.setRGB(...k.unlit);
+    for (const layer of [this.game.veg, ...Object.values(this.game.cropLayers), this.game.canopy, this.game.gatherLayer, this.game.visitorLayer, this.game.bugLayer]) layer.material.uniforms.uLight.value.setRGB(...k.unlit);
     this.game.particles.night = k.night;
     // sun arcs from the east in the morning to the west in the evening; a fixed high moon at night
     if (h > 5 && h < 20) {

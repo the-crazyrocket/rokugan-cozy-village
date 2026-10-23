@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { startServer } from '../tools/serve.mjs';
 import { launchChrome } from '../pipeline/chrome.mjs';
+import { LEGACY_OFF as O } from '../src/world/coords.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SCREENS = process.env.SCREENS_DIR || '/workspace/screens';
@@ -113,8 +114,9 @@ async function runViewport(browser, base, vp) {
     return sl;
   };
   const plain = await bar();
-  assert.equal(plain.filter((r) => r.item === 'more').length, 0, 'no more slot without an overflow tool');
-  assert.ok(plain.some((r) => r.item === 'bag'), 'the bag has its slot');
+  // the shovel and the earth are not compact: they already make a more slot, and the bag moves into its sheet
+  assert.equal(plain.filter((r) => r.item === 'more').length, 1, 'the land tools make a more slot');
+  assert.ok(!plain.some((r) => r.item === 'bag'), 'the bag is in the more sheet');
   await G(() => {
     const c = __game.game.core;
     c.tools.add('dummy', { use() {}, group: 'more' });
@@ -137,7 +139,7 @@ async function runViewport(browser, base, vp) {
   await tapEl('#hotbar .slot[data-item="more"]');
   await page.waitForFunction(() => __game.ui.modal === 'tools', null, { timeout: 5000 });
   await sleep(400);
-  assert.deepEqual(await G(() => [...document.querySelectorAll('#panel .bag-item')].map((e) => e.dataset.item)), ['dummy', 'bag'], 'the tools sheet lists the tool and the bag');
+  assert.deepEqual(await G(() => [...document.querySelectorAll('#panel .bag-item')].map((e) => e.dataset.item)), ['net', 'shovel', 'earth', 'dummy', 'bag'], 'the tools sheet lists the overflow tools and the bag');
   assert.equal(await G(() => document.querySelectorAll('#panel .bag-item[data-item="dummy"] .icon.missing').length), 1, 'an unknown icon shows the placeholder');
   await shot('01b-tools-sheet');
   await tapEl('#panel .bag-item[data-item="dummy"]');
@@ -177,31 +179,31 @@ async function runViewport(browser, base, vp) {
   assert.equal(await page.locator('#joy').isHidden(), true, 'joystick hidden after release');
 
   // ---- smart taps at the starter field (teleport next to it for a deterministic view)
-  await G(() => { const g = __game.game; g.player.pos.set(16.5, 0, 27.5); g.player.path = null; });
+  await G(() => { const g = __game.game; g.player.pos.set(16.5 + __game.O, 0, 27.5 + __game.O); g.player.path = null; });
   await settle();
   // harvest: tap the ripe daikon's leaves (billboard picking, not the ground tile)
   const daikon0 = await G(() => __game.game.count('daikon'));
-  let s = await aim(14, 26, [0.45, 0.3, 0.6]);
+  let s = await aim(14 + O, 26 + O, [0.45, 0.3, 0.6]);
   await tap(s.x, s.y);
   await page.waitForFunction((n) => __game.game.count('daikon') > n, daikon0, { timeout: 40000 });
   log('tap harvested daikon');
   // queue: tap two dry rice plants quickly -> both get watered in turn
   // the player is busy (e.g. mid-swing): taps made now must queue up and run in turn
   await G(() => { __game.game.actionCooldown = 4; });
-  for (const [x, z] of [[11, 26], [12, 26]]) { const a = await aim(x, z); await tap(a.x, a.y); }
+  for (const [x, z] of [[11 + O, 26 + O], [12 + O, 26 + O]]) { const a = await aim(x, z); await tap(a.x, a.y); }
   const queued = await G(() => [__game.game.player.pending, ...__game.game.queue].filter(Boolean).length);
   log('queued actions', queued);
   assert.equal(queued, 2, 'both taps queued');
   await page.waitForFunction(() => document.querySelectorAll('.chip:not(.hidden)').length === 2, null, { timeout: 5000 }); // numbered queue chips
-  await page.waitForFunction(() => __game.game.crop(11, 26)?.wet && __game.game.crop(12, 26)?.wet, null, { timeout: 60000 });
+  await page.waitForFunction(() => __game.game.crop(11 + __game.O, 26 + __game.O)?.wet && __game.game.crop(12 + __game.O, 26 + __game.O)?.wet, null, { timeout: 60000 });
   log('queue watered both rice plants');
   // plant: tap empty tilled soil with the hand selected
-  s = await aim(13, 27, [0, 0.05, 0.15]);
+  s = await aim(13 + O, 27 + O, [0, 0.05, 0.15]);
   await tap(s.x, s.y);
-  await page.waitForFunction(() => !!__game.game.crop(13, 27), null, { timeout: 40000 });
-  log('tap planted', await G(() => __game.game.crop(13, 27).type));
+  await page.waitForFunction(() => !!__game.game.crop(13 + __game.O, 27 + __game.O), null, { timeout: 40000 });
+  log('tap planted', await G(() => __game.game.crop(13 + __game.O, 27 + __game.O).type));
   // long-press inspects
-  s = await aim(12, 27);
+  s = await aim(12 + O, 27 + O);
   await tap(s.x, s.y, 650);
   await page.waitForFunction(() => document.querySelectorAll('.float-label').length > 0, null, { timeout: 5000 });
   log('long-press label:', await page.locator('.float-label').last().textContent());
@@ -209,14 +211,14 @@ async function runViewport(browser, base, vp) {
 
   // ---- swipe across the empty bottom row of the field: every tile passed over gets planted
   const seeds = await G(() => __game.game.count(__game.game.pickSeed()));
-  const a0 = await aim(11, 28, [0, 0.05, 0.15]);
-  const a1 = await screen(14, 28, 0.05);
+  const a0 = await aim(11 + O, 28 + O, [0, 0.05, 0.15]);
+  const a1 = await screen(14 + O, 28 + O, 0.05);
   await touch('touchStart', [{ x: a0.x, y: a0.y }]);
   for (let i = 1; i <= 10; i++) { await touch('touchMove', [{ x: a0.x + ((a1.x - a0.x) * i) / 10, y: a0.y + ((a1.y - a0.y) * i) / 10 }]); await sleep(40); }
   await touch('touchEnd', []);
   assert.equal(await page.locator('#joy').isHidden(), true, 'a field swipe is not a joystick');
   const want = Math.min(seeds, 4);
-  await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x, 28)).length >= n, want, { timeout: 60000 });
+  await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x + __game.O, 28 + __game.O)).length >= n, want, { timeout: 60000 });
   log(`swipe planted ${want} tiles`);
 
   // ---- clock pill opens Today: three requests from Hana
@@ -228,8 +230,8 @@ async function runViewport(browser, base, vp) {
   await page.waitForFunction(() => __game.ui.modal === null, null, { timeout: 5000 });
 
   // ---- the quiet shrine: tap it -> walk up -> offering sheet; offer with a thumb
-  const home = await G(() => { const g = __game.game; const p = [g.player.pos.x, g.player.pos.z]; g.player.pos.set(22.5, 0, 12.5); g.give('rice', 3); g.give('daikon', 1); return p; });
-  const shrineAt = await aim(22, 10, [0.6, 0.4, 0.8]);
+  const home = await G(() => { const g = __game.game; const p = [g.player.pos.x, g.player.pos.z]; g.player.pos.set(22.5 + __game.O, 0, 12.5 + __game.O); g.give('rice', 3); g.give('daikon', 1); return p; });
+  const shrineAt = await aim(22 + O, 10 + O, [0.6, 0.4, 0.8]);
   await tap(shrineAt.x, shrineAt.y);
   await page.waitForFunction(() => __game.ui.modal === 'shrine', null, { timeout: 60000 });
   await tapEl('#panel [data-offering="harvest"] .offer');
@@ -247,7 +249,7 @@ async function runViewport(browser, base, vp) {
   const water = await G(() => {
     const g = __game.game, c = g.playerCell();
     const out = [];
-    for (let z = 0; z < 40; z++) for (let x = 0; x < 40; x++) {
+    for (let z = 0; z < g.world.h; z++) for (let x = 0; x < g.world.w; x++) {
       if (!g.world.isWater(x, z) || g.props.isBridge(x, z)) continue;
       if (![[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => g.walkable(x + dx, z + dz))) continue;
       out.push({ x, z, d: Math.hypot(x - c.x, z - c.z) });
@@ -366,7 +368,7 @@ async function runViewport(browser, base, vp) {
   await page.waitForFunction(() => __game.game.mode === 'play', null, { timeout: 5000 });
 
   // ---- shop sheet: tap Hana
-  await G(() => { const g = __game.game; g.player.pos.set(21.5, 0, 20.5); g.player.path = null; });
+  await G(() => { const g = __game.game; g.player.pos.set(21.5 + __game.O, 0, 20.5 + __game.O); g.player.path = null; });
   await settle();
   const mc = await G(() => __game.game.merchantCell);
   s = await aim(mc.x, mc.z, [0.6, 0.8, 0.4, 0.2]);

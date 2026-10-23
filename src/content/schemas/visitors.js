@@ -3,10 +3,12 @@ import { schema } from '../../core/schema.js';
 
 schema.define('visitors', {
   name: 'string',
-  body: { fields: { blockout: 'asset', rig: { enum: ['biped', 'quad', 'bird'] }, height: 'number?' } },
+  body: { fields: { blockout: 'asset?', sprite: 'string?', rig: { enum: ['biped', 'quad', 'bird'] }, height: 'number?' } },
   look: { type: 'object', optional: true },
   arrive: 'cond',
-  spot: { fields: { near: 'object' }, open: true },
+  spot: { fields: { near: 'object' }, open: true, optional: true },
+  when: 'cond?',
+  chance: 'number?',
   stayMs: { tuple: [{ type: 'int', min: 1 }, { type: 'int', min: 1 }], ordered: true },
   gifts: { array: { ref: 'items' } },
   hint: 'string',

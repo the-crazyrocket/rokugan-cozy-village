@@ -41,8 +41,8 @@ function resolvers() {
   const t = boot();
   const r = t.core.resolvers.all();
   same(r.map((e) => [e.id, e.priority, e.owner]), [
-    ['shop', 100, 'market'], ['shrine', 90, 'shrine'], ['forage', 80, 'forage'], ['crop', 70, 'farming'],
-    ['soil', 60, 'farming'], ['fish', 50, 'fishing'], ['prop-inspect', 40, 'props'], ['till', 30, 'farming'],
+    ['shop', 100, 'market'], ['villager', 95, 'villagers'], ['visitor', 94, 'visitors'], ['bug', 93, 'bugs'], ['shrine', 90, 'shrine'], ['forage', 80, 'forage'], ['gather', 75, 'gather'], ['crop', 70, 'farming'],
+    ['terraform', 65, 'terraform'], ['reclaim', 64, 'reclaim'], ['soil', 60, 'farming'], ['pond-plant', 55, 'farming'], ['fish', 50, 'fishing'], ['projects', 46, 'projects'], ['workbench', 44, 'craft'], ['mill', 43, 'kitchen'], ['shake', 42, 'gather'], ['kitchen', 41, 'kitchen'], ['prop-inspect', 40, 'props'], ['till', 30, 'farming'],
   ], 'the converted branches of Game.resolve, each owned by the system it belongs to');
   same(lintCore(t.core), []);
 }
@@ -96,30 +96,37 @@ function extraResolvers() {
 
 function hotbar() {
   const t = boot();
-  const bar = t.core.hotbar.all();
+  const all = t.core.hotbar.all();
+  same(all.filter((e) => e.owner === 'terraform').map((e) => [e.id, e.order, e.compact]), [['shovel', 46, false], ['earth', 47, false]], 'the land tools wait in the more sheet');
+  same(all.filter((e) => e.owner === 'bugs').map((e) => [e.id, e.order, e.compact]), [['net', 45, false]], 'and so does the net');
+  const bar = all.filter((e) => e.owner !== 'terraform' && e.owner !== 'bugs').slice(0, 7); // then the Wave 2 seeds, in the seeds group too
   same(bar.map((e) => e.id), ['hand', 'hoe', 'can', 'rod', 'seed_rice', 'seed_daikon', 'seed_tea']);
-  same(bar.map((e) => e.id), [...HOTBAR], 'the registry has the order of the old HOTBAR');
+  same(bar.map((e) => e.id), [...HOTBAR].slice(0, 7), 'the registry has the order of the old HOTBAR');
   same(bar.map((e) => e.order), [10, 20, 30, 40, 50, 51, 52]);
   same(bar.map((e) => e.owner), ['interact', 'interact', 'farming', 'fishing', 'farming', 'farming', 'farming']);
   same(bar.map((e) => e.compact), [true, true, true, true, 'seeds', 'seeds', 'seeds']);
+  assert.ok(all.filter((e) => e.owner === 'farming' && e.compact === 'seeds').length >= 10, 'every crop has its seed in the seeds group');
   assert.ok(bar.every((e) => e.icon && e.name === t.core.content.itemMap().get(e.id).name && e.icon === t.core.content.itemMap().get(e.id).icon));
-  same(t.i.hotbar().map((e) => e.id), bar.map((e) => e.id));
+  same(t.i.hotbar().map((e) => e.id), all.filter((e) => !e.when).map((e) => e.id), 'the Wave 2 seeds wait until there are some in the bag');
   assert.equal(t.core.hotbar.get('rod').hint, t.core.content.itemMap().get('rod').hint);
 
   // an entry between the rod and the seeds shifts the slots after it; selectSlot and tool() follow the registry
-  t.core.as('wp99').hotbar.add({ id: 'net', order: 45, name: 'Net', icon: 'icons:basket', compact: true });
-  same(t.i.hotbar().map((e) => e.id), ['hand', 'hoe', 'can', 'rod', 'net', 'seed_rice', 'seed_daikon', 'seed_tea']);
+  t.core.as('wp99').hotbar.add({ id: 'trap', order: 44, name: 'Trap', icon: 'icons:basket', compact: true });
+  same(t.i.hotbar().map((e) => e.id).slice(0, 10), ['hand', 'hoe', 'can', 'rod', 'trap', 'shovel', 'earth', 'seed_rice', 'seed_daikon', 'seed_tea']);
   t.i.selectSlot(4);
-  assert.equal(t.i.tool(), 'net');
-  t.i.selectSlot(7);
+  assert.equal(t.i.tool(), 'trap');
+  t.i.selectSlot(9);
   assert.equal(t.i.tool(), 'seed_tea');
-  t.i.selectSlot(8);
-  assert.equal(t.i.tool(), 'seed_tea', 'past the end does nothing');
+  const n = t.i.hotbar().length;
+  t.i.selectSlot(n - 1);
+  const last = t.i.tool();
+  t.i.selectSlot(n);
+  assert.equal(t.i.tool(), last, 'past the end does nothing');
   t.i.equip('rod');
   assert.equal(t.i.slot, 3);
   t.i.equip('nothing');
   assert.equal(t.i.slot, 3);
-  assert.throws(() => t.core.as('wp98').hotbar.add({ id: 'net', order: 46 }), /already registered by wp99/);
+  assert.throws(() => t.core.as('wp98').hotbar.add({ id: 'trap', order: 46 }), /already registered by wp99/);
 
   // `when` hides an entry while its condition is false; the slots close up
   const t2 = boot();
@@ -136,11 +143,11 @@ function hotbar() {
 function actions() {
   const t = boot();
   const a = (kind) => t.core.actions.get(kind);
-  same(t.core.actions.all().map((e) => e.kind).sort(), ['fish', 'forage', 'harvest', 'inspect', 'noseed', 'plant', 'shop', 'shrine', 'till', 'water']);
-  same(t.core.sweeps.kinds().sort(), ['forage', 'harvest', 'plant', 'water'], 'what a swipe over the field queues');
-  same(t.core.actions.all().filter((e) => e.button).map((e) => e.kind).sort(), ['fish', 'harvest', 'plant', 'shop', 'shrine', 'till', 'water'], 'what the action button shows');
-  same(t.core.actions.all().filter((e) => e.queueable).map((e) => e.kind).sort(), ['fish', 'forage', 'harvest', 'plant', 'shop', 'shrine', 'till', 'water']);
-  same(t.core.actions.all().filter((e) => e.range).map((e) => [e.kind, e.range]), [['fish', 2]]);
+  same(t.core.actions.all().map((e) => e.kind).sort(), ['collect', 'cook', 'craft', 'dig', 'fish', 'forage', 'gather', 'harvest', 'inspect', 'mill', 'net', 'noseed', 'photo', 'pile', 'plant', 'projects', 'reclaim', 'shake', 'shop', 'shrine', 'talk', 'till', 'water']);
+  same(t.core.sweeps.kinds().sort(), ['dig', 'forage', 'gather', 'harvest', 'pile', 'plant', 'water'], 'what a swipe over the field queues');
+  same(t.core.actions.all().filter((e) => e.button).map((e) => e.kind).sort(), ['collect', 'cook', 'craft', 'dig', 'fish', 'harvest', 'mill', 'net', 'photo', 'pile', 'plant', 'projects', 'reclaim', 'shop', 'shrine', 'talk', 'till', 'water'], 'what the action button shows');
+  same(t.core.actions.all().filter((e) => e.queueable).map((e) => e.kind).sort(), ['collect', 'cook', 'craft', 'dig', 'fish', 'forage', 'gather', 'harvest', 'mill', 'net', 'photo', 'pile', 'plant', 'projects', 'reclaim', 'shake', 'shop', 'shrine', 'talk', 'till', 'water']);
+  same(t.core.actions.all().filter((e) => e.range).map((e) => [e.kind, e.range]), [['fish', 2], ['photo', 3], ['net', 1]]);
   assert.equal(a('inspect').queueable, false);
   assert.equal(a('noseed').queueable, false);
   assert.equal(a('forage').owner, 'forage');
@@ -150,33 +157,34 @@ function actions() {
   const at = (dx, dz) => ({ x: m.x + dx, z: m.z + dz });
   const done = [];
   const wp = t.core.as('wp99');
-  wp.actions.add('talk', { range: 2, queueable: true, button: true, sweep: true, perform: (act, ix) => done.push([act.kind, act.t, typeof ix.useTool]) });
+  wp.actions.add('chat', { range: 2, queueable: true, button: true, sweep: true, perform: (act, ix) => done.push([act.kind, act.t, typeof ix.useTool]) });
   wp.actions.add('wave', { queueable: true, perform: (act) => done.push([act.kind]) });
-  assert.ok(t.core.sweeps.has('talk') && !t.core.sweeps.has('wave'));
+  assert.ok(t.core.sweeps.has('chat') && !t.core.sweeps.has('wave'));
   stand(t, m.x, m.z);
-  t.i.startAction({ kind: 'talk', t: at(2, 0) });
-  same(done, [['talk', at(2, 0), 'function']], 'in range at distance 2');
+  t.i.startAction({ kind: 'chat', t: at(2, 0) });
+  same(done, [['chat', at(2, 0), 'function']], 'in range at distance 2');
   assert.equal(t.st.path, null);
   t.i.cooldown = 0;
   t.i.startAction({ kind: 'wave', t: at(2, 0) });
   same(done.length, 1, 'range 1: the player walks over first');
   assert.ok(t.st.pending || t.st.path);
-  assert.ok(t.i.standTiles({ kind: 'talk', t: at(4, 4) }).every((s) => Math.max(Math.abs(s.x - m.x - 4), Math.abs(s.z - m.z - 4)) <= 2));
+  assert.ok(t.i.standTiles({ kind: 'chat', t: at(4, 4) }).every((s) => Math.max(Math.abs(s.x - m.x - 4), Math.abs(s.z - m.z - 4)) <= 2));
   assert.ok(t.i.standTiles({ kind: 'wave', t: at(4, 4) }).every((s) => Math.max(Math.abs(s.x - m.x - 4), Math.abs(s.z - m.z - 4)) <= 1));
 
   // a swipe queues a sweep kind
-  t.core.as('wp98').resolvers.add({ id: 'chat', priority: 42, fn: (tile) => (tile.x === m.x + 6 ? { kind: 'talk', t: tile } : null) });
+  t.core.as('wp98').resolvers.add({ id: 'chat', priority: 42, fn: (tile) => (tile.x === m.x + 6 ? { kind: 'chat', t: tile } : null) });
   t.st.pending = null; t.st.path = null; t.i.cooldown = 1;
   t.i.queue.length = 0;
-  assert.equal(t.i.sweep(at(6, 0)).kind, 'talk');
+  assert.equal(t.i.sweep(at(6, 0)).kind, 'chat');
   assert.equal(t.i.queue.length, 1);
   assert.equal(t.i.sweep(at(7, 0)), null, 'nothing there to sweep');
 }
 
 function tools() {
   const t = boot();
-  same(t.core.tools.ids().sort(), ['can', 'hand', 'hoe', 'rod', 'seed_daikon', 'seed_rice', 'seed_tea']);
-  same(t.core.tools.all().length, 7);
+  const wave2 = ['seed_edamame', 'seed_kabocha', 'seed_lotus', 'seed_nasu', 'seed_satsuma_imo', 'seed_shiso', 'seed_wasabi'];
+  same(t.core.tools.ids().sort(), ['can', 'earth', 'hand', 'hoe', 'net', 'rod', 'seed_daikon', ...wave2.slice(0, 5), 'seed_rice', ...wave2.slice(5, 6), 'seed_tea', ...wave2.slice(6), 'shovel'].sort());
+  same(t.core.tools.all().length, 17);
   assert.equal(t.core.tools.get('rod').owner, 'fishing');
   assert.equal(t.core.tools.get('can').owner, 'farming');
   assert.equal(t.core.tools.get('hoe').owner, 'interact');
@@ -185,15 +193,15 @@ function tools() {
   // a made-up tool is used with the tile and the interact api, by the name used for it
   const m = meadow(t.world);
   const used = [];
-  t.core.as('wp99').tools.add('net', { use: (tile, ix) => used.push([tile, ix.tool()]) });
-  t.i.useTool({ x: m.x, z: m.z }, 'net');
+  t.core.as('wp99').tools.add('trap', { use: (tile, ix) => used.push([tile, ix.tool()]) });
+  t.i.useTool({ x: m.x, z: m.z }, 'trap');
   same(used, [[{ x: m.x, z: m.z }, 'hand']]);
   t.i.useTool({ x: m.x, z: m.z }, 'nothing');
   assert.equal(used.length, 1, 'an unknown tool does nothing');
   // the shop is checked before any tool
   const stall = t.pr.add('stall', m.x + 3, m.z + 3, 0);
   t.log.length = 0;
-  t.i.useTool({ x: stall.x, z: stall.z }, 'net');
+  t.i.useTool({ x: stall.x, z: stall.z }, 'trap');
   assert.equal(used.length, 1);
   assert.ok(t.log.some(([n, p]) => n === 'openSheet' && p.name === 'shop'));
 }
@@ -207,19 +215,20 @@ function keys() {
   assert.equal(t.core.keys.press('KeyZ', t.core), false);
   const sent = () => t.log.splice(0).map(([n, p]) => (n === 'openSheet' ? `sheet:${p.name}` : n === 'say' ? `say:${p.text}` : n === 'buildMode' ? `build:${p.on}` : n));
 
-  // 1-7 pick tools, 8 builds, 9 opens the bag; in build mode the digits belong to the build bar
+  // 1-9 pick tools (building and the bag are B and I, bound by the page); in build mode the digits belong to the build bar
   assert.equal(t.core.keys.press('Digit4', t.core), true);
   assert.equal(t.i.tool(), 'rod');
   assert.equal(t.core.keys.press('Digit7', t.core), true);
-  assert.equal(t.i.tool(), 'seed_tea');
+  assert.equal(t.i.tool(), 'seed_rice', 'after the shovel and the earth');
   t.core.keys.press('Digit9', t.core);
-  assert.ok(sent().includes('sheet:bag'));
-  t.core.keys.press('Digit8', t.core);
+  assert.ok(!sent().includes('sheet:bag'), '9 is a slot now');
+  const ninth = t.i.tool();
+  t.core.use('build').toggle(true);
   assert.ok(sent().includes('build:true'));
   assert.equal(t.core.use('build').mode, 'build');
   t.core.keys.press('Digit2', t.core);
   assert.ok(sent().includes('buildSelect'));
-  assert.equal(t.i.tool(), 'seed_tea', 'the tool in hand is unchanged');
+  assert.equal(t.i.tool(), ninth, 'the tool in hand is unchanged');
   t.core.keys.press('KeyR', t.core);
   assert.ok(sent().includes('say:Rotated 90°'));
   t.core.use('build').toggle(false);

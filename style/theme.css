@@ -1,0 +1,153 @@
+/* The look: the UI is made of things from the island. Dark lacquered wood for trays, frames and plaques; washi paper with real
+   fibres for cards and slips; red lacquer and gold for what matters; a cloth banner for titles. Loaded last: it restyles base.css
+   and kit.css without changing any markup. */
+@font-face { font-family: 'Zen Maru Gothic'; font-weight: 500; font-display: swap; src: url('../assets/fonts/zen-maru-gothic-500.woff2') format('woff2'); }
+@font-face { font-family: 'Zen Maru Gothic'; font-weight: 700; font-display: swap; src: url('../assets/fonts/zen-maru-gothic-700.woff2') format('woff2'); }
+@font-face { font-family: 'Kaisei Decol'; font-weight: 700; font-display: swap; src: url('../assets/fonts/kaisei-decol-700.woff2') format('woff2'); }
+
+:root {
+  --font: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', system-ui, sans-serif;
+  --font-title: 'Kaisei Decol', 'Hiragino Mincho ProN', Georgia, serif;
+  --paper: #f7eedb; --paper2: #e6d6b2; --ink: #3a2c22;
+  --wood: #6e4b33; --wood-dark: #48311f; --wood-edge: #2e1f14; --wood-light: #8a6243;
+  --lacquer: #b9402a; --lacquer-dark: #7e2617; --gold: #dcae52; --gold-dark: #a7782c;
+  /* washi: soft cloudy fibres over the paper colour */
+  --fibres: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.7 .09' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .33  0 0 0 0 .18  0 0 0 .3 -.08'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  --mottle: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='2' seed='9'/><feColorMatrix values='0 0 0 0 .6  0 0 0 0 .45  0 0 0 0 .25  0 0 0 .22 -.04'/></filter><rect width='100%' height='100%' filter='url(%23m)'/></svg>");
+  /* wood: long grain lines over a warm gradient */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='120'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.006 .19' numOctaves='3' seed='2'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .06  0 0 0 0 .02  0 0 0 .7 -.18'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  --paper-bg: var(--fibres), var(--mottle), linear-gradient(var(--paper), var(--paper));
+  --wood-bg: var(--grain), linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 45%, var(--wood-dark) 100%);
+  --plaque-shadow: 0 3px 0 var(--wood-edge), 0 6px 12px rgba(20,12,6,.35);
+}
+
+body, button { font-family: var(--font); font-weight: 500; letter-spacing: -.01em; }
+
+/* ---------- plaques: the top HUD, the zoom / build / bag / help buttons, the build bar */
+.purse-box, .clock-pill, .top-buttons button, #touch button:not(#btn-action), #build-bar button, .hud-chip {
+  background: var(--wood-bg); color: #fbf0d8; border: 2px solid var(--wood-edge);
+  box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.55), inset 0 2px 0 rgba(255,235,200,.18), var(--plaque-shadow);
+  text-shadow: 0 1px 1px rgba(0,0,0,.5);
+}
+.purse-box { border-radius: 24px; padding: 5px 16px 5px 6px; font-weight: 700; font-size: 20px; letter-spacing: .02em; }
+.purse-box small { color: var(--gold); opacity: .95; font-weight: 500; }
+.coin { width: 30px; height: 30px; border: 2px solid #6e4c18; background: radial-gradient(circle at 35% 30%, #fff1b8 0, #f2cc6a 30%, #c99536 70%, #8d6420 100%); box-shadow: inset 0 0 0 3px rgba(255,240,190,.35), 0 1px 2px rgba(0,0,0,.4); position: relative; }
+.coin::after { content: ""; position: absolute; inset: 9px; border-radius: 2px; background: #6e4c18; opacity: .75; } /* the square hole of a mon coin */
+.clock-pill { border-radius: 24px; font-weight: 700; color: #fbf0d8; }
+.clock-pill b { font-weight: 700; }
+#today-dot { border-color: var(--wood-edge); background: var(--lacquer); box-shadow: 0 0 6px rgba(255,120,80,.8); }
+.top-buttons button { border-radius: 14px; font-weight: 700; }
+.top-buttons button:active, #touch button:active, #build-bar button:active, .clock-pill:active { transform: translateY(2px); box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.55), 0 1px 0 var(--wood-edge); }
+#btn-help { width: 44px; border-radius: 50%; padding: 0; font-family: var(--font-title); font-size: 19px; }
+body.build-mode #btn-build { background: var(--grain), linear-gradient(#d4583c, var(--lacquer) 50%, var(--lacquer-dark)); }
+#bb-place { background: var(--grain), linear-gradient(#8fae55, var(--moss) 55%, #4a6128) !important; border-color: #2f3d17 !important; }
+
+/* ---------- the hotbar: a wooden tray of paper tiles */
+#hotbar {
+  background: var(--wood-bg); border: 2px solid var(--wood-edge); border-radius: 20px; padding: 7px; gap: 6px;
+  box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.5), inset 0 2px 0 rgba(255,235,200,.15), 0 4px 0 var(--wood-edge), 0 10px 22px rgba(20,12,6,.4);
+}
+@media (orientation: landscape) and (max-height: 520px) { #hotbar { gap: 3px; padding: 3px; } } /* base and kit size the compact tray for small screens */
+.slot {
+  background: var(--paper-bg); border: none; border-radius: 13px;
+  box-shadow: inset 0 -3px 0 rgba(120,85,45,.25), inset 0 0 0 1px rgba(90,60,30,.25), 0 2px 0 rgba(20,12,6,.45);
+  transition: transform .12s ease-out, box-shadow .12s;
+}
+.slot.special { background: var(--fibres), linear-gradient(#efe0bd, #e4d0a2); }
+.slot.sel {
+  background: var(--fibres), linear-gradient(#fff8e6, #f6e3b6); transform: translateY(-5px);
+  box-shadow: inset 0 0 0 2.5px var(--gold), inset 0 0 0 4px rgba(255,248,225,.9), 0 0 0 2px var(--lacquer), 0 5px 0 rgba(20,12,6,.5), 0 0 16px rgba(255,200,90,.55);
+}
+.slot.sel::after { content: ""; position: absolute; bottom: -9px; left: 50%; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px rgba(255,210,110,.9); }
+.slot:active { transform: translateY(1px) scale(.96); }
+.slot .count { color: var(--wood-edge); font-weight: 700; text-shadow: 0 0 3px #fff8e6, 0 0 3px #fff8e6, 0 0 2px #fff8e6; }
+.slot .key { color: var(--wood); font-weight: 700; }
+#tool-hint { font-weight: 700; letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0,0,0,.8), 0 0 10px rgba(0,0,0,.35); }
+
+/* ---------- the action button: a red lacquer seal with a gold rim */
+#btn-action {
+  background: radial-gradient(circle at 35% 28%, #e0694c 0, var(--lacquer) 45%, var(--lacquer-dark) 100%); border: 3px solid #4f160c;
+  box-shadow: inset 0 0 0 3px rgba(220,174,82,.85), inset 0 0 0 5px rgba(80,20,10,.4), 0 5px 0 #4f160c, 0 10px 18px rgba(20,12,6,.4);
+}
+#btn-action:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px rgba(220,174,82,.85), 0 2px 0 #4f160c; }
+#btn-action .icon.act { background-color: transparent; background-image: none; }
+#btn-action .icon.act { background: radial-gradient(circle, #fff8e6 0 60%, #f0dcae 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+#btn-action .lbl { font-weight: 700; color: #fff1d0; }
+#btn-action.reel { background: radial-gradient(circle at 35% 28%, #4c5f93 0, var(--indigo) 50%, #1c2645 100%); border-color: #121a30; }
+
+/* ---------- toasts, labels, chips */
+.toast { background: var(--paper-bg); border: 2px solid var(--wood-dark); border-left: 8px solid var(--lacquer); border-radius: 12px; font-weight: 500;
+  box-shadow: inset 0 0 0 1px rgba(220,174,82,.45), 0 3px 0 rgba(46,31,20,.55), 0 8px 16px rgba(0,0,0,.2); }
+.float-label { background: var(--paper-bg); border: 2px solid var(--wood-dark); font-weight: 700; color: var(--wood-edge); }
+.chip { background: var(--paper-bg); border: 2px solid var(--gold-dark); }
+.todo-ribbon { background: var(--paper-bg); border: 2px solid var(--wood-dark); border-left: 7px solid var(--indigo); color: var(--wood-edge); font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(220,174,82,.45), 0 3px 0 rgba(46,31,20,.5), 0 6px 12px rgba(0,0,0,.2); }
+
+/* ---------- cards: washi paper in a lacquered wooden frame, the title on a cloth banner */
+#panel { background: radial-gradient(ellipse at center, rgba(20,24,40,.25), rgba(20,24,40,.5)); }
+.card {
+  background: var(--paper-bg); border: 6px solid var(--wood-dark); border-radius: 22px; padding: 0 18px 18px;
+  box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 0 4px rgba(255,248,225,.6), inset 0 0 60px rgba(140,95,40,.16), 0 8px 0 var(--wood-edge), 0 24px 50px rgba(0,0,0,.35);
+}
+.card-head {
+  position: sticky; top: 0; z-index: 2; margin: 0 -18px 12px; padding: 12px 12px 12px 18px; border-bottom: none;
+  background: var(--fibres), linear-gradient(180deg, #34467a, var(--indigo) 60%, #24315a);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.25), inset 0 -5px 0 rgba(220,174,82,.55), 0 4px 8px rgba(30,20,10,.18);
+}
+.card-head h2 { font-family: var(--font-title); font-size: 23px; color: #fbf0d8; letter-spacing: .03em; text-shadow: 0 2px 0 rgba(0,0,0,.3); }
+.card-head h2::before { width: 12px; height: 12px; background: var(--gold); box-shadow: 0 0 0 2px rgba(255,240,200,.35); margin-right: 12px; }
+.card-head .purse { color: #fbf0d8; font-weight: 700; }
+.close { width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50%; color: #fbf0d8; font-size: 18px; background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.6); }
+.close:active { background: rgba(255,255,255,.2); }
+.npc { font-size: 15px; line-height: 1.5; color: var(--ink); }
+
+/* section titles get a brush stroke under them */
+.today h3, .book-head, .card h3 { font-family: var(--font-title); font-size: 17px; color: var(--wood-dark); margin: 16px 0 8px; padding-bottom: 4px;
+  background: linear-gradient(90deg, rgba(185,64,42,.75), rgba(185,64,42,.35) 40%, transparent 75%) left bottom / 100% 3px no-repeat; }
+
+/* rows are paper slips laid on the card */
+.list { gap: 7px; }
+.row { background: var(--fibres), linear-gradient(#fffaf0, #fbf1dc); border: 1px solid rgba(110,75,51,.22); border-radius: 14px; padding: 7px 10px 7px 7px;
+  box-shadow: 0 2px 0 rgba(110,75,51,.22), 0 3px 8px rgba(110,75,51,.08); }
+.row .icon, .bag-item .icon { background-color: transparent; }
+.row > .icon { border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(110,75,51,.15); background-color: rgba(230,214,178,.45); width: 46px; height: 46px; background-size: 84%; }
+.row .name { font-weight: 700; color: var(--wood-edge); }
+.row .name small { font-weight: 500; color: #7c5a37; }
+.row.unseen .name { color: #9b8668; }
+.price { color: var(--gold-dark); font-weight: 700; }
+
+/* buttons: thick and pressable */
+.btn { font-weight: 700; color: var(--wood-dark); border: 2px solid var(--wood-dark); border-radius: 12px;
+  background: var(--fibres), linear-gradient(#fffaf0, #eedcb4); box-shadow: 0 3px 0 var(--wood-dark); transition: transform .08s; }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--wood-dark); }
+.btn.big, .btn.make, .btn.claim, .btn.wake { color: #fff3dc; border-color: #4f160c; text-shadow: 0 1px 1px rgba(0,0,0,.4);
+  background: var(--grain), linear-gradient(#d4583c, var(--lacquer) 55%, var(--lacquer-dark)); box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.6), 0 3px 0 #4f160c; }
+.btn.big:active:not(:disabled), .btn.make:active:not(:disabled) { box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.6), 0 1px 0 #4f160c; }
+.btn:disabled { opacity: .45; filter: saturate(.4); box-shadow: 0 2px 0 rgba(72,49,31,.5); }
+@media (hover: hover) and (pointer: fine) { .btn:hover:not(:disabled) { background: var(--fibres), linear-gradient(#fff4d6, #f1d58f); } .btn.big:hover:not(:disabled), .btn.make:hover:not(:disabled) { background: var(--grain), linear-gradient(#e06446, #c44a30 55%, var(--lacquer-dark)); } }
+
+/* tabs: wooden index tabs, the open one a cloth tag */
+.tabs { gap: 8px; }
+.tab { font-weight: 700; color: var(--wood-dark); border: 2px solid var(--wood-dark); border-radius: 12px; background: var(--fibres), linear-gradient(#fffaf0, #eedcb4); box-shadow: 0 3px 0 var(--wood-dark); }
+.tab.on { color: #fbf0d8; background: var(--fibres), linear-gradient(#3b4f86, var(--indigo)); border-color: #1c2645; box-shadow: inset 0 0 0 1.5px rgba(220,174,82,.6), 0 1px 0 #1c2645; transform: translateY(2px); }
+
+/* progress bars, cost pills, hearts */
+.req .bar, .shrine-row .bar, .project .bar { height: 9px; border-radius: 5px; background: rgba(110,75,51,.18); box-shadow: inset 0 1px 2px rgba(60,40,20,.3); }
+.req .bar i, .shrine-row .bar i, .project .bar i { background: linear-gradient(#a5c46a, var(--moss)); border-radius: 5px; box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+.cost { font-weight: 700; }
+.away { background: var(--fibres), linear-gradient(#fff4d6, #fbe7b8); border: 2px solid var(--gold-dark); box-shadow: inset 0 0 0 1px rgba(255,255,255,.6); }
+.away b { font-family: var(--font-title); }
+
+/* the bag grid: tiles like the hotbar's */
+.bag-item { background: var(--fibres), linear-gradient(#fffaf0, #f6e8c8); border: 1px solid rgba(110,75,51,.25); border-radius: 14px; box-shadow: 0 2px 0 rgba(110,75,51,.25); }
+.bag-item .count { color: var(--wood-edge); }
+.bag-item .label { font-weight: 700; color: var(--wood-dark); }
+
+/* the bottom sheet's grabber on phones: a strip of the banner cloth above the title */
+@media (max-width: 760px) and (orientation: portrait) {
+  .card.sheet { padding: 0 18px calc(16px + var(--sab)); border-width: 5px; border-bottom: none;
+    box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 60px rgba(140,95,40,.16), 0 -8px 30px rgba(0,0,0,.3); }
+  .card.sheet .grabber { width: auto; height: auto; margin: 0 -18px; padding: 9px 0 0; border-radius: 0; background: #34467a; }
+  .card.sheet .grabber::after { content: ""; display: block; width: 48px; height: 5px; margin: 0 auto; border-radius: 3px; background: rgba(255,240,210,.5); }
+  .card.sheet .card-head { padding-top: 6px; background: var(--fibres), linear-gradient(180deg, #34467a, var(--indigo) 60%, #24315a); }
+}

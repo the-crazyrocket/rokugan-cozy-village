@@ -178,7 +178,7 @@ function waking() {
     'sfx:fanfare', 'haptic:60', 'burst:30', 'burst:30', 'burst:30', 'burst:30', // the festival
     'say:Ebisu wakes!', 'ui', 'wake:ebisu',
   ]);
-  assert.deepEqual([sh.awake, sh.isAwake('ebisu'), sh.current(), sh.ready('ebisu'), sh.offerable()], [['ebisu'], true, null, false, false]);
+  assert.deepEqual([sh.awake, sh.isAwake('ebisu'), sh.current(), sh.ready('ebisu'), sh.offerable()], [['ebisu'], true, 'daikoku', false, false], 'Daikoku is next');
   assert.equal(core.inv.count('bait'), 5);
   assert.equal(ids(pr), 'pier,shrine,stone');
   assert.equal(sh.wake(), false, 'a Fortune wakes once');

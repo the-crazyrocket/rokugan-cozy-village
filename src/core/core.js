@@ -101,6 +101,19 @@ export function createCore({
       return spec;
     },
 
+    /** The parts alone ({ name: value }, unclaimed keys kept): what the flat v3 save (Game.serialize) carries as `ext`. */
+    saveParts() {
+      const out = { ...rest };
+      for (const [k, p] of parts) out[k] = p.serialize(core);
+      return out;
+    },
+    /** Hands each part its value from a v3 `ext` (its defaults when absent); keys nobody claimed wait in `rest`. */
+    loadParts(d = {}) {
+      rest = {};
+      for (const [k, v] of Object.entries(d)) if (!parts.has(k)) rest[k] = v;
+      for (const [k, p] of parts) p.load(k in d ? d[k] : p.defaults?.(core), core);
+    },
+
     /** Boots the systems once, in `needs` order: events, slice, api and facade first, then every init(). */
     boot(list) {
       if (booted) throw new Error('core.boot: already booted');

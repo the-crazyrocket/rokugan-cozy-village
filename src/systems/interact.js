@@ -48,7 +48,7 @@ export default defineSystem({
   },
   api(ctx) {
     // slot: index into the hotbar registry; queue: actions waiting their turn; cooldown: seconds left before the next one; hover: the tile under the pointer
-    const s = Object.assign(ctx.state, { slot: 0, queue: [], cooldown: 0, hover: null });
+    const s = Object.assign(ctx.state, { slot: 0, held: null, queue: [], cooldown: 0, hover: null }); // held: the id in hand, so the slot follows it
     const props = () => ctx.use('props');
     const player = () => ctx.use('player');
     const build = () => ctx.use('build');
@@ -81,6 +81,7 @@ export default defineSystem({
         const i = api.hotbar().findIndex((e) => e.id === id);
         if (i < 0 || i === s.slot) return;
         s.slot = i;
+        s.held = id;
         ctx.invalidate('ui');
       },
 
@@ -88,6 +89,7 @@ export default defineSystem({
         if (build().mode === 'build') { ctx.bus.emit('buildSelect', { index: i }); return; }
         if (i < 0 || i >= api.hotbar().length) return;
         s.slot = i;
+        s.held = api.hotbar()[i].id;
         fishing().cancel();
         ctx.invalidate('ui');
       },
@@ -264,15 +266,12 @@ export default defineSystem({
     ctx.hotbar.add(hotbarEntry(ctx, 'hand', 10));
     ctx.hotbar.add(hotbarEntry(ctx, 'hoe', 20));
     for (const code of ['Space', 'KeyE', 'Enter']) ctx.keys.bind(code, () => api.action());
-    // 1-7 pick a tool (or a prop in build mode); in play mode 8 starts building and 9 opens the bag
-    for (let n = 1; n <= 9; n++) {
-      ctx.keys.bind(`Digit${n}`, () => {
-        const play = build().mode === 'play';
-        if (play && n === 8) build().toggle(true);
-        else if (play && n === 9) ctx.bus.emit('openSheet', { name: 'bag' });
-        else api.selectSlot(n - 1);
-      });
-    }
+    // 1-9 pick a tool (or a prop in build mode); building and the bag have their letters (B, I)
+    for (let n = 1; n <= 9; n++) ctx.keys.bind(`Digit${n}`, () => api.selectSlot(n - 1));
+    // a slot that appears or goes (seeds in the bag, a gift from a visitor) shifts the others: the tool in hand stays in hand
+    const follow = () => { const i = s.held ? ctx.state.api.hotbar().findIndex((e) => e.id === s.held) : -1; if (i >= 0) s.slot = i; };
+    ctx.bus.on('itemGain', follow, { priority: PRIO.STATE });
+    ctx.bus.on('itemLoss', follow, { priority: PRIO.STATE });
     // the controls taken by hand drop whatever was queued; so does build mode
     ctx.bus.on('playerMove', (p) => { if (p.manual) s.queue.length = 0; }, { priority: PRIO.STATE });
     ctx.bus.on('buildMode', () => { s.queue.length = 0; }, { priority: PRIO.STATE });

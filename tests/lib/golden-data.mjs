@@ -22,6 +22,7 @@ export const SPOTS = { fresh: [true, false], 'sea-shore': [false, false], pier: 
 /** The pre-refactor Game.fishPool, rebuilt from the pure pieces. */
 export function fishPoolOld(fresh, onPier, h, bait) {
   return Object.entries(FISH)
+    .filter(([, f]) => !f.when) // the fish from before conditions
     .filter(([, f]) => (fresh ? f.water === 'fresh' : f.water === 'sea' && (onPier || !f.deep)) && fishBiting(f, h))
     .map(([k, f]) => [k, f.weight * (bait && f.rare ? BAIT_RARE : 1)]);
 }

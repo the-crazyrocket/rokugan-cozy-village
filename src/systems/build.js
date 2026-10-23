@@ -123,7 +123,8 @@ export default defineSystem({
         const id = s.sel;
         const type = item(id)?.prop;
         if (!type || ctx.inv.count(id) <= 0) { ctx.say('You have none left. Buy more at the stall.'); return false; }
-        if (!props().canPlace(type, x, z, s.rot, { via: via() })) { ctx.say("Can't place that here."); return false; }
+        const why = props().check(type, x, z, s.rot, { via: via() });
+        if (why) { ctx.say(/ /.test(why) ? why : "Can't place that here."); return false; } // a guard's sentence, or a footprint code
         take(id);
         const p = props().add(type, x, z, s.rot, 0, { via: via() });
         ctx.sfx('place');

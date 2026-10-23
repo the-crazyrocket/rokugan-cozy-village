@@ -30,7 +30,7 @@ export const fxMixin = {
 
   placeAt(e, x, y, z, dy = 0) {
     if (!this.toScreen) return;
-    const s = this.toScreen(x, y, z);
+    const s = this.toScreen(x, y + (this.game?.world?.levelY(x, z) || 0), z); // y is above the ground there
     e.style.left = `${s.x}px`; e.style.top = `${s.y + dy}px`;
   },
 

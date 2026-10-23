@@ -7,6 +7,7 @@ addBase('items', 'hand', { name: 'Hand', kind: 'tool', icon: 'icons:hand', hint:
 addBase('items', 'hoe', { name: 'Hoe', kind: 'tool', icon: 'icons:hoe', hint: 'Till grass into soil' });
 addBase('items', 'can', { name: 'Watering can', kind: 'tool', icon: 'icons:can', hint: 'Water crops: they grow twice as fast' });
 addBase('items', 'rod', { name: 'Fishing rod', kind: 'tool', icon: 'icons:rod', hint: 'Face water and cast' });
+addBase('items', 'shovel', { name: 'Shovel', kind: 'tool', icon: 'icons3:shovel', hint: 'Cut a hill’s edge down, or dig a pond into flat ground; the earth goes in your bag' });
 addBase('items', 'seed_rice', { name: 'Rice seeds', kind: 'seed', crop: 'rice', icon: 'icons:seed_rice', buy: 10 });
 addBase('items', 'seed_daikon', { name: 'Daikon seeds', kind: 'seed', crop: 'daikon', icon: 'icons:seed_daikon', buy: 5 });
 addBase('items', 'seed_tea', { name: 'Tea seeds', kind: 'seed', crop: 'tea', icon: 'icons:seed_tea', buy: 30 });

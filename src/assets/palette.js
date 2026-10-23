@@ -49,6 +49,11 @@ export const PARTS = {
   rope: { color: PALETTE.straw, grey: 0.72 },
   water: { color: PALETTE.water, grey: 0.4 },
   moss: { color: PALETTE.moss, grey: 0.5 },
+  // characters
+  skin: { color: PALETTE.skin, grey: 0.8 },
+  hair: { color: '#2a2420', grey: 0.18 },
+  cloth: { color: '#7a5236', grey: 0.45 },
+  clothLight: { color: '#d9d4cc', grey: 0.85 },
 };
 
 export function hexToRgb01(hex) {

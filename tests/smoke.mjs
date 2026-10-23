@@ -35,7 +35,7 @@ try {
   const settled = async () => {
     let prev = null;
     for (let i = 0; i < 60; i++) {
-      const p = await G(() => __game.tileToScreen(20, 20));
+      const p = await G(() => __game.tileToScreen(20 + __game.O, 20 + __game.O));
       if (prev && Math.hypot(p.x - prev.x, p.y - prev.y) < 0.5) return;
       prev = p;
       await page.waitForTimeout(250);
@@ -128,7 +128,7 @@ try {
   // ---- farming: walk next to the starter field, till grass, plant, water
   const field = await G(() => {
     const g = __game.game;
-    for (const [x, z] of [[15, 27], [15, 28], [10, 26], [10, 27], [15, 26], [12, 25]]) {
+    for (const [x, z] of [[15, 27], [15, 28], [10, 26], [10, 27], [15, 26], [12, 25]].map(([x, z]) => [x + __game.O, z + __game.O])) {
       if (g.world.get(x, z) === 1 && !g.props.at(x, z) && !g.daily.forageAt(x, z)) return { x, z };
     }
     return null;
@@ -139,7 +139,7 @@ try {
   await page.mouse.click(s.x, s.y);
   await page.waitForFunction((t) => __game.game.world.get(t.x, t.z) === 4, field, { timeout: 40000 });
   log('tilled', field);
-  await page.keyboard.press('Digit5'); // rice seeds
+  await page.keyboard.press(`Digit${await G(() => document.querySelector('#hotbar .slot[data-item="seed_rice"] .key').textContent)}`); // rice seeds
   await page.keyboard.press('Space'); // player is facing the tilled tile
   await page.waitForFunction((t) => !!__game.game.crop(t.x, t.z), field, { timeout: 10000 });
   await page.keyboard.press('Digit3'); // watering can
@@ -149,7 +149,7 @@ try {
   // harvest the ripe daikon of the starter field with a click
   const daikonBefore = await G(() => __game.game.count('daikon'));
   await page.keyboard.press('Digit1');
-  s = await G(() => __game.tileToScreen(14, 26));
+  s = await G(() => __game.tileToScreen(14 + __game.O, 26 + __game.O));
   await page.mouse.click(s.x, s.y);
   await page.waitForFunction((n) => __game.game.count('daikon') > n, daikonBefore, { timeout: 30000 });
   log('harvested daikon');
@@ -158,19 +158,19 @@ try {
   await page.waitForFunction(() => !__game.game.isBusy() && !__game.game.player.moving, null, { timeout: 30000 });
   await settled();
   const seeds0 = await G(() => __game.game.count('seed_rice'));
-  const row = await G(() => [11, 12, 13, 14].map((x) => __game.tileToScreen(x, 28)));
+  const row = await G(() => [11, 12, 13, 14].map((x) => __game.tileToScreen(x + __game.O, 28 + __game.O)));
   await page.mouse.move(row[0].x, row[0].y);
   await page.mouse.down();
   for (let i = 1; i <= 12; i++) { const k = i / 12; await page.mouse.move(row[0].x + (row[3].x - row[0].x) * k, row[0].y + (row[3].y - row[0].y) * k); await page.waitForTimeout(30); }
   await page.mouse.up();
   const expected = Math.min(seeds0, 4);
-  await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x, 28)).length >= n, expected, { timeout: 60000 });
+  await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x + __game.O, 28 + __game.O)).length >= n, expected, { timeout: 60000 });
   log(`sweep planted ${expected} tiles`);
 
   // ---- real-time growth: skip the clock 40 min -> the new rice is ripe (watered one sooner)
-  assert.ok(await G(() => __game.game.timeToRipe(__game.game.crop(11, 28)) > 30 * 60e3), 'rice takes ~36 min');
+  assert.ok(await G(() => __game.game.timeToRipe(__game.game.crop(11 + __game.O, 28 + __game.O)) > 30 * 60e3), 'rice takes ~36 min');
   await G(() => __game.skip(40 * 60e3));
-  assert.equal(await G(() => __game.game.stage(__game.game.crop(11, 28))), 3, 'rice ripe after 40 minutes');
+  assert.equal(await G(() => __game.game.stage(__game.game.crop(11 + __game.O, 28 + __game.O))), 3, 'rice ripe after 40 minutes');
   log('time skip ripened the rice');
 
   // ---- fishing: click a nearby water tile with the rod, wait for the bite, press Space
@@ -178,7 +178,7 @@ try {
   const water = await G(() => {
     const g = __game.game, c = g.playerCell();
     let best = null, bd = 1e9;
-    for (let z = 0; z < 40; z++) for (let x = 0; x < 40; x++) {
+    for (let z = 0; z < g.world.h; z++) for (let x = 0; x < g.world.w; x++) {
       if (!g.world.isWater(x, z) || g.props.isBridge(x, z)) continue;
       const nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => g.walkable(x + dx, z + dz));
       const d = Math.hypot(x - c.x, z - c.z);
@@ -239,9 +239,9 @@ try {
   // ---- shrine chapter 1: offerings -> Ebisu wakes -> pier, deep-sea fish, bait
   const landmarks = () => G(() => __game.game.props.list.map((p) => p.type).filter((t) => ['shrine_old', 'shrine', 'stone', 'pier'].includes(t)).sort());
   assert.deepEqual(await landmarks(), ['shrine_old', 'stone'], 'a new island has the quiet shrine and the sleeping stone');
-  await G(() => { const g = __game.game; g.cancelFishing(); g.queue.length = 0; g.player.path = null; g.player.pending = null; g.player.pos.set(22.5, 0, 12.5); g.give('rice', 3); g.give('daikon', 2); g.give('ayu', 1); });
+  await G(() => { const g = __game.game; g.cancelFishing(); g.queue.length = 0; g.player.path = null; g.player.pending = null; g.player.pos.set(22.5 + __game.O, 0, 12.5 + __game.O); g.give('rice', 3); g.give('daikon', 2); g.give('ayu', 1); });
   await settled();
-  const shrineAt = await G(() => __game.tileToScreen(22.5, 9.5, 0.7));
+  const shrineAt = await G(() => __game.tileToScreen(22.5 + __game.O, 9.5 + __game.O, 0.7));
   await page.mouse.click(shrineAt.x, shrineAt.y);
   await page.waitForFunction(() => __game.ui.modal === 'shrine', null, { timeout: 60000 });
   await page.click('#panel [data-offering="harvest"] .offer');
@@ -262,8 +262,8 @@ try {
   await page.waitForSelector('#panel .row[data-item="bait"]', { timeout: 5000 });
   await G(() => __game.ui.closeModal());
   // walk out on the pier: deep-sea fish bite there, by the hour
-  await G(() => { const g = __game.game; g.player.pos.set(20.5, 0, 32.5); g.walkTo({ x: 20, z: 36 }); });
-  await page.waitForFunction(() => { const g = __game.game; return !g.player.path && Math.floor(g.player.pos.z) === 36; }, null, { timeout: 90000 });
+  await G(() => { const g = __game.game; g.player.pos.set(20.5 + __game.O, 0, 32.5 + __game.O); g.walkTo({ x: 20 + __game.O, z: 36 + __game.O }); });
+  await page.waitForFunction(() => { const g = __game.game; return !g.player.path && Math.floor(g.player.pos.z) === 36 + __game.O; }, null, { timeout: 90000 });
   assert.ok(await G(() => __game.game.player.pos.y) > 0.1, 'standing on the pier deck');
   const pools = await G(() => {
     const g = __game.game, names = (fresh, pier, h) => g.fishPool(fresh, pier, h).map(([k]) => k);
@@ -272,8 +272,8 @@ try {
   assert.ok(!pools.beach.includes('aji') && pools.beach.includes('tai'), 'no deep-sea fish from the beach');
   assert.ok(pools.morning.includes('saba') && !pools.morning.includes('ika'), 'saba bites in the morning');
   assert.ok(pools.night.includes('ika') && !pools.night.includes('saba'), 'ika bites at night');
-  assert.ok(pools.river.every((k) => ['ayu', 'koi'].includes(k)), 'river fish unchanged');
-  await G(() => { const g = __game.game; g.player.facing = Math.PI / 2; g.tap({ x: 21, z: 36 }); });
+  assert.ok(pools.river.includes('ayu') && !pools.river.some((k) => ['tai', 'aji', 'saba', 'ika'].includes(k)), 'river fish are fresh-water fish');
+  await G(() => { const g = __game.game; g.player.facing = Math.PI / 2; g.tap({ x: 21 + __game.O, z: 36 + __game.O }); });
   await page.waitForFunction(() => !!__game.game.fishing, null, { timeout: 10000 });
   await G(() => __game.game.cancelFishing());
   log('Ebisu woke: pier, deep-sea fish, bait');
@@ -308,7 +308,7 @@ try {
   await G(() => {
     __game.game.frozen = true;
     const s = JSON.parse(localStorage.getItem('rokugan-cozy-village/save/v1'));
-    const v1 = { ...s, v: 1, farm: [{ type: 'rice', x: 11, z: 26, growth: 150000, last: Date.now(), wet: false }] };
+    const v1 = { ...s, v: 1, farm: [{ type: 'rice', x: 11 + __game.O, z: 26 + __game.O, growth: 150000, last: Date.now(), wet: false }] };
     v1.props = s.props.filter((p) => !['shrine_old', 'shrine', 'stone', 'pier'].includes(p.type));
     delete v1.daily; delete v1.timeOffset; delete v1.stats; delete v1.shrine;
     localStorage.setItem('rokugan-cozy-village/save/v1', JSON.stringify(v1));
@@ -316,7 +316,7 @@ try {
   });
   await page.reload();
   await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2, null, { timeout: 120000 });
-  assert.equal(await G(() => __game.game.stage(__game.game.crop(11, 26))), 2, 'v1 crop migrated (2.5 of 3 stages)');
+  assert.equal(await G(() => __game.game.stage(__game.game.crop(11 + __game.O, 26 + __game.O))), 2, 'v1 crop migrated (2.5 of 3 stages)');
   assert.deepEqual(await landmarks(), ['shrine_old', 'stone'], 'old saves get the quiet shrine');
   log('v1 save migrated');
 

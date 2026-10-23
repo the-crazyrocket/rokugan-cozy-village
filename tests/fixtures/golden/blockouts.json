@@ -154,5 +154,175 @@
   "desc": "round mossy sacred boulder (iwakura) with a smaller stone on top, a thick straw shimenawa rope tied around its middle with two white paper shide zigzags, patches of moss",
   "parts": 7,
   "hash": "4ba70575699da00042ab6b87e0218a854cb078f5"
+ },
+ "stairs": {
+  "label": "Stone stairs",
+  "footprint": [
+   1,
+   1
+  ],
+  "walkable": true,
+  "desc": "short flight of four grey granite steps with low stone side walls ending in round stone caps, a little moss in the joints",
+  "parts": 14,
+  "hash": "3671b0b2a2228d46365303747dbc8e6960eb943e"
+ },
+ "workbench": {
+  "label": "Workbench",
+  "footprint": [
+   2,
+   1
+  ],
+  "desc": "a sturdy Japanese carpenter’s workbench of pale cypress on dark trestle legs, a back rail with a wooden mallet, chisel and coiled rope, a pull-saw and wood shavings on top, planks on the lower shelf",
+  "parts": 24,
+  "hash": "4bdc675cc4afd92e964c4d78ea5e06cdb9c7cbfe"
+ },
+ "noticeboard": {
+  "label": "Project board",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "a small village notice board on two dark wooden posts with stone footings and a little tiled roof, cream paper notices pinned to it, one with a red seal",
+  "parts": 13,
+  "hash": "c54a633b53ef6a30c8478a392f461b26e10bb4c1"
+ },
+ "scaffold": {
+  "label": "Scaffolding",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "desc": "green bamboo scaffolding lashed with straw rope, pale wooden planks across it, a woven straw mat hung on the front and a little stack of timber and a stone at its foot",
+  "parts": 18,
+  "hash": "7943a1ad63176339e6748927afd871f03dbfd8ef"
+ },
+ "kakei": {
+  "label": "Bamboo water pipe",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "a Japanese kakei: a length of green bamboo pipe resting on crossed dark sticks, a thin trickle of water falling into a round mossy stone basin",
+  "parts": 10,
+  "hash": "01e88000acfa5e087f21aaac19f6a811b301cc7b"
+ },
+ "scarecrow": {
+  "label": "Scarecrow",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "a friendly Japanese scarecrow (kakashi) on a wooden cross-pole, a wide straw hat, a cloth face, a patched indigo cotton coat with outstretched sleeves and a straw skirt",
+  "parts": 10,
+  "hash": "9fe30f7ea1b7e4fd3ec54f8459e0af038174ae41"
+ },
+ "char_kenji": {
+  "label": "Kenji",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "character": "biped",
+  "bones": {
+   "torso": [
+    0,
+    0,
+    0
+   ],
+   "head": [
+    0,
+    0.78,
+    0
+   ],
+   "armL": [
+    -0.21,
+    0.58,
+    0
+   ],
+   "armR": [
+    0.21,
+    0.58,
+    0
+   ],
+   "legL": [
+    -0.08,
+    0.22,
+    0
+   ],
+   "legR": [
+    0.08,
+    0.22,
+    0
+   ]
+  },
+  "desc": "a cute chibi Japanese village carpenter, Kenji: a round friendly face with small dark eyes, black hair in a topknot under a white hachimaki headband, a short brown happi work coat with a dark sash, indigo trousers, straw sandals, a small wooden mallet in his right hand and a leather tool pouch at his hip",
+  "parts": 21,
+  "hash": "4c4de08fcd905b5b8d952fe3e2120293c499b140"
+ },
+ "char_ume": {
+  "label": "Ume",
+  "footprint": [
+   1,
+   1
+  ],
+  "noShop": true,
+  "character": "biped",
+  "bones": {
+   "torso": [
+    0,
+    0,
+    0
+   ],
+   "head": [
+    0,
+    0.78,
+    0
+   ],
+   "armL": [
+    -0.21,
+    0.58,
+    0
+   ],
+   "armR": [
+    0.21,
+    0.58,
+    0
+   ],
+   "legL": [
+    -0.08,
+    0.22,
+    0
+   ],
+   "legR": [
+    0.08,
+    0.22,
+    0
+   ]
+  },
+  "desc": "a cute chibi elderly Japanese tea master, Ume: a kind round face with small dark eyes and rosy cheeks, silver-grey hair in a neat bun with a gold hairpin, a long sage-green kimono with wide sleeves, a red obi sash tied in a bow at the back, straw sandals",
+  "parts": 19,
+  "hash": "04f35eff23b09a4caf8838e69b57851482e13ac8"
+ },
+ "mill": {
+  "label": "Stone mill",
+  "footprint": [
+   1,
+   1
+  ],
+  "desc": "a small Japanese stone hand mill: two round grey millstones with a wooden crank on a dark wooden stand, a spout with flour, cloth and straw sacks beside it, under a little four-post thatched roof",
+  "parts": 14,
+  "hash": "f1c39959d78e50d40c24462943d9c35edfc99be1"
+ },
+ "kitchen": {
+  "label": "Kitchen",
+  "footprint": [
+   2,
+   1
+  ],
+  "desc": "a cosy Japanese outdoor kitchen: a reddish clay kamado stove with two black iron rice pots under pale wooden lids and glowing fire mouths, a wooden prep bench with a chopping board, a knife and a green vegetable, a shelf of white bowls on dark posts behind, under a small grey tiled roof",
+  "parts": 20,
+  "hash": "ff2c77545772cd48803476f966c7421b2f1e35e2"
  }
 }

@@ -57,9 +57,70 @@
    "gift": {
     "bait": 5
    }
+  },
+  "daikoku": {
+   "name": "Daikoku",
+   "title": "Fortune of the harvest and plenty",
+   "icon": "dishes:daikoku",
+   "sleeping": "The roped stone beside the shrine is warm to the touch. Daikoku sleeps on his rice bales; a full storehouse would wake him.",
+   "awake": "Daikoku shakes his lucky mallet and laughs. A stone mill and a kitchen stand ready: the harvest can become something more.",
+   "offerings": [
+    {
+     "id": "field",
+     "name": "From the summer field",
+     "items": {
+      "nasu": 2,
+      "edamame": 3
+     }
+    },
+    {
+     "id": "roots",
+     "name": "Roots and gourds",
+     "items": {
+      "satsuma_imo": 2,
+      "kabocha": 1
+     }
+    },
+    {
+     "id": "leaf",
+     "name": "Leaves for the pot",
+     "items": {
+      "tea": 3,
+      "shiso": 2
+     }
+    },
+    {
+     "id": "store",
+     "name": "A full storehouse",
+     "items": {
+      "wood": 6,
+      "stone": 6,
+      "clay": 2
+     }
+    }
+   ],
+   "unlocks": [
+    [
+     "asset:mill",
+     "A stone mill: rice into flour, tea into matcha, beans into kinako"
+    ],
+    [
+     "asset:kitchen",
+     "A kitchen: cook dishes, and discover recipes by trying ingredients together"
+    ],
+    [
+     "dishes:mochi",
+     "Dishes sell for much more than what goes into them, and make fine presents"
+    ]
+   ],
+   "gift": {
+    "prop_mill": 1,
+    "prop_kitchen": 1
+   }
   }
  },
  "FORTUNE_ORDER": [
-  "ebisu"
+  "ebisu",
+  "daikoku"
  ]
 }

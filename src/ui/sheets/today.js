@@ -30,6 +30,20 @@ function shrineSummary(ui) {
   return box;
 }
 
+/** Kenji's project: the one being built, or the next one to pay for. */
+function projectSummary(ui) {
+  const pj = ui.game.core.use('projects'), box = el('div', 'shrine-sum');
+  box.appendChild(el('h3', null, 'Village projects'));
+  const a = pj.active, next = pj.list().find((p) => p.status === 'open');
+  const p = a ? ui.game.core.content.projects.get(a.id) : next;
+  if (!p) { box.appendChild(el('p', 'muted', 'Every project is built. Kenji is whittling on the veranda.')); return box; }
+  const row = el('div', 'row shrine-row');
+  const note = a ? `Kenji is building it · ready in ${duration(pj.left())}` : 'Next on the project board';
+  row.innerHTML = `${ui.iconHTML(p.icon)}<span class="name">${p.name}${a ? `<span class="bar"><i style="width:${(1 - pj.left() / p.buildMs) * 100}%"></i></span>` : ''}<small>${note}</small></span>`;
+  box.appendChild(row);
+  return box;
+}
+
 export function render(ui, ctx, args) {
   const g = ui.game, d = g.daily, st = d.state, now = g.now();
   if (!st) return null;
@@ -45,6 +59,8 @@ export function render(ui, ctx, args) {
     else if (a.grew) lines.push('Your crops grew while you were away.');
     if (a.newDay) lines.push('A new day: Hana has fresh requests.');
     if (a.forage) lines.push(`Wild greens have sprung up around the island (${a.forage}).`);
+    for (const name of a.built || []) lines.push(`Kenji finished ${name.toLowerCase()}!`);
+    for (const name of [...new Set(a.visited || [])]) lines.push(`${name} came by and left a gift.`);
     box.innerHTML = `<b>Welcome back!</b>${lines.map((l) => `<span>${l}</span>`).join('')}`;
     body.appendChild(box);
   }
@@ -74,6 +90,7 @@ export function render(ui, ctx, args) {
     : 'Finish all three for a thank-you gift. New requests arrive every morning at 5.'));
 
   body.appendChild(shrineSummary(ui));
+  body.appendChild(projectSummary(ui));
 
   body.appendChild(el('h3', null, 'At the stall today'));
   const market = el('div', 'market');

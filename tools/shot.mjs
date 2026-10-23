@@ -8,7 +8,8 @@ const out = process.argv[2] || '/tmp/shot.png';
 const script = process.argv[3];
 const srv = await startServer({ root: ROOT });
 const browser = await launchChrome();
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+// SHOT_MOBILE=1: a phone in portrait (390x844, touch, 2x pixels)
+const page = await browser.newPage(process.env.SHOT_MOBILE ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } : { viewport: { width: 1280, height: 800 } });
 page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) console.log('[console.' + m.type() + ']', m.text()); });
 page.on('pageerror', (e) => console.log('[pageerror]', e.message));
 await page.goto(srv.url + (process.env.SHOT_QUERY || ''));

@@ -2,20 +2,21 @@
 import assert from 'node:assert/strict';
 import { World, T, mulberry32, hash2 } from '../../src/game/world.js';
 import { propCells } from '../../src/game/props.js';
+import { LEGACY_OFF as O } from '../../src/world/coords.js';
 
 const land = (w, x, z) => w.isLand(x, z);
 
 export default function () {
   const w = new World();
   const W = w.w, H = w.h;
-  assert.deepEqual([W, H], [40, 40]);
+  assert.deepEqual([W, H], [64, 64]);
   assert.equal(w.tiles.length, W * H);
   assert.deepEqual(w.base, w.tiles, 'base keeps the pristine terrain');
   assert.deepEqual(new World().tiles, w.tiles, 'generation is deterministic');
   assert.deepEqual(new World().fresh, w.fresh);
 
   const n = (t) => w.tiles.filter((v) => v === t).length;
-  assert.deepEqual([n(T.WATER), n(T.GRASS), n(T.SAND), n(T.PATH), n(T.SOIL)], [1027, 396, 115, 62, 0]);
+  assert.deepEqual([n(T.WATER), n(T.GRASS), n(T.SAND), n(T.PATH), n(T.SOIL)], [64 * 64 - 573, 396, 115, 62, 0]);
   assert.equal(w.fresh.reduce((s, v) => s + v, 0), 64);
   for (let i = 0; i < W * H; i++) if (w.fresh[i]) assert.equal(w.tiles[i], T.WATER, 'fresh water is water');
 
@@ -28,14 +29,14 @@ export default function () {
   assert.equal(w.isFresh(-3, 4), false);
 
   // authored places the game relies on
-  assert.ok(land(w, 17, 23), 'player start');
-  assert.ok([[11, 26], [14, 26], [11, 28], [14, 28]].every(([x, z]) => w.get(x, z) === T.GRASS), 'starter field is grass');
-  for (const [x, z] of [[18, 19], [22, 22], [20, 33], [21, 33], [10, 21], [25, 18]]) assert.equal(w.get(x, z), T.PATH, `path ${x},${z}`);
-  assert.ok(land(w, 22, 9) && land(w, 25, 10), 'shrine and stone sit on land');
-  assert.ok(propCells('shrine', 22, 9, 0).cells.every((c) => land(w, c.x, c.z)), 'shrine footprint on land');
-  assert.ok(land(w, 20, 33) && w.isWater(20, 35) && !w.isFresh(20, 35), 'the pier starts at the south beach and runs into the sea');
-  assert.ok(w.isWater(25, 16) && w.isFresh(25, 16), 'the river the bridge crosses');
-  assert.ok(w.isFresh(13, 13), 'pond');
+  assert.ok(land(w, 17 + O, 23 + O), 'player start');
+  assert.ok([[11 + O, 26 + O], [14 + O, 26 + O], [11 + O, 28 + O], [14 + O, 28 + O]].every(([x, z]) => w.get(x, z) === T.GRASS), 'starter field is grass');
+  for (const [x, z] of [[18 + O, 19 + O], [22 + O, 22 + O], [20 + O, 33 + O], [21 + O, 33 + O], [10 + O, 21 + O], [25 + O, 18 + O]]) assert.equal(w.get(x, z), T.PATH, `path ${x},${z}`);
+  assert.ok(land(w, 22 + O, 9 + O) && land(w, 25 + O, 10 + O), 'shrine and stone sit on land');
+  assert.ok(propCells('shrine', 22 + O, 9 + O, 0).cells.every((c) => land(w, c.x, c.z)), 'shrine footprint on land');
+  assert.ok(land(w, 20 + O, 33 + O) && w.isWater(20 + O, 35 + O) && !w.isFresh(20 + O, 35 + O), 'the pier starts at the south beach and runs into the sea');
+  assert.ok(w.isWater(25 + O, 16 + O) && w.isFresh(25 + O, 16 + O), 'the river the bridge crosses');
+  assert.ok(w.isFresh(13 + O, 13 + O), 'pond');
 
   // beaches: every land tile touching the sea is sand (or a road that runs down to it)
   for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
@@ -45,8 +46,8 @@ export default function () {
 
   // diff / applyDiff: only changed tiles are stored, and they restore exactly
   assert.deepEqual(w.diff(), []);
-  w.set(11, 26, T.SOIL); w.set(12, 26, T.SOIL); w.set(-1, 0, T.SOIL);
-  assert.deepEqual(w.diff(), [[26 * W + 11, T.SOIL], [26 * W + 12, T.SOIL]]);
+  w.set(11 + O, 26 + O, T.SOIL); w.set(12 + O, 26 + O, T.SOIL); w.set(-1, 0, T.SOIL);
+  assert.deepEqual(w.diff(), [[(26 + O) * W + 11 + O, T.SOIL], [(26 + O) * W + 12 + O, T.SOIL]]);
   const w2 = new World();
   w2.applyDiff(w.diff());
   assert.deepEqual(w2.tiles, w.tiles);

@@ -7,11 +7,15 @@ import { BLOCKOUTS } from './blockouts/registry.js';
 import './blockouts/base/village.js';
 import './blockouts/base/crossings.js';
 import './blockouts/base/shrine.js';
+import './blockouts/base/terrain.js';
+import './blockouts/base/workshop.js';
+import './blockouts/base/characters.js';
+import './blockouts/base/kitchen.js';
 
 export { BLOCKOUTS, defineBlockout } from './blockouts/registry.js';
 export { BRIDGE_LEN, BRIDGE_DECK } from './blockouts/base/crossings.js';
 export { PIER_DECK } from './blockouts/base/shrine.js';
 export { TREE_CANOPIES } from './blockouts/base/canopies.js';
-export { buildBlockoutGeometry } from './blockouts/geometry.js';
+export { buildBlockoutGeometry, buildPartsGeometry } from './blockouts/geometry.js';
 
 export const PAINTED_ASSETS = Object.keys(BLOCKOUTS);

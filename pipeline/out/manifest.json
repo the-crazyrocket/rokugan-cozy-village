@@ -1,9 +1,9 @@
 {
- "generated": "2026-10-23T01:55:07+00:00",
+ "generated": "2026-10-23T09:15:01+00:00",
  "codexCalls": {
-  "total": 36,
-  "succeeded": 36,
-  "failed": 0
+  "total": 66,
+  "succeeded": 65,
+  "failed": 1
  },
  "assets": {
   "minka": {
@@ -635,6 +635,456 @@
     }
    ],
    "icon": "assets/painted/icons/stone.png"
+  },
+  "stairs": {
+   "label": "Stone stairs",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.989,
+     "iouAfterAlign": 0.991,
+     "alignApplied": true,
+     "alignScale": [
+      1.0034,
+      1.0072
+     ],
+     "alignOffsetPx": [
+      0,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/stairs_a45.webp",
+     "depth": "assets/painted/stairs_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.996,
+     "iouAfterAlign": 0.998,
+     "alignApplied": true,
+     "alignScale": [
+      1.0,
+      1.0016
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/stairs_a225.webp",
+     "depth": "assets/painted/stairs_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/stairs.png"
+  },
+  "workbench": {
+   "label": "Workbench",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.977,
+     "iouAfterAlign": 0.979,
+     "alignApplied": true,
+     "alignScale": [
+      1.0013,
+      0.9989
+     ],
+     "alignOffsetPx": [
+      0,
+      1
+     ],
+     "note": null,
+     "texture": "assets/painted/workbench_a45.webp",
+     "depth": "assets/painted/workbench_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.991,
+     "iouAfterAlign": 0.991,
+     "alignApplied": false,
+     "alignScale": [
+      1.0,
+      0.9975
+     ],
+     "alignOffsetPx": [
+      0,
+      1
+     ],
+     "note": null,
+     "texture": "assets/painted/workbench_a225.webp",
+     "depth": "assets/painted/workbench_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/workbench.png"
+  },
+  "noticeboard": {
+   "label": "Project board",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.988,
+     "iouAfterAlign": 0.988,
+     "alignApplied": false,
+     "alignScale": [
+      0.9955,
+      1.0012
+     ],
+     "alignOffsetPx": [
+      1,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/noticeboard_a45.webp",
+     "depth": "assets/painted/noticeboard_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.989,
+     "iouAfterAlign": 0.99,
+     "alignApplied": true,
+     "alignScale": [
+      1.0,
+      1.0012
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/noticeboard_a225.webp",
+     "depth": "assets/painted/noticeboard_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/noticeboard.png"
+  },
+  "scaffold": {
+   "label": "Scaffolding",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.92,
+     "iouAfterAlign": 0.931,
+     "alignApplied": true,
+     "alignScale": [
+      1.0243,
+      1.0066
+     ],
+     "alignOffsetPx": [
+      -6,
+      -4
+     ],
+     "note": null,
+     "texture": "assets/painted/scaffold_a45.webp",
+     "depth": "assets/painted/scaffold_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.935,
+     "iouAfterAlign": 0.935,
+     "alignApplied": false,
+     "alignScale": [
+      1.0065,
+      1.0055
+     ],
+     "alignOffsetPx": [
+      -1,
+      -5
+     ],
+     "note": null,
+     "texture": "assets/painted/scaffold_a225.webp",
+     "depth": "assets/painted/scaffold_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/scaffold.png"
+  },
+  "kakei": {
+   "label": "Bamboo water pipe",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.952,
+     "iouAfterAlign": 0.97,
+     "alignApplied": true,
+     "alignScale": [
+      1.0173,
+      1.0078
+     ],
+     "alignOffsetPx": [
+      -4,
+      -4
+     ],
+     "note": null,
+     "texture": "assets/painted/kakei_a45.webp",
+     "depth": "assets/painted/kakei_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.98,
+     "iouAfterAlign": 0.985,
+     "alignApplied": true,
+     "alignScale": [
+      1.0,
+      1.0042
+     ],
+     "alignOffsetPx": [
+      1,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/kakei_a225.webp",
+     "depth": "assets/painted/kakei_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/kakei.png"
+  },
+  "scarecrow": {
+   "label": "Scarecrow",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.975,
+     "iouAfterAlign": 0.977,
+     "alignApplied": true,
+     "alignScale": [
+      1.0107,
+      1.0066
+     ],
+     "alignOffsetPx": [
+      -2,
+      -3
+     ],
+     "note": null,
+     "texture": "assets/painted/scarecrow_a45.webp",
+     "depth": "assets/painted/scarecrow_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.987,
+     "iouAfterAlign": 0.987,
+     "alignApplied": false,
+     "alignScale": [
+      0.9893,
+      1.0033
+     ],
+     "alignOffsetPx": [
+      2,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/scarecrow_a225.webp",
+     "depth": "assets/painted/scarecrow_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/scarecrow.png"
+  },
+  "char_kenji": {
+   "label": "Kenji",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.976,
+     "iouAfterAlign": 0.976,
+     "alignApplied": false,
+     "alignScale": [
+      1.0087,
+      1.0072
+     ],
+     "alignOffsetPx": [
+      1,
+      -3
+     ],
+     "note": null,
+     "texture": "assets/painted/char_kenji_a45.webp",
+     "depth": "assets/painted/char_kenji_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.969,
+     "iouAfterAlign": 0.969,
+     "alignApplied": false,
+     "alignScale": [
+      1.0696,
+      1.0016
+     ],
+     "alignOffsetPx": [
+      -2,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/char_kenji_a225.webp",
+     "depth": "assets/painted/char_kenji_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/char_kenji.png"
+  },
+  "char_ume": {
+   "label": "Ume",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.984,
+     "iouAfterAlign": 0.986,
+     "alignApplied": true,
+     "alignScale": [
+      1.0078,
+      1.0029
+     ],
+     "alignOffsetPx": [
+      0,
+      0
+     ],
+     "note": null,
+     "texture": "assets/painted/char_ume_a45.webp",
+     "depth": "assets/painted/char_ume_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.994,
+     "iouAfterAlign": 0.998,
+     "alignApplied": true,
+     "alignScale": [
+      1.0026,
+      1.0016
+     ],
+     "alignOffsetPx": [
+      0,
+      -1
+     ],
+     "note": null,
+     "texture": "assets/painted/char_ume_a225.webp",
+     "depth": "assets/painted/char_ume_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/char_ume.png"
+  },
+  "mill": {
+   "label": "Stone mill",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.986,
+     "iouAfterAlign": 0.986,
+     "alignApplied": false,
+     "alignScale": [
+      0.9924,
+      1.0027
+     ],
+     "alignOffsetPx": [
+      3,
+      -3
+     ],
+     "note": null,
+     "texture": "assets/painted/mill_a45.webp",
+     "depth": "assets/painted/mill_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.984,
+     "iouAfterAlign": 0.984,
+     "alignApplied": false,
+     "alignScale": [
+      0.9924,
+      1.0027
+     ],
+     "alignOffsetPx": [
+      3,
+      -2
+     ],
+     "note": null,
+     "texture": "assets/painted/mill_a225.webp",
+     "depth": "assets/painted/mill_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/mill.png"
+  },
+  "kitchen": {
+   "label": "Kitchen",
+   "codexPainted": true,
+   "angles": [
+    {
+     "azimuth": 45,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.93,
+     "iouAfterAlign": 0.961,
+     "alignApplied": true,
+     "alignScale": [
+      0.9931,
+      1.0189
+     ],
+     "alignOffsetPx": [
+      1,
+      -17
+     ],
+     "note": null,
+     "texture": "assets/painted/kitchen_a45.webp",
+     "depth": "assets/painted/kitchen_a45_depth.png"
+    },
+    {
+     "azimuth": 225,
+     "codexPainted": true,
+     "source": "codex",
+     "iouBeforeAlign": 0.983,
+     "iouAfterAlign": 0.989,
+     "alignApplied": true,
+     "alignScale": [
+      0.9986,
+      1.0114
+     ],
+     "alignOffsetPx": [
+      2,
+      -6
+     ],
+     "note": null,
+     "texture": "assets/painted/kitchen_a225.webp",
+     "depth": "assets/painted/kitchen_a225_depth.png"
+    }
+   ],
+   "icon": "assets/painted/icons/kitchen.png"
   }
  },
  "sheets": {
@@ -729,6 +1179,170 @@
     "bait",
     "bell",
     "ebisu"
+   ]
+  },
+  "icons3": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/icons3_atlas.png",
+   "cells": [
+    "shovel",
+    "earth",
+    "stone",
+    "wood",
+    "clay",
+    "shell",
+    "fibre",
+    "mushroom"
+   ]
+  },
+  "gather": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/gather_atlas.png",
+   "cells": [
+    "rock_a",
+    "rock_b",
+    "branch_a",
+    "branch_b",
+    "clay",
+    "shells",
+    "driftwood",
+    "stump"
+   ]
+  },
+  "crops2": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/crops2_atlas.png",
+   "cells": [
+    "nasu_1",
+    "nasu_2",
+    "nasu_3",
+    "kabocha_1",
+    "kabocha_2",
+    "kabocha_3",
+    "edamame_1",
+    "edamame_2",
+    "edamame_3",
+    "satsuma_imo_1",
+    "satsuma_imo_2",
+    "satsuma_imo_3"
+   ]
+  },
+  "crops3": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/crops3_atlas.png",
+   "cells": [
+    "shiso_1",
+    "shiso_2",
+    "shiso_3",
+    "wasabi_1",
+    "wasabi_2",
+    "wasabi_3",
+    "lotus_1",
+    "lotus_2",
+    "lotus_3"
+   ]
+  },
+  "icons4": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/icons4_atlas.png",
+   "cells": [
+    "nasu",
+    "kabocha",
+    "edamame",
+    "satsuma_imo",
+    "shiso",
+    "wasabi",
+    "lotus",
+    "compost",
+    "seed_nasu",
+    "seed_kabocha",
+    "seed_edamame",
+    "seed_satsuma_imo",
+    "seed_shiso",
+    "seed_wasabi",
+    "seed_lotus",
+    "kakei"
+   ]
+  },
+  "icons5": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/icons5_atlas.png",
+   "cells": [
+    "iwana",
+    "yamame",
+    "unagi",
+    "sakuramasu",
+    "funa",
+    "namazu",
+    "kingyo",
+    "dojo",
+    "kisu",
+    "haze",
+    "mebaru",
+    "hirame",
+    "isaki",
+    "buri",
+    "katsuo",
+    "maguro"
+   ]
+  },
+  "visitors": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/visitors_atlas.png",
+   "cells": [
+    "tsuru",
+    "kitsune",
+    "kappa",
+    "tanuki",
+    "neko",
+    "shika"
+   ]
+  },
+  "dishes": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/dishes_atlas.png",
+   "cells": [
+    "daikoku",
+    "komeko",
+    "matcha",
+    "kinako",
+    "onigiri",
+    "mochi",
+    "kinako_dango",
+    "usucha",
+    "dengaku",
+    "kabocha_nimono",
+    "yaki_imo",
+    "zunda_mochi",
+    "unadon",
+    "taimeshi",
+    "sashimi",
+    "zosui"
+   ]
+  },
+  "bugs": {
+   "codexPainted": true,
+   "source": "codex",
+   "atlas": "assets/painted/bugs_atlas.png",
+   "cells": [
+    "monshiro",
+    "ageha",
+    "hotaru",
+    "tonbo",
+    "semi",
+    "suzumushi",
+    "kabutomushi",
+    "tentomushi",
+    "yukimushi",
+    "net"
    ]
   }
  }

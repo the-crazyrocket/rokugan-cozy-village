@@ -15,6 +15,7 @@ import { hash2, mulberry32 } from '../../src/core/rng.js';
 import { MIN } from '../../src/core/time.js';
 import { World, T } from '../../src/game/world.js';
 import { RIPE as DATA_RIPE, CROPS, ITEMS } from '../../src/game/data.js';
+import { LEGACY_OFF as O } from '../../src/world/coords.js';
 
 const T0 = new Date(2026, 0, 15, 12).getTime();
 const same = (a, b, msg) => assert.deepEqual(a, b, msg);
@@ -55,17 +56,17 @@ function oldTick(farm, wetSoil, now) {
   return changed;
 }
 
-const field = (t, x = 11, z = 26) => { t.world.set(x, z, T.SOIL); return { x, z }; };
+const field = (t, x = 11, z = 26) => { x += O; z += O; t.world.set(x, z, T.SOIL); return { x, z }; }; // authored on the 40x40 island
 
 function basics() {
   assert.equal(RIPE, DATA_RIPE, 'the same stage count as game/data.js');
   const t = boot();
   assert.equal(t.core.systems.get('farming').spec.needs.join(), 'player,props');
   assert.ok(t.f.farm instanceof Map && t.f.wetSoil instanceof Map && t.f.farm.size === 0 && t.f.lastSeed === null);
-  assert.equal(t.f.crop(11, 26), undefined);
+  assert.equal(t.f.crop(11 + O, 26 + O), undefined);
 
   // stages and the time to ripe (rice: 3 stages of 12 minutes; watering halves only the current stage)
-  const c = { type: 'rice', x: 11, z: 26, progress: 0, last: T0, wet: false };
+  const c = { type: 'rice', x: 11 + O, z: 26 + O, progress: 0, last: T0, wet: false };
   assert.deepEqual([t.f.stage(c), t.f.timeToRipe(c)], [0, 36 * MIN]);
   c.wet = true;
   assert.equal(t.f.timeToRipe(c), 30 * MIN);
@@ -79,8 +80,8 @@ function basics() {
   assert.equal(t.f.timeToRipe(c), 6 * MIN);
 
   // the accessors Game forwards keep their identity until somebody swaps the map (load does)
-  t.f.farm.set(26 * 40 + 11, c);
-  assert.equal(t.f.crop(11, 26), c);
+  t.f.farm.set((26 + O) * 64 + 11 + O, c);
+  assert.equal(t.f.crop(11 + O, 26 + O), c);
   same(t.f.crops(), [c]);
   same(t.f.ripe(), []);
   c.progress = 3;
@@ -92,20 +93,20 @@ function basics() {
 
 function hoe() {
   const t = boot();
-  t.world.set(11, 26, T.GRASS);
-  t.f.till(11, 26, null, undefined, T.GRASS);
+  t.world.set(11 + O, 26 + O, T.GRASS);
+  t.f.till(11 + O, 26 + O, null, undefined, T.GRASS);
   same(t.flush(), ['sfx:till', 'fx:14', 'inv:ground', 'inv:veg', 'say:Tilled the earth.']);
-  assert.deepEqual([t.world.get(11, 26), t.me.swung], [T.SOIL, 1]);
-  t.f.till(11, 26, null, undefined, T.SOIL);
+  assert.deepEqual([t.world.get(11 + O, 26 + O), t.me.swung], [T.SOIL, 1]);
+  t.f.till(11 + O, 26 + O, null, undefined, T.SOIL);
   same(t.flush(), ['say:Already tilled. Plant some seeds!']);
   t.f.till(5, 5, null, undefined, T.WATER);
   same(t.flush(), ["say:The hoe won't work here."]);
-  t.f.till(12, 26, { type: 'crate' }, undefined, T.GRASS);
+  t.f.till(12 + O, 26 + O, { type: 'crate' }, undefined, T.GRASS);
   same(t.flush(), ['say:Something is in the way.']);
-  assert.equal(t.world.get(12, 26), T.GRASS);
-  t.world.set(13, 26, T.SAND);
-  t.f.till(13, 26, null, undefined, T.SAND);
-  assert.equal(t.world.get(13, 26), T.SOIL, 'sand can be tilled');
+  assert.equal(t.world.get(12 + O, 26 + O), T.GRASS);
+  t.world.set(13 + O, 26 + O, T.SAND);
+  t.f.till(13 + O, 26 + O, null, undefined, T.SAND);
+  assert.equal(t.world.get(13 + O, 26 + O), T.SOIL, 'sand can be tilled');
   assert.equal(t.me.swung, 2);
 }
 
@@ -114,7 +115,7 @@ function can() {
   const { x, z } = field(t);
   t.f.water(x, z, null, undefined, T.SOIL);
   same(t.flush(), ['sfx:water', 'fx:16', 'inv:ground', 'say:Watered the soil.']);
-  assert.equal(t.f.wetSoil.get(z * 40 + x), T0 + 30 * MIN);
+  assert.equal(t.f.wetSoil.get(z * 64 + x), T0 + 30 * MIN);
   t.f.water(x, z, { type: 'well' }, undefined, T.SOIL);
   same(t.flush(), ['say:Your watering can never runs dry here. ♪']);
   t.f.water(5, 5, null, undefined, T.WATER);
@@ -122,12 +123,12 @@ function can() {
   assert.equal(t.me.swung, 1);
 
   const crop = { type: 'rice', x, z, progress: 0, last: T0, wet: false };
-  t.f.farm.set(z * 40 + x, crop);
+  t.f.farm.set(z * 64 + x, crop);
   t.f.water(x, z, null, crop, T.SOIL);
   same(t.flush(), ['sfx:water', 'fx:16', 'inv:ground', 'say:Watered! It will grow twice as fast this stage.']);
   assert.equal(crop.wet, true);
   assert.equal(t.f.wetSoil.size, 1, 'a crop does not add soil moisture of its own');
-  same([...t.f.wetTiles()].sort((a, b) => a - b), [z * 40 + x]);
+  same([...t.f.wetTiles()].sort((a, b) => a - b), [z * 64 + x]);
 }
 
 function planting() {
@@ -157,14 +158,14 @@ function planting() {
   t.f.water(dry.x, dry.z, null, undefined, T.SOIL);
   t.clock.now = T0 + 31 * MIN;
   t.f.plant(wetSpot.x, wetSpot.z, null, undefined, T.SOIL, 'seed_rice');
-  assert.equal(t.f.crop(12, 26).wet, false, 'the moisture ran out');
+  assert.equal(t.f.crop(12 + O, 26 + O).wet, false, 'the moisture ran out');
   t.core.inv.give('seed_rice', 1);
   t.clock.now = T0 + 5 * MIN;
-  t.f.wetSoil.set(26 * 40 + 14, T0 + 20 * MIN);
+  t.f.wetSoil.set((26 + O) * 64 + 14 + O, T0 + 20 * MIN);
   field(t, 14, 26);
-  t.f.plant(14, 26, null, undefined, T.SOIL, 'seed_rice');
-  assert.equal(t.f.crop(14, 26).wet, true);
-  assert.equal(t.f.wetSoil.has(26 * 40 + 14), false);
+  t.f.plant(14 + O, 26 + O, null, undefined, T.SOIL, 'seed_rice');
+  assert.equal(t.f.crop(14 + O, 26 + O).wet, true);
+  assert.equal(t.f.wetSoil.has((26 + O) * 64 + 14 + O), false);
 }
 
 function seeds() {
@@ -202,7 +203,7 @@ function harvesting() {
 
   // yield follows the old hash of the tile and the second
   const rice = { type: 'rice', x, z, progress: 3.02, last: T0, wet: false };
-  f.farm.set(z * 40 + x, rice);
+  f.farm.set(z * 64 + x, rice);
   const want = CROPS.rice.yield[0] + Math.floor(hash2(x, z, Math.floor(T0 / 1000)) * (CROPS.rice.yield[1] - CROPS.rice.yield[0] + 1));
   f.harvest(rice);
   same(t.flush(), [`itemGain:rice${want > 1 ? `x${want}` : ''}`, 'inv:ui', 'sfx:harvest', 'haptic:12', 'fx:18', 'inv:crops', 'inv:ground', `say:Harvested ${want} rice!`, 'harvest']);
@@ -212,7 +213,7 @@ function harvesting() {
 
   // tea grows back from the second stage, dry; rice does not
   const tea = { type: 'tea', x: 12, z, progress: 3, last: T0 - 5, wet: true };
-  f.farm.set(z * 40 + 12, tea);
+  f.farm.set(z * 64 + 12, tea);
   t.clock.now = T0 + 7000;
   f.harvest(tea, 'sweep');
   assert.equal(f.crop(12, z), tea);
@@ -227,7 +228,7 @@ function harvesting() {
   const day = core.use('daily').state;
   day.requests = [{ kind: 'harvest', item: 'daikon', n: 2, have: 0, claimed: false, value: 20, reward: 40 }];
   const dk = { type: 'daikon', x: 13, z, progress: 3.02, last: T0, wet: false };
-  f.farm.set(z * 40 + 13, dk);
+  f.farm.set(z * 64 + 13, dk);
   t.flush();
   t.clock.now = T0;
   f.harvest(dk);
@@ -249,7 +250,7 @@ function growth() {
     const types = ['rice', 'daikon', 'tea'];
     for (let k = 0; k < 12; k++) {
       const c = { type: types[Math.floor(rnd() * 3)], x: k, z: 3, progress: Math.floor(rnd() * 4 * 8) / 8 * 0.74, last: T0 - Math.floor(rnd() * 5 * MIN), wet: rnd() < 0.5 };
-      farm.set(3 * 40 + k, c); mirror.set(3 * 40 + k, { ...c }); t.f.farm.set(3 * 40 + k, { ...c });
+      farm.set(3 * 64 + k, c); mirror.set(3 * 64 + k, { ...c }); t.f.farm.set(3 * 64 + k, { ...c });
     }
     const soil = new Map([[100, T0 + 2 * MIN], [101, T0 + 90 * MIN]]);
     t.f.wetSoil = new Map(soil);
@@ -271,7 +272,7 @@ function growth() {
 function ripening() {
   const t = boot();
   const f = t.f;
-  const mk = (x, type, progress, wet = false) => { const c = { type, x, z: 5, progress, last: T0, wet }; f.farm.set(5 * 40 + x, c); return c; };
+  const mk = (x, type, progress, wet = false) => { const c = { type, x, z: 5, progress, last: T0, wet }; f.farm.set(5 * 64 + x, c); return c; };
   const a = mk(1, 'daikon', 2.5), b = mk(2, 'daikon', 0.5), already = mk(3, 'daikon', 3.02), c = mk(4, 'rice', 2.9, true), nearly = mk(5, 'tea', 2.9999999999);
   const events = [];
   t.core.bus.on('cropRipe', (p, m) => events.push([p, m.away]));
@@ -295,7 +296,7 @@ function ripening() {
 
   // while catching up the event carries meta.away
   const x = boot();
-  x.f.farm.set(5 * 40 + 1, { type: 'daikon', x: 1, z: 5, progress: 0, last: T0, wet: false });
+  x.f.farm.set(5 * 64 + 1, { type: 'daikon', x: 1, z: 5, progress: 0, last: T0, wet: false });
   const away = [];
   x.core.bus.on('cropRipe', (p, m) => away.push(m.away));
   x.clock.now = T0 + 10 * MIN;
@@ -317,31 +318,31 @@ function ripening() {
 function building() {
   const t = boot();
   const { f, pr } = t;
-  assert.equal(pr.canPlace('crate', 20, 20, 0), true);
-  f.farm.set(20 * 40 + 20, { type: 'rice', x: 20, z: 20, progress: 0, last: T0, wet: false });
-  assert.equal(pr.check('crate', 20, 20, 0), 'crop');
-  assert.equal(pr.canPlace('crate', 21, 20, 0), true);
+  assert.equal(pr.canPlace('crate', 20 + O, 20 + O, 0), true);
+  f.farm.set((20 + O) * 64 + 20 + O, { type: 'rice', x: 20 + O, z: 20 + O, progress: 0, last: T0, wet: false });
+  assert.equal(pr.check('crate', 20 + O, 20 + O, 0), 'crop');
+  assert.equal(pr.canPlace('crate', 21 + O, 20 + O, 0), true);
   assert.equal(t.core.guards.get('place')[0].owner, 'farming');
-  f.farm.delete(20 * 40 + 20);
+  f.farm.delete((20 + O) * 64 + 20 + O);
   // a big prop is vetoed by any crop under its footprint
-  assert.equal(pr.canPlace('crate', 20, 20, 0), true);
-  f.farm.set(21 * 40 + 23, { type: 'rice', x: 23, z: 21, progress: 0, last: T0, wet: false });
-  assert.equal(pr.check('minka', 22, 20, 0), 'crop');
+  assert.equal(pr.canPlace('crate', 20 + O, 20 + O, 0), true);
+  f.farm.set((21 + O) * 64 + 23 + O, { type: 'rice', x: 23 + O, z: 21 + O, progress: 0, last: T0, wet: false });
+  assert.equal(pr.check('minka', 22 + O, 20 + O, 0), 'crop');
 
   // clearing a tile for a landmark: the crop goes, its seed comes back, tilled soil turns to grass
   const c = boot();
   const { x, z } = field(c, 11, 26);
-  c.f.farm.set(z * 40 + x, { type: 'daikon', x, z, progress: 1, last: T0, wet: false });
-  c.f.wetSoil.set(z * 40 + x, T0 + MIN);
+  c.f.farm.set(z * 64 + x, { type: 'daikon', x, z, progress: 1, last: T0, wet: false });
+  c.f.wetSoil.set(z * 64 + x, T0 + MIN);
   assert.equal(c.f.clearTile(x, z), 'seed_daikon');
   same(c.flush(), ['inv:crops', 'inv:ground']);
   assert.deepEqual([c.world.get(x, z), c.f.crop(x, z), c.f.wetSoil.size], [T.GRASS, undefined, 0]);
   assert.equal(c.f.clearTile(x, z), null);
   same(c.flush(), [], 'nothing to clear');
   field(c, 12, 26);
-  assert.equal(c.f.clearTile(12, 26), null, 'empty soil: no seed');
+  assert.equal(c.f.clearTile(12 + O, 26 + O), null, 'empty soil: no seed');
   same(c.flush(), ['inv:crops', 'inv:ground']);
-  assert.equal(c.world.get(12, 26), T.GRASS);
+  assert.equal(c.world.get(12 + O, 26 + O), T.GRASS);
 }
 
 function facade() {
@@ -359,10 +360,10 @@ function facade() {
   assert.equal(game.farm, t.f.farm);
   game.farm = new Map(); game.lastSeed = 'seed_tea';
   assert.deepEqual([t.f.farm === game.farm, t.f.lastSeed], [true, 'seed_tea']);
-  t.world.set(11, 26, T.SOIL);
+  t.world.set(11 + O, 26 + O, T.SOIL);
   t.core.inv.give('seed_rice', 1);
-  game.plantSeed(11, 26, null, undefined, T.SOIL, 'seed_rice');
-  const c = game.crop(11, 26);
+  game.plantSeed(11 + O, 26 + O, null, undefined, T.SOIL, 'seed_rice');
+  const c = game.crop(11 + O, 26 + O);
   assert.deepEqual([c.type, game.stage(c), game.timeToRipe(c)], ['rice', 0, 36 * MIN]);
   assert.equal(game.pickSeed(), null, 'the bag has no seeds left, whatever was used last');
   t.core.inv.give('seed_daikon', 1);
@@ -370,19 +371,19 @@ function facade() {
 
   // tilling picks the greens under the tile first (the forage system's job), unless something is in the way or it is not grass
   const order = [];
-  game.daily.forageAt = (x, z) => (x === 12 && z === 26 ? { item: 'warabi' } : null);
+  game.daily.forageAt = (x, z) => (x === 12 + O && z === 26 + O ? { item: 'warabi' } : null);
   game.pickForage = (x, z) => order.push(`pick:${x},${z}`);
-  t.world.set(12, 26, T.GRASS);
+  t.world.set(12 + O, 26 + O, T.GRASS);
   t.core.bus.on('sfx', (p) => order.push(`sfx:${p.name}`));
-  game.tillTile(12, 26, null, undefined, T.GRASS);
-  same(order, ['pick:12,26', 'sfx:till']);
-  assert.equal(t.world.get(12, 26), T.SOIL);
+  game.tillTile(12 + O, 26 + O, null, undefined, T.GRASS);
+  same(order, [`pick:${12 + O},${26 + O}`, 'sfx:till']);
+  assert.equal(t.world.get(12 + O, 26 + O), T.SOIL);
   order.length = 0;
-  game.tillTile(12, 26, { type: 'crate' }, undefined, T.GRASS);
-  game.tillTile(12, 26, null, undefined, T.SOIL);
+  game.tillTile(12 + O, 26 + O, { type: 'crate' }, undefined, T.GRASS);
+  game.tillTile(12 + O, 26 + O, null, undefined, T.SOIL);
   same(order, []);
-  t.world.set(13, 26, T.GRASS);
-  game.tillTile(13, 26, null, undefined, T.GRASS);
+  t.world.set(13 + O, 26 + O, T.GRASS);
+  game.tillTile(13 + O, 26 + O, null, undefined, T.GRASS);
   same(order, ['sfx:till']);
 }
 

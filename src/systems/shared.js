@@ -16,3 +16,12 @@ export function hotbarEntry(ctx, id, order, compact = true) {
   const it = ctx.content.itemMap().get(id);
   return { id, order, compact, icon: it.icon, name: it.name, ...(it.hint && { hint: it.hint }) };
 }
+
+/** Puts a prop down on the nearest free spot within r tiles of (cx, cz) (the props api's canPlace decides), trying each rotation. -> the prop or null */
+export function placeNear(props, type, cx, cz, { r = 5, rots = [0, 1, 2, 3], via = 'load' } = {}) {
+  const spots = [];
+  for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) spots.push({ x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) });
+  spots.sort((a, b) => a.d - b.d);
+  for (const s of spots) for (const rot of rots) if (props.canPlace(type, s.x, s.z, rot, { via })) return props.add(type, s.x, s.z, rot, 0, { via });
+  return null;
+}

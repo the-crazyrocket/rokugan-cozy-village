@@ -69,7 +69,12 @@ function primitiveGeometry(p) {
 export function buildBlockoutGeometry(name, { mode = 'palette' } = {}) {
   const def = BLOCKOUTS[name];
   if (!def) throw new Error('unknown blockout ' + name);
-  const geos = def.parts.map((p) => {
+  return buildPartsGeometry(def.parts, { mode });
+}
+
+/** Merge some parts of a blockout (a character's one bone, say) into a BufferGeometry, in asset space. */
+export function buildPartsGeometry(parts, { mode = 'palette' } = {}) {
+  const geos = parts.map((p) => {
     const g = primitiveGeometry(p);
     const part = PARTS[p.part] || PARTS.wood;
     const c = mode === 'grey'

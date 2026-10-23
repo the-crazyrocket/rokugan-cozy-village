@@ -22,7 +22,7 @@ export default function () {
     assert.ok(it.name && it.kind && it.icon, `${id} has name, kind, icon`);
     assert.ok(iconExists(it.icon), `${id} icon ${it.icon} exists in a sheet or blockout`);
     for (const k of ['buy', 'sell']) if (k in it) assert.ok(Number.isInteger(it[k]) && it[k] > 0, `${id}.${k}`);
-    if (it.kind === 'seed') assert.equal(CROPS[it.crop].seed, id, `${id} <-> crop seed`);
+    if (it.kind === 'seed') assert.equal(CROPS[it.crop].seed || `seed_${it.crop}`, id, `${id} <-> crop seed`);
     if (it.kind === 'prop') assert.ok(PROPS[it.prop] && !PROPS[it.prop].fixed, `${id} prop`);
     if (SELLABLE_KINDS.has(it.kind)) assert.ok(it.sell > 0, `${id} sells`);
     if (it.buy && it.sell) assert.ok(it.sell < it.buy, `${id} cannot be bought and sold for a profit`);
@@ -53,11 +53,11 @@ export default function () {
 
   // crops
   for (const [id, c] of Object.entries(CROPS)) {
-    assert.ok(ITEMS[id] && ITEMS[c.seed], `${id} items`);
-    for (const i of [1, 2, 3]) assert.ok(cellNames('crops').has(`${c.sprite}_${i}`), `${id} stage ${i} sprite`);
+    assert.ok(ITEMS[id] && ITEMS[c.seed || `seed_${id}`], `${id} items`);
+    for (const i of [1, 2, 3]) assert.ok(cellNames(c.sheet || 'crops').has(`${c.sprite}_${i}`), `${id} stage ${i} sprite`);
     assert.ok(c.stageMs > 0 && c.yield[0] >= 1 && c.yield[1] >= c.yield[0], `${id} timing and yield`);
     assert.equal(c.height.length, 3, `${id} has one height per visible stage`);
-    assert.ok(ITEMS[id].sell > 0 && ITEMS[c.seed].buy > 0, `${id} produce and seed prices`);
+    assert.ok(ITEMS[id].sell > 0 && ITEMS[c.seed || `seed_${id}`].buy > 0, `${id} produce and seed prices`);
   }
   assert.equal(RIPE, 3);
   assert.ok(CROPS.daikon.stageMs < CROPS.rice.stageMs && CROPS.rice.stageMs < CROPS.tea.stageMs, 'growth tiers');
@@ -68,11 +68,12 @@ export default function () {
   for (const [id, f] of Object.entries(FISH)) {
     assert.equal(ITEMS[id].kind, 'fish', id);
     assert.equal(ITEMS[id].sell, f.sell, `${id} sell price copied into ITEMS`);
-    assert.ok(['fresh', 'sea'].includes(f.water) && f.weight > 0 && f.window > 0, id);
+    const water = f.water ?? f.when?.water;
+    assert.ok(['fresh', 'sea', 'stream', 'pond'].includes(water) && f.weight > 0 && f.window > 0, id);
     if (f.deep) { assert.equal(f.water, 'sea', `${id} deep fish live in the sea`); assert.equal(ITEMS[id].unlock, 'ebisu', `${id} unlocks with Ebisu`); }
     else assert.ok(!ITEMS[id].unlock, `${id} available from the start`);
     // there is no hour at which a fish can never bite the pier / its water
-    assert.ok(Array.from({ length: 24 }, (_, h) => fishBiting(f, h)).some(Boolean), `${id} bites some hour`);
+    if (!f.when) assert.ok(Array.from({ length: 24 }, (_, h) => fishBiting(f, h)).some(Boolean), `${id} bites some hour`);
   }
   assert.ok(BAIT_RARE > 1);
   for (let h = 0; h < 24; h++) {

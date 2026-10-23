@@ -6,6 +6,9 @@ import { CROPS, ITEMS, PROPS } from '../../src/game/data.js';
 import { propCells } from '../../src/game/props.js';
 import { FORTUNES } from '../../src/game/shrine.js';
 import { readFixture, clone } from '../lib/fixtures.mjs';
+import { growSave, growArray } from '../../src/game/grow.js';
+import { rleDecode } from '../../src/core/rle.js';
+import { LEGACY_OFF as O } from '../../src/world/coords.js';
 
 const V1_STAGE_MS = { rice: 60_000, daikon: 90_000, tea: 120_000 };
 const LANDMARKS = ['shrine_old', 'shrine', 'stone', 'pier'];
@@ -14,9 +17,10 @@ const names = ['fresh', 'mid', 'ebisu'];
 /** The save must describe a legal village: known ids, props on free legal cells, crops on soil. */
 function checkSave(s, label) {
   assert.equal(s.v, SAVE_VERSION, `${label} version`);
+  s = growSave(s, 64, 64); // the fixtures were saved on the 40x40 grid: checked as the game loads them
   assert.ok(Number.isFinite(s.money) && s.money >= 0, `${label} money`);
   for (const [id, n] of s.inv) assert.ok(ITEMS[id] && Number.isInteger(n) && n > 0, `${label} inventory ${id}`);
-  assert.ok(s.slot >= 0 && s.slot < 7, `${label} slot`);
+  assert.ok(s.slot >= 0 && s.slot < 9, `${label} slot`);
   const world = new World();
   assert.ok(world.inBounds(s.player[0], s.player[1]), `${label} player in bounds`);
   world.applyDiff(s.tiles);
@@ -109,4 +113,25 @@ export default async function () {
   assert.deepEqual(await decodeSave(`  ${await encodeSave(v1)}\n`), m1, 'old save codes migrate on decode');
   await assert.rejects(decodeSave('not a code'), /village code/);
   await assert.rejects(decodeSave(await encodeSave({ v: 9, props: [] })), /unknown version/);
+  grown();
+}
+
+// a village saved on the 40x40 grid moves into the middle of the 64x64 world, every coordinate and tile index with it
+export function grown() {
+  const old = readFixture('save-v3-mid.json');
+  old.heights = [0, 40 * 26 + 11, 2, 1, 0, 40 * 40 - 40 * 26 - 12]; // one raised tile at 11,26
+  old.wetSoil = [[26 * 40 + 12, 123]];
+  const s = growSave(clone(old), 64, 64);
+  assert.deepEqual(s.size, [64, 64]);
+  assert.equal(growSave(s, 64, 64), s, 'a save with a size is left alone');
+  const small = new World({ w: 40, h: 40 }), big = new World();
+  small.applyDiff(old.tiles); big.applyDiff(s.tiles);
+  assert.deepEqual(big.kind, growArray(small.kind, 64, 64, T.WATER), 'the edited island, moved over');
+  assert.deepEqual(s.props.map((p) => [p.id, p.x - O, p.z - O]), old.props.map((p) => [p.id, p.x, p.z]));
+  assert.deepEqual(s.farm.map((c) => [c.x - O, c.z - O]), old.farm.map((c) => [c.x, c.z]));
+  assert.deepEqual([s.player[0] - O, s.player[1] - O, s.player[2]], old.player);
+  assert.deepEqual(s.wetSoil, [[(26 + O) * 64 + 12 + O, 123]]);
+  assert.deepEqual(s.daily.forage.map((f) => [f.x - O, f.z - O]), old.daily.forage.map((f) => [f.x, f.z]));
+  const h = rleDecode(s.heights, 64 * 64);
+  assert.deepEqual([h[(26 + O) * 64 + 11 + O], h.reduce((a, b) => a + b, 0)], [2, 2]);
 }

@@ -86,5 +86,319 @@
   "sell": 420,
   "rare": true,
   "icon": "icons2:kintai"
+ },
+ "iwana": {
+  "name": "Iwana",
+  "sell": 55,
+  "weight": 4,
+  "window": 800,
+  "size": [
+   20,
+   45
+  ],
+  "shadow": "m",
+  "when": {
+   "water": "stream",
+   "season": [
+    "spring",
+    "autumn"
+   ],
+   "hour": [
+    5,
+    11
+   ]
+  },
+  "icon": "icons5:iwana"
+ },
+ "yamame": {
+  "name": "Yamame",
+  "sell": 40,
+  "weight": 5,
+  "window": 850,
+  "size": [
+   15,
+   30
+  ],
+  "shadow": "s",
+  "when": {
+   "water": "stream",
+   "hour": [
+    6,
+    18
+   ]
+  },
+  "icon": "icons5:yamame"
+ },
+ "unagi": {
+  "name": "Unagi",
+  "sell": 110,
+  "weight": 3,
+  "window": 700,
+  "size": [
+   40,
+   90
+  ],
+  "shadow": "l",
+  "when": {
+   "water": "fresh",
+   "season": [
+    "summer",
+    "autumn"
+   ],
+   "hour": [
+    19,
+    4
+   ]
+  },
+  "icon": "icons5:unagi"
+ },
+ "sakuramasu": {
+  "name": "Sakuramasu",
+  "sell": 160,
+  "weight": 1.5,
+  "window": 650,
+  "size": [
+   40,
+   65
+  ],
+  "shadow": "l",
+  "when": {
+   "water": "stream",
+   "season": "spring"
+  },
+  "icon": "icons5:sakuramasu",
+  "rare": true
+ },
+ "funa": {
+  "name": "Funa",
+  "sell": 18,
+  "weight": 7,
+  "window": 950,
+  "size": [
+   10,
+   25
+  ],
+  "shadow": "s",
+  "when": {
+   "water": "pond"
+  },
+  "icon": "icons5:funa"
+ },
+ "namazu": {
+  "name": "Namazu",
+  "sell": 90,
+  "weight": 3,
+  "window": 720,
+  "size": [
+   30,
+   70
+  ],
+  "shadow": "l",
+  "when": {
+   "water": "pond",
+   "hour": [
+    18,
+    5
+   ]
+  },
+  "icon": "icons5:namazu"
+ },
+ "kingyo": {
+  "name": "Kingyo",
+  "sell": 85,
+  "weight": 1.5,
+  "window": 700,
+  "size": [
+   5,
+   12
+  ],
+  "shadow": "s",
+  "when": {
+   "water": "pond",
+   "season": "summer"
+  },
+  "icon": "icons5:kingyo",
+  "rare": true
+ },
+ "dojo": {
+  "name": "Dojo",
+  "sell": 16,
+  "weight": 5,
+  "window": 900,
+  "size": [
+   8,
+   15
+  ],
+  "shadow": "s",
+  "when": {
+   "water": "fresh",
+   "season": [
+    "spring",
+    "summer"
+   ]
+  },
+  "icon": "icons5:dojo"
+ },
+ "kisu": {
+  "name": "Kisu",
+  "sell": 28,
+  "weight": 6,
+  "window": 900,
+  "size": [
+   15,
+   28
+  ],
+  "shadow": "s",
+  "when": {
+   "water": "sea",
+   "season": [
+    "summer",
+    "autumn"
+   ],
+   "hour": [
+    5,
+    17
+   ],
+   "standing": "!pier"
+  },
+  "icon": "icons5:kisu"
+ },
+ "haze": {
+  "name": "Haze",
+  "sell": 20,
+  "weight": 6,
+  "window": 950,
+  "size": [
+   8,
+   18
+  ],
+  "shadow": "s",
+  "when": {
+   "water": "sea",
+   "season": [
+    "autumn",
+    "winter"
+   ],
+   "standing": "!pier"
+  },
+  "icon": "icons5:haze"
+ },
+ "mebaru": {
+  "name": "Mebaru",
+  "sell": 45,
+  "weight": 4,
+  "window": 820,
+  "size": [
+   15,
+   30
+  ],
+  "shadow": "m",
+  "when": {
+   "water": "sea",
+   "hour": [
+    18,
+    5
+   ]
+  },
+  "icon": "icons5:mebaru"
+ },
+ "hirame": {
+  "name": "Hirame",
+  "sell": 180,
+  "weight": 1.5,
+  "window": 650,
+  "size": [
+   35,
+   80
+  ],
+  "shadow": "l",
+  "when": {
+   "water": "sea",
+   "season": [
+    "winter",
+    "spring"
+   ]
+  },
+  "icon": "icons5:hirame",
+  "rare": true
+ },
+ "isaki": {
+  "name": "Isaki",
+  "sell": 50,
+  "weight": 4,
+  "window": 840,
+  "size": [
+   20,
+   40
+  ],
+  "shadow": "m",
+  "when": {
+   "water": "sea",
+   "season": "summer"
+  },
+  "icon": "icons5:isaki"
+ },
+ "buri": {
+  "name": "Buri",
+  "sell": 150,
+  "weight": 3,
+  "window": 700,
+  "size": [
+   60,
+   100
+  ],
+  "shadow": "l",
+  "when": {
+   "season": [
+    "autumn",
+    "winter"
+   ],
+   "water": "sea",
+   "standing": "pier"
+  },
+  "icon": "icons5:buri",
+  "water": "sea",
+  "deep": true
+ },
+ "katsuo": {
+  "name": "Katsuo",
+  "sell": 130,
+  "weight": 3,
+  "window": 720,
+  "size": [
+   40,
+   70
+  ],
+  "shadow": "l",
+  "when": {
+   "season": [
+    "spring",
+    "summer"
+   ],
+   "water": "sea",
+   "standing": "pier"
+  },
+  "icon": "icons5:katsuo",
+  "water": "sea",
+  "deep": true
+ },
+ "maguro": {
+  "name": "Maguro",
+  "sell": 600,
+  "weight": 0.3,
+  "window": 520,
+  "size": [
+   100,
+   250
+  ],
+  "shadow": "l",
+  "when": {
+   "water": "sea",
+   "standing": "pier"
+  },
+  "icon": "icons5:maguro",
+  "water": "sea",
+  "deep": true,
+  "rare": true
  }
 }

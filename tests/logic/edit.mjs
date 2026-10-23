@@ -15,6 +15,7 @@ import player from '../../src/systems/player.js';
 import farming from '../../src/systems/farming.js';
 import daily from '../../src/systems/daily.js';
 import terrainrules from '../../src/systems/terrainrules.js';
+import { LEGACY_OFF as O } from '../../src/world/coords.js';
 
 const NOW = Date.UTC(2026, 0, 15, 12);
 
@@ -56,23 +57,23 @@ function flood() {
 
 function validation() {
   const b = boot();
-  const ok = applyEdit(b.core, raise(14, 22));
-  assert.deepEqual([ok.ok, ok.changed, b.world.heightAt(14, 22)], [true, [{ x: 14, z: 22 }], 1]);
+  const ok = applyEdit(b.core, raise(14 + O, 22 + O));
+  assert.deepEqual([ok.ok, ok.changed, b.world.heightAt(14 + O, 22 + O)], [true, [{ x: 14 + O, z: 22 + O }], 1]);
 
   // a stale `from` fails and changes nothing
   b.names();
   const before = snapshot(b);
-  const stale = applyEdit(b.core, raise(14, 22));
+  const stale = applyEdit(b.core, raise(14 + O, 22 + O));
   assert.equal(stale.ok, false);
   assert.match(stale.reason, /changed/);
   assert.deepEqual([stale.changed, stale.bagged, stale.lost, stale.moved], [[], {}, [], {}]);
   assert.equal(snapshot(b), before);
   assert.deepEqual(b.names(), []);
-  assert.equal(applyEdit(b.core, { ...raise(14, 22), from: { kind: T.PATH } }).ok, false, 'any field of from counts');
-  assert.equal(applyEdit(b.core, { ...raise(14, 22), from: { height: 1 }, to: { height: 2 } }).ok, true);
+  assert.equal(applyEdit(b.core, { ...raise(14 + O, 22 + O), from: { kind: T.PATH } }).ok, false, 'any field of from counts');
+  assert.equal(applyEdit(b.core, { ...raise(14 + O, 22 + O), from: { height: 1 }, to: { height: 2 } }).ok, true);
 
   // outside the world, and edits that are not edits
-  assert.match(applyEdit(b.core, { ...raise(39, 39), w: 2 }).reason, /beyond/);
+  assert.match(applyEdit(b.core, { ...raise(63, 63), w: 2 }).reason, /beyond/);
   assert.equal(applyEdit(b.core, raise(-1, 3)).ok, false);
   assert.throws(() => applyEdit(b.core, { ...raise(3, 3), kind: 'melt' }), /edit.kind/);
   assert.throws(() => applyEdit(b.core, { ...raise(3, 3), by: 'cat' }), /edit.by/);
@@ -82,15 +83,15 @@ function validation() {
 
   // nothing to change: ok, no events
   b.names();
-  const noop = applyEdit(b.core, { ...raise(15, 22), to: { height: 0 } });
+  const noop = applyEdit(b.core, { ...raise(15 + O, 22 + O), to: { height: 0 } });
   assert.deepEqual([noop.ok, noop.changed], [true, []]);
   assert.deepEqual(b.names(), []);
 
   // a partial `to` leaves the other fields alone; a rect changes every tile
-  const rect = applyEdit(b.core, { kind: 'pave', x: 15, z: 23, w: 2, h: 2, from: { kind: T.GRASS }, to: { kind: T.GRAVEL }, by: 'player' });
+  const rect = applyEdit(b.core, { kind: 'pave', x: 15 + O, z: 23 + O, w: 2, h: 2, from: { kind: T.GRASS }, to: { kind: T.GRAVEL }, by: 'player' });
   assert.equal(rect.changed.length, 4);
-  assert.deepEqual([[15, 23], [16, 24]].map(([x, z]) => [b.world.kindAt(x, z), b.world.heightAt(x, z)]), [[T.GRAVEL, 0], [T.GRAVEL, 0]]);
-  assert.deepEqual(changedTiles(b.world, { x: 15, z: 23, w: 2, h: 2, to: { kind: T.GRAVEL } }), [], 'already done');
+  assert.deepEqual([[15 + O, 23 + O], [16 + O, 24 + O]].map(([x, z]) => [b.world.kindAt(x, z), b.world.heightAt(x, z)]), [[T.GRAVEL, 0], [T.GRAVEL, 0]]);
+  assert.deepEqual(changedTiles(b.world, { x: 15 + O, z: 23 + O, w: 2, h: 2, to: { kind: T.GRAVEL } }), [], 'already done');
 }
 
 function atomic() {
@@ -118,16 +119,16 @@ function guards() {
   b.core.guards.add('terraform', (e) => { seen.push(['terraform', e]); return e.x === 3 ? 'No raising at 3.' : null; });
   b.core.guards.add('dig', (e) => { seen.push(['dig', e.kind]); return null; });
   b.core.guards.add('reclaim', (e) => { seen.push(['reclaim', e.kind]); return null; });
-  const res = applyEdit(b.core, raise(14, 22));
+  const res = applyEdit(b.core, raise(14 + O, 22 + O));
   assert.equal(res.ok, true);
-  assert.deepEqual(seen[0][1], { ...raise(14, 22), w: 1, h: 1 }, 'a guard gets the edit itself, defaults filled, once per edit');
+  assert.deepEqual(seen[0][1], { ...raise(14 + O, 22 + O), w: 1, h: 1 }, 'a guard gets the edit itself, defaults filled, once per edit');
   assert.equal(seen.length, 1);
   assert.deepEqual(applyEdit(b.core, { ...raise(3, 22), w: 2 }), { ok: false, reason: 'No raising at 3.', changed: [], bagged: {}, lost: [], moved: {} });
   seen.length = 0;
-  applyEdit(b.core, { kind: 'fill', x: 12, z: 12, from: {}, to: { kind: T.GRASS, water: 0 }, by: 'system' });
-  applyEdit(b.core, { kind: 'reclaim', x: 15, z: 22, from: {}, to: { kind: T.PATH }, by: 'system' });
-  applyEdit(b.core, { kind: 'lower', x: 16, z: 22, from: {}, to: { height: 0, kind: T.PATH }, by: 'system' });
-  applyEdit(b.core, { kind: 'patch', x: 17, z: 24, from: {}, to: { kind: T.PATH }, by: 'project', project: 'ume_house' });
+  applyEdit(b.core, { kind: 'fill', x: 12 + O, z: 12 + O, from: {}, to: { kind: T.GRASS, water: 0 }, by: 'system' });
+  applyEdit(b.core, { kind: 'reclaim', x: 15 + O, z: 22 + O, from: {}, to: { kind: T.PATH }, by: 'system' });
+  applyEdit(b.core, { kind: 'lower', x: 16 + O, z: 22 + O, from: {}, to: { height: 0, kind: T.PATH }, by: 'system' });
+  applyEdit(b.core, { kind: 'patch', x: 17 + O, z: 24 + O, from: {}, to: { kind: T.PATH }, by: 'project', project: 'ume_house' });
   assert.deepEqual(seen.map((s) => s[0]), ['dig', 'reclaim', 'terraform', 'terraform']);
 
   // a system reaches applyEdit through its own ctx: it must list what the edit uses
@@ -135,33 +136,33 @@ function guards() {
   const probe = defineSystem({ name: 'probe', needs: [...EDIT_NEEDS], init(c) { ctx = c; } });
   const lazy = defineSystem({ name: 'lazy', needs: ['props'], init() {} });
   const c2 = boot({ extra: [probe] });
-  assert.equal(applyEdit(ctx, raise(14, 22)).ok, true);
-  assert.equal(c2.world.heightAt(14, 22), 1);
+  assert.equal(applyEdit(ctx, raise(14 + O, 22 + O)).ok, true);
+  assert.equal(c2.world.heightAt(14 + O, 22 + O), 1);
   let ctx2;
   const c3 = boot({ extra: [defineSystem({ name: 'tight', needs: ['props'], init(c) { ctx2 = c; } }), lazy] });
-  assert.throws(() => applyEdit(ctx2, raise(14, 22)), /does not list it in needs/);
-  assert.equal(c3.world.heightAt(14, 22), 0);
+  assert.throws(() => applyEdit(ctx2, raise(14 + O, 22 + O)), /does not list it in needs/);
+  assert.equal(c3.world.heightAt(14 + O, 22 + O), 0);
 }
 
 function cleanup() {
   const b = boot();
   const now = b.core.now();
-  const at = (x, z) => z * 40 + x;
+  const at = (x, z) => z * b.world.w + x;
   // two crates (one tile each), a minka (several tiles, touched on one), a crop with wet soil, a wet empty tile, forage
-  const c1 = b.pr.add('crate', 14, 22), c2 = b.pr.add('crate', 15, 22);
-  const house = b.pr.add('minka', 10, 25);
+  const c1 = b.pr.add('crate', 14 + O, 22 + O), c2 = b.pr.add('crate', 15 + O, 22 + O);
+  const house = b.pr.add('minka', 10 + O, 25 + O);
   const [hx, hz] = [house.cells[0].x, house.cells[0].z];
-  b.f.farm.set(at(14, 23), { type: 'rice', x: 14, z: 23, progress: 1, last: now, wet: true });
-  b.f.wetSoil.set(at(15, 23), now + 1e6);
-  b.world.setKind(14, 23, T.SOIL); b.world.setKind(15, 23, T.SOIL);
-  b.d.state = { key: 'k', requests: [], forage: [{ x: 16, z: 23, item: 'wildflower', taken: false }, { x: 17, z: 20, item: 'warabi', taken: false }, { x: 16, z: 22, item: 'warabi', taken: true }] };
+  b.f.farm.set(at(14 + O, 23 + O), { type: 'rice', x: 14 + O, z: 23 + O, progress: 1, last: now, wet: true });
+  b.f.wetSoil.set(at(15 + O, 23 + O), now + 1e6);
+  b.world.setKind(14 + O, 23 + O, T.SOIL); b.world.setKind(15 + O, 23 + O, T.SOIL);
+  b.d.state = { key: 'k', requests: [], forage: [{ x: 16 + O, z: 23 + O, item: 'wildflower', taken: false }, { x: 17 + O, z: 20 + O, item: 'warabi', taken: false }, { x: 16 + O, z: 22 + O, item: 'warabi', taken: true }] };
   b.core.inv.give('seed_rice', 0);
   b.names();
 
-  const edit = { kind: 'raise', x: 14, z: 22, w: 3, h: 2, from: { height: 0 }, to: { height: 1 }, by: 'project' };
+  const edit = { kind: 'raise', x: 14 + O, z: 22 + O, w: 3, h: 2, from: { height: 0 }, to: { height: 1 }, by: 'project' };
   const before = snapshot(b);
   const dry = applyEdit(b.core, edit, { dryRun: true });
-  assert.deepEqual([dry.ok, dry.bagged, dry.lost, dry.changed.length], [true, { prop_crate: 2, seed_rice: 1 }, [{ what: 'forage', item: 'wildflower', x: 16, z: 23 }], 6]);
+  assert.deepEqual([dry.ok, dry.bagged, dry.lost, dry.changed.length], [true, { prop_crate: 2, seed_rice: 1 }, [{ what: 'forage', item: 'wildflower', x: 16 + O, z: 23 + O }], 6]);
   assert.equal(snapshot(b), before, 'dryRun changes nothing');
   assert.deepEqual(b.names(), [], 'and says nothing');
   assert.equal(b.d.state.forage[0].taken, false);
@@ -170,15 +171,15 @@ function cleanup() {
   assert.deepEqual([res.ok, res.bagged, res.lost, res.changed.length], [dry.ok, dry.bagged, dry.lost, 6], 'what dryRun reported is what happened');
   assert.deepEqual([b.pr.get(c1.id), b.pr.get(c2.id)], [null, null]);
   assert.deepEqual([b.core.inv.count('prop_crate'), b.core.inv.count('seed_rice')], [2, 1]);
-  assert.deepEqual([b.f.crop(14, 23), b.f.wetSoil.size, b.f.farm.size], [undefined, 0, 0]);
+  assert.deepEqual([b.f.crop(14 + O, 23 + O), b.f.wetSoil.size, b.f.farm.size], [undefined, 0, 0]);
   assert.deepEqual(b.d.state.forage.map((f) => f.taken), [true, false, true]);
-  assert.deepEqual(rectTiles({ x: 14, z: 22, w: 3, h: 2 }).map((t) => b.world.heightAt(t.x, t.z)), [1, 1, 1, 1, 1, 1]);
-  assert.deepEqual([b.world.kindAt(14, 23), b.world.kindAt(15, 23)], [T.SOIL, T.SOIL], 'the ground keeps its kind unless the edit says so');
+  assert.deepEqual(rectTiles({ x: 14 + O, z: 22 + O, w: 3, h: 2 }).map((t) => b.world.heightAt(t.x, t.z)), [1, 1, 1, 1, 1, 1]);
+  assert.deepEqual([b.world.kindAt(14 + O, 23 + O), b.world.kindAt(15 + O, 23 + O)], [T.SOIL, T.SOIL], 'the ground keeps its kind unless the edit says so');
   const out = b.names();
   assert.deepEqual(out.filter((e) => e.startsWith('remove')), ['remove:crate:bag', 'remove:crate:bag']);
-  assert.deepEqual(out.filter((e) => e.startsWith('terraform')), ['terraform:14,22', 'terraform:15,22', 'terraform:16,22', 'terraform:14,23', 'terraform:15,23', 'terraform:16,23']);
+  assert.deepEqual(out.filter((e) => e.startsWith('terraform')), [`terraform:${14 + O},${22 + O}`, `terraform:${15 + O},${22 + O}`, `terraform:${16 + O},${22 + O}`, `terraform:${14 + O},${23 + O}`, `terraform:${15 + O},${23 + O}`, `terraform:${16 + O},${23 + O}`]);
   assert.deepEqual(out.slice(-3), ['inv:terrain', 'inv:veg', 'inv:crops']);
-  assert.ok(out.indexOf('remove:crate:bag') < out.indexOf('terraform:14,22'), 'the cleanup comes before the change');
+  assert.ok(out.indexOf('remove:crate:bag') < out.indexOf(`terraform:${14 + O},${22 + O}`), 'the cleanup comes before the change');
 
   // a prop that is only touched on one of its tiles goes whole and frees the others
   assert.ok(b.pr.get(house.id));
@@ -189,20 +190,20 @@ function cleanup() {
   assert.equal(b.core.inv.count('prop_minka'), 1);
 
   // clearTiles on its own (what the shrine uses): tilled soil goes back to grass
-  b.f.farm.set(at(15, 23), { type: 'daikon', x: 15, z: 23, progress: 0, last: now, wet: false });
-  const cl = clearTiles(b.core, [{ x: 15, z: 23 }], { soilToGrass: true });
-  assert.deepEqual([cl.bagged, b.world.kindAt(15, 23), b.core.inv.count('seed_daikon')], [{ seed_daikon: 1 }, T.GRASS, 1]);
+  b.f.farm.set(at(15 + O, 23 + O), { type: 'daikon', x: 15 + O, z: 23 + O, progress: 0, last: now, wet: false });
+  const cl = clearTiles(b.core, [{ x: 15 + O, z: 23 + O }], { soilToGrass: true });
+  assert.deepEqual([cl.bagged, b.world.kindAt(15 + O, 23 + O), b.core.inv.count('seed_daikon')], [{ seed_daikon: 1 }, T.GRASS, 1]);
 }
 
 function fixedProps() {
   // without the terrain rules the stall is not bagged; with them the edit is refused outright
   const free = boot({ rules: false });
-  const stall = free.pr.add('stall', 19, 18);
+  const stall = free.pr.add('stall', 19 + O, 18 + O);
   const [sx, sz] = [stall.cells[0].x, stall.cells[0].z];
   const res = applyEdit(free.core, raise(sx, sz));
   assert.deepEqual([res.ok, res.bagged, !!free.pr.get(stall.id), free.core.inv.count('prop_stall')], [true, {}, true, 0]);
   const rules = boot();
-  const s2 = rules.pr.add('stall', 19, 18);
+  const s2 = rules.pr.add('stall', 19 + O, 18 + O);
   assert.match(applyEdit(rules.core, raise(s2.cells[0].x, s2.cells[0].z)).reason, /not yours/);
 }
 
@@ -211,70 +212,70 @@ function events() {
   const hooked = [];
   const off = b.world.registerDerived((w, r) => hooked.push(r));
   b.names();
-  const res = applyEdit(b.core, { kind: 'dig', x: 9, z: 24, w: 2, h: 1, from: { kind: T.GRASS }, to: { kind: T.WATER, water: WK.POND }, by: 'player' });
+  const res = applyEdit(b.core, { kind: 'dig', x: 9 + O, z: 24 + O, w: 2, h: 1, from: { kind: T.GRASS }, to: { kind: T.WATER, water: WK.POND }, by: 'player' });
   assert.equal(res.ok, true);
-  assert.deepEqual(b.names(), ['terraform:9,24', 'terraform:10,24', 'water:9,24,2,1', 'inv:terrain', 'inv:veg', 'inv:crops']);
-  assert.deepEqual(hooked, [{ x: 9, z: 24, w: 2, h: 1 }], 'derived arrays are refreshed once per edit');
-  assert.deepEqual([b.world.isFresh(9, 24), b.world.wet[24 * 40 + 11], b.world.wet[25 * 40 + 9]], [true, 1, 1], 'fresh and wet follow');
+  assert.deepEqual(b.names(), [`terraform:${9 + O},${24 + O}`, `terraform:${10 + O},${24 + O}`, `water:${9 + O},${24 + O},2,1`, 'inv:terrain', 'inv:veg', 'inv:crops']);
+  assert.deepEqual(hooked, [{ x: 9 + O, z: 24 + O, w: 2, h: 1 }], 'derived arrays are refreshed once per edit');
+  assert.deepEqual([b.world.isFresh(9 + O, 24 + O), b.world.wet[(24 + O) * 64 + 11 + O], b.world.wet[(25 + O) * 64 + 9 + O]], [true, 1, 1], 'fresh and wet follow');
   assert.ok(b.world.takeDirty().length > 0);
   off();
 
   // per tile payloads
   const seen = [];
   b.core.bus.on('terraform', (p) => seen.push(p));
-  applyEdit(b.core, { kind: 'pave', x: 20, z: 25, from: {}, to: { kind: T.GRAVEL }, by: 'system' });
-  assert.deepEqual(seen, [{ x: 20, z: 25, from: { kind: T.PATH, height: 0, water: 0 }, to: { kind: T.GRAVEL, height: 0, water: 0 }, kind: 'pave', by: 'system' }]);
+  applyEdit(b.core, { kind: 'pave', x: 20 + O, z: 25 + O, from: {}, to: { kind: T.GRAVEL }, by: 'system' });
+  assert.deepEqual(seen, [{ x: 20 + O, z: 25 + O, from: { kind: T.PATH, height: 0, water: 0 }, to: { kind: T.GRAVEL, height: 0, water: 0 }, kind: 'pave', by: 'system' }]);
   // no water change, no waterChange
   assert.ok(!b.names().some((e) => e.startsWith('water')));
 }
 
 function playerTile() {
   const b = boot();
-  stand(b, 14, 22);
+  stand(b, 14 + O, 22 + O);
   const before = snapshot(b);
-  const res = applyEdit(b.core, raise(14, 22, { by: 'player' }));
+  const res = applyEdit(b.core, raise(14 + O, 22 + O, { by: 'player' }));
   assert.deepEqual([res.ok, res.reason], [false, 'You are standing there.']);
   assert.equal(snapshot(b), before);
   // the rect only needs to cover the tile if the tile changes
-  assert.equal(applyEdit(b.core, { ...raise(13, 22, { by: 'player' }), w: 3, to: { height: 0 } }).ok, true);
-  assert.equal(applyEdit(b.core, raise(15, 22, { by: 'player' })).ok, true, 'a tile next to it is fine');
+  assert.equal(applyEdit(b.core, { ...raise(13 + O, 22 + O, { by: 'player' }), w: 3, to: { height: 0 } }).ok, true);
+  assert.equal(applyEdit(b.core, raise(15 + O, 22 + O, { by: 'player' })).ok, true, 'a tile next to it is fine');
 
   // a project or system edit moves the player to the nearest tile that stays walkable
   for (const by of ['project', 'system']) {
     const c = boot();
-    stand(c, 14, 22);
-    const dry = applyEdit(c.core, { ...raise(14, 22, { by }), w: 2, h: 2 }, { dryRun: true });
-    assert.equal(c.pl.cell().x, 14, 'dryRun does not move them');
-    const res2 = applyEdit(c.core, { ...raise(14, 22, { by }), w: 2, h: 2 });
+    stand(c, 14 + O, 22 + O);
+    const dry = applyEdit(c.core, { ...raise(14 + O, 22 + O, { by }), w: 2, h: 2 }, { dryRun: true });
+    assert.equal(c.pl.cell().x, 14 + O, 'dryRun does not move them');
+    const res2 = applyEdit(c.core, { ...raise(14 + O, 22 + O, { by }), w: 2, h: 2 });
     assert.deepEqual(dry.moved, res2.moved);
     const m = res2.moved.player;
-    assert.ok(m && (m.x < 14 || m.x > 15 || m.z < 22 || m.z > 23), 'outside the rect');
+    assert.ok(m && (m.x < 14 + O || m.x > 15 + O || m.z < 22 + O || m.z > 23 + O), 'outside the rect');
     assert.deepEqual([c.pl.cell().x, c.pl.cell().z], [m.x, m.z]);
     assert.ok(c.pl.canStand());
-    assert.deepEqual([m.x, m.z], [14, 21], 'the nearest, and of equals the first row by row');
+    assert.deepEqual([m.x, m.z], [14 + O, 21 + O], 'the nearest, and of equals the first row by row');
   }
 
   // a tile that stops being land: the player does not end up in the water
   const w = boot();
-  stand(w, 9, 24);
-  const r = applyEdit(w.core, dig(9, 24, { to: { kind: T.WATER, water: WK.POND } }));
+  stand(w, 9 + O, 24 + O);
+  const r = applyEdit(w.core, dig(9 + O, 24 + O, { to: { kind: T.WATER, water: WK.POND } }));
   assert.equal(r.ok, true);
   assert.ok(w.pl.canStand() && w.world.isLand(w.pl.cell().x, w.pl.cell().z));
 
   // away from the rect: nobody moves
   const e = boot();
-  stand(e, 20, 26);
-  assert.deepEqual(applyEdit(e.core, raise(14, 22)).moved, {});
-  assert.deepEqual([e.pl.cell().x, e.pl.cell().z], [20, 26]);
+  stand(e, 20 + O, 26 + O);
+  assert.deepEqual(applyEdit(e.core, raise(14 + O, 22 + O)).moved, {});
+  assert.deepEqual([e.pl.cell().x, e.pl.cell().z], [20 + O, 26 + O]);
 
   // a project patch over the player's belongings: props to the bag, the crop's seed back, the player steps aside
   const p = boot();
-  p.pr.add('toro', 14, 22);
-  p.f.farm.set(23 * 40 + 14, { type: 'tea', x: 14, z: 23, progress: 0, last: p.core.now(), wet: false });
-  stand(p, 15, 23);
-  const patch = applyEdit(p.core, { kind: 'patch', x: 14, z: 22, w: 2, h: 2, from: {}, to: { kind: T.PLAZA }, by: 'project', project: 'ume_house' });
+  p.pr.add('toro', 14 + O, 22 + O);
+  p.f.farm.set((23 + O) * 64 + 14 + O, { type: 'tea', x: 14 + O, z: 23 + O, progress: 0, last: p.core.now(), wet: false });
+  stand(p, 15 + O, 23 + O);
+  const patch = applyEdit(p.core, { kind: 'patch', x: 14 + O, z: 22 + O, w: 2, h: 2, from: {}, to: { kind: T.PLAZA }, by: 'project', project: 'ume_house' });
   assert.deepEqual([patch.ok, patch.bagged, !!patch.moved.player], [true, { prop_toro: 1, seed_tea: 1 }, true]);
-  assert.deepEqual([p.world.kindAt(14, 22), p.world.kindAt(15, 23)], [T.PLAZA, T.PLAZA]);
+  assert.deepEqual([p.world.kindAt(14 + O, 22 + O), p.world.kindAt(15 + O, 23 + O)], [T.PLAZA, T.PLAZA]);
   assert.equal(p.core.inv.count('prop_toro'), 1);
 }
 
@@ -298,27 +299,27 @@ function landmarksAndDecks() {
   assert.equal(applyEdit(b.core, raise(L.shrine.x + 2, L.shrine.z)).ok, true, 'beside it is fine');
 
   // a bridge deck: its ends and the water it spans
-  const br = b.pr.add('bridge', 25, 15, 0);
-  assert.deepEqual(br.cells.map((c) => c.z), [14, 15, 16, 17]);
-  for (const z of [14, 15, 16, 17]) assert.match(applyEdit(b.core, raise(25, z, { from: {} })).reason, /bridge/);
-  const fill = { kind: 'fill', x: 25, z: 15, from: { water: WK.STREAM }, to: { kind: T.GRASS, water: WK.NONE }, by: 'player' };
-  assert.equal(b.world.waterKind(25, 15), WK.STREAM);
+  const br = b.pr.add('bridge', 25 + O, 15 + O, 0);
+  assert.deepEqual(br.cells.map((c) => c.z), [14 + O, 15 + O, 16 + O, 17 + O]);
+  for (const z of [14 + O, 15 + O, 16 + O, 17 + O]) assert.match(applyEdit(b.core, raise(25 + O, z, { from: {} })).reason, /bridge/);
+  const fill = { kind: 'fill', x: 25 + O, z: 15 + O, from: { water: WK.STREAM }, to: { kind: T.GRASS, water: WK.NONE }, by: 'player' };
+  assert.equal(b.world.waterKind(25 + O, 15 + O), WK.STREAM);
   assert.match(applyEdit(b.core, fill).reason, /bridge/, 'no fill of the water a deck spans');
-  assert.equal(applyEdit(b.core, { ...fill, x: 26 }).ok, true, 'beside the deck it can be filled');
+  assert.equal(applyEdit(b.core, { ...fill, x: 26 + O }).ok, true, 'beside the deck it can be filled');
 }
 
 /** Digs across the west neck of the village: x 8..9 at z 13 is the only way round the pond to the north without a bridge. */
-const NECK = { kind: 'dig', x: 8, z: 13, w: 2, h: 1, from: { height: 0 }, to: { kind: T.WATER, water: WK.POND }, by: 'project' };
+const NECK = { kind: 'dig', x: 8 + O, z: 13 + O, w: 2, h: 1, from: { height: 0 }, to: { kind: T.WATER, water: WK.POND }, by: 'project' };
 
 function reachability() {
   const b = boot();
   const L = LANDMARKS;
-  b.pr.add('stall', 19, 18);
+  b.pr.add('stall', 19 + O, 18 + O);
   b.pr.add('shrine_old', L.shrine.x, L.shrine.z);
   const names = b.tr.anchors().map((a) => a.name);
   assert.deepEqual(names, ['home', 'the stall', 'the shrine']);
-  const open = reach(HOME, (x, z) => b.pl.walkable(x, z), 40, 40, (a, c, d, e) => b.world.canStep(a, c, d, e));
-  assert.equal(open[(L.shrine.z + 2) * 40 + L.shrine.x], 1, 'the shrine can be reached today, the long way round');
+  const open = reach(HOME, (x, z) => b.pl.walkable(x, z), 64, 64, (a, c, d, e) => b.world.canStep(a, c, d, e));
+  assert.equal(open[(L.shrine.z + 2) * 64 + L.shrine.x], 1, 'the shrine can be reached today, the long way round');
 
   const before = snapshot(b);
   const cut = applyEdit(b.core, NECK);
@@ -328,17 +329,17 @@ function reachability() {
   // raising the whole neck cuts it too: one level up is a wall without stairs; one tile of the two is fine
   assert.equal(applyEdit(b.core, { ...NECK, kind: 'raise', to: { height: 1 } }).reason, 'That would cut the path to the shrine.');
   assert.equal(applyEdit(b.core, { ...NECK, kind: 'raise', to: { height: 1 }, w: 1 }).ok, true);
-  assert.equal(b.world.heightAt(8, 13), 1);
-  assert.equal(applyEdit(b.core, { ...NECK, x: 9, w: 1, kind: 'raise', to: { height: 1 } }).ok, false, 'the second would close it');
+  assert.equal(b.world.heightAt(8 + O, 13 + O), 1);
+  assert.equal(applyEdit(b.core, { ...NECK, x: 9 + O, w: 1, kind: 'raise', to: { height: 1 } }).ok, false, 'the second would close it');
 }
 
 function reachabilityTwoWays() {
   // a bridge is a second way across: with it the neck can go
   const b = boot();
   b.pr.add('shrine_old', LANDMARKS.shrine.x, LANDMARKS.shrine.z);
-  b.pr.add('bridge', 25, 15, 0);
+  b.pr.add('bridge', 25 + O, 15 + O, 0);
   assert.equal(applyEdit(b.core, NECK).ok, true);
-  assert.equal(b.world.isWater(8, 13), true);
+  assert.equal(b.world.isWater(8 + O, 13 + O), true);
   // a village that is already cut in two does not make every edit impossible
   const c = boot();
   c.pr.add('shrine_old', LANDMARKS.shrine.x, LANDMARKS.shrine.z);
@@ -346,13 +347,13 @@ function reachabilityTwoWays() {
   const cut = boot();
   cut.pr.add('shrine_old', LANDMARKS.shrine.x, LANDMARKS.shrine.z);
   cut.world.load({ ...cut.world.serialize() }); // same arrays
-  for (const [x, z] of [[8, 13], [9, 13]]) { cut.world.setKind(x, z, T.WATER); cut.world.setWater(x, z, WK.POND); }
-  assert.equal(applyEdit(cut.core, raise(14, 22)).ok, true, 'nothing left to lose up there');
-  assert.equal(applyEdit(cut.core, { kind: 'raise', x: 12, z: 8, from: {}, to: { height: 1 }, by: 'system' }).ok, true, 'and the north can be edited');
+  for (const [x, z] of [[8 + O, 13 + O], [9 + O, 13 + O]]) { cut.world.setKind(x, z, T.WATER); cut.world.setWater(x, z, WK.POND); }
+  assert.equal(applyEdit(cut.core, raise(14 + O, 22 + O)).ok, true, 'nothing left to lose up there');
+  assert.equal(applyEdit(cut.core, { kind: 'raise', x: 12 + O, z: 8 + O, from: {}, to: { height: 1 }, by: 'system' }).ok, true, 'and the north can be edited');
 
   // other systems add what must stay reachable
   const d = boot();
-  const off = d.tr.addAnchors(() => [{ name: 'Ume’s door', x: 14, z: 10 }]);
+  const off = d.tr.addAnchors(() => [{ name: 'Ume’s door', x: 14 + O, z: 10 + O }]);
   assert.deepEqual(d.tr.anchors().map((a) => a.name), ['home', 'Ume’s door']);
   assert.equal(applyEdit(d.core, NECK).reason, 'That would cut the path to Ume’s door.');
   off();
@@ -367,12 +368,12 @@ function homeAndStall() {
 
   // the stall counts when anyone can stand next to Hana's spot: a one-tile corridor leads to it
   const b = boot({ world: islet([]) });
-  for (const [x, z] of [[18, 23], [19, 23], [20, 23], [21, 23], [21, 22], [22, 22], [23, 22], [24, 22]]) { b.world.setKind(x, z, T.GRASS); b.world.setWater(x, z, WK.NONE); }
-  b.pr.add('stall', 22, 23);
-  assert.deepEqual(b.tr.anchors().map((a) => [a.name, a.x, a.z, a.adjacent]), [['home', HOME.x, HOME.z, false], ['the stall', 24, 23, true]]);
-  for (const e of [dig(19, 23), raise(19, 23, { from: {} }), dig(23, 22)]) assert.equal(applyEdit(b.core, e).reason, 'That would cut the path to the stall.', JSON.stringify(e));
-  assert.equal(applyEdit(b.core, dig(18, 23)).ok, false, 'the corridor starts at home');
-  assert.equal(applyEdit(b.core, raise(24, 22)).ok, true, '(23,22) already stands beside Hana, the last tile is a spare');
+  for (const [x, z] of [[18 + O, 23 + O], [19 + O, 23 + O], [20 + O, 23 + O], [21 + O, 23 + O], [21 + O, 22 + O], [22 + O, 22 + O], [23 + O, 22 + O], [24 + O, 22 + O]]) { b.world.setKind(x, z, T.GRASS); b.world.setWater(x, z, WK.NONE); }
+  b.pr.add('stall', 22 + O, 23 + O);
+  assert.deepEqual(b.tr.anchors().map((a) => [a.name, a.x, a.z, a.adjacent]), [['home', HOME.x, HOME.z, false], ['the stall', 24 + O, 23 + O, true]]);
+  for (const e of [dig(19 + O, 23 + O), raise(19 + O, 23 + O, { from: {} }), dig(23 + O, 22 + O)]) assert.equal(applyEdit(b.core, e).reason, 'That would cut the path to the stall.', JSON.stringify(e));
+  assert.equal(applyEdit(b.core, dig(18 + O, 23 + O)).ok, false, 'the corridor starts at home');
+  assert.equal(applyEdit(b.core, raise(24 + O, 22 + O)).ok, true, '(23,22) already stands beside Hana, the last tile is a spare');
 }
 
 function softLocks() {
@@ -428,11 +429,11 @@ function softLocks() {
 function determinism() {
   const run = () => {
     const b = boot();
-    b.pr.add('crate', 14, 22); b.pr.add('toro', 16, 22);
-    b.f.farm.set(23 * 40 + 15, { type: 'rice', x: 15, z: 23, progress: 0, last: b.core.now(), wet: false });
-    stand(b, 15, 22);
-    const out = [applyEdit(b.core, { kind: 'raise', x: 14, z: 22, w: 3, h: 2, from: {}, to: { height: 1 }, by: 'system' }, { dryRun: true }),
-      applyEdit(b.core, { kind: 'raise', x: 14, z: 22, w: 3, h: 2, from: {}, to: { height: 1 }, by: 'system' }),
+    b.pr.add('crate', 14 + O, 22 + O); b.pr.add('toro', 16 + O, 22 + O);
+    b.f.farm.set((23 + O) * 64 + 15 + O, { type: 'rice', x: 15 + O, z: 23 + O, progress: 0, last: b.core.now(), wet: false });
+    stand(b, 15 + O, 22 + O);
+    const out = [applyEdit(b.core, { kind: 'raise', x: 14 + O, z: 22 + O, w: 3, h: 2, from: {}, to: { height: 1 }, by: 'system' }, { dryRun: true }),
+      applyEdit(b.core, { kind: 'raise', x: 14 + O, z: 22 + O, w: 3, h: 2, from: {}, to: { height: 1 }, by: 'system' }),
       applyEdit(b.core, NECK)];
     return JSON.stringify([out, snapshot(b), b.log.map(([n, p]) => [n, p])]);
   };
@@ -442,15 +443,15 @@ function determinism() {
 function ensureWalkable() {
   const b = boot();
   assert.equal(b.pl.ensureWalkable(), null, 'the start is fine');
-  assert.deepEqual([b.pl.state.pos.x, b.pl.state.pos.z], [17.5, 22.5]);
+  assert.deepEqual([b.pl.state.pos.x, b.pl.state.pos.z], [17.5 + O, 22.5 + O]);
 
   // in the sea, in a house: the nearest tile that can be walked and reached from home
-  stand(b, 5, 5);
+  stand(b, 5 + O, 5 + O);
   assert.equal(b.pl.canStand(), false);
   const wet = b.pl.ensureWalkable();
   assert.ok(wet && b.pl.canStand() && b.world.isLand(wet.x, wet.z));
-  assert.ok(Math.hypot(wet.x + 0.5 - 5.5, wet.z + 0.5 - 5.5) < 8, 'the nearest land, not home');
-  const h = b.pr.add('minka', 10, 25);
+  assert.ok(Math.hypot(wet.x + 0.5 - 5.5 - O, wet.z + 0.5 - 5.5 - O) < 8, 'the nearest land, not home');
+  const h = b.pr.add('minka', 10 + O, 25 + O);
   b.pl.warp(h.cx, h.cz);
   assert.equal(b.pl.canStand(), false);
   const moved = b.pl.ensureWalkable();
@@ -473,9 +474,9 @@ function ensureWalkable() {
   assert.equal(d.pl.canStand(), true);
   assert.ok(d.pl.cell().x > 5);
   const e = boot();
-  stand(e, 18, 22);
+  stand(e, 18 + O, 22 + O);
   e.core.start({ fresh: true });
-  assert.deepEqual([e.pl.state.pos.x, e.pl.state.pos.z], [18.5, 22.5], 'a good spot is left alone');
+  assert.deepEqual([e.pl.state.pos.x, e.pl.state.pos.z], [18.5 + O, 22.5 + O], 'a good spot is left alone');
 }
 
 export default function () {

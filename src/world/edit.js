@@ -108,7 +108,7 @@ export function clearTiles(ctx, tiles, { dryRun = false, soilToGrass = false } =
     if (farming) {
       if (dryRun) {
         const crop = farming.crop(t.x, t.z);
-        if (crop) bag(ctx.content.crops.get(crop.type).seed);
+        if (crop) bag(ctx.content.crops.get(crop.type).seed || `seed_${crop.type}`);
       } else {
         const seed = soilToGrass ? farming.clearTile(t.x, t.z) : farming.uproot(t.x, t.z);
         if (seed) { bag(seed); give(seed); }

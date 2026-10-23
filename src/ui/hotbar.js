@@ -67,21 +67,21 @@ export const hotbarMixin = {
         if (id === 'seeds') { this.hotbar.appendChild(this.seedSlot()); return; }
         const it = this.toolInfo(id);
         const idx = this.slotOf(id);
-        const s = el('button', 'slot' + (g.slot === idx ? ' sel' : '') + (it.kind === 'seed' && !g.count(id) ? ' empty' : ''));
+        const s = el('button', 'slot' + (g.slot === idx ? ' sel' : '') + ((it.kind === 'seed' || it.kind === 'material') && !g.count(id) ? ' empty' : ''));
         s.dataset.item = id;
         s.innerHTML = this.iconHTML(it.icon) + `<span class="key">${i + 1}</span>`
-          + (it.kind === 'seed' ? `<span class="count">${g.count(id)}</span>` : '') + `<span class="tip">${id === 'hand' && compact ? 'Hand (auto)' : it.name}</span>`;
+          + (it.kind === 'seed' || it.kind === 'material' ? `<span class="count">${g.count(id)}</span>` : '') + `<span class="tip">${id === 'hand' && compact ? 'Hand (auto)' : it.name}</span>`;
         s.onclick = () => { this.closeSeedPicker(); g.selectSlot(idx); };
         this.hotbar.appendChild(s);
       });
       if (more.length) this.hotbar.appendChild(this.moreSlot(more));
-      const b = el('button', 'slot special', `${this.iconHTML('asset:minka')}<span class="key">8</span><span class="tip">Build (B)</span>`);
+      const b = el('button', 'slot special', `${this.iconHTML('asset:minka')}<span class="key">B</span><span class="tip">Build (B)</span>`);
       b.dataset.item = 'build';
       b.onclick = () => { this.closeSeedPicker(); g.toggleBuild(true); };
       this.hotbar.appendChild(b);
       // with a more slot the bar is as wide as it can be on a phone: the bag moves into the more sheet
       if (!more.length) {
-        const bag = el('button', 'slot special', `${this.iconHTML('icons:basket')}<span class="key">9</span><span class="tip">Bag (I)</span>`);
+        const bag = el('button', 'slot special', `${this.iconHTML('icons:basket')}<span class="key">I</span><span class="tip">Bag (I)</span>`);
         bag.dataset.item = 'bag';
         bag.onclick = () => { this.closeSeedPicker(); this.openBag(); };
         this.hotbar.appendChild(bag);

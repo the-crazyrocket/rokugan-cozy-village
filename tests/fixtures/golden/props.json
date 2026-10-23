@@ -72,6 +72,14 @@
   ],
   "icon": "vegetation:bamboo"
  },
+ "stairs": {
+  "name": "Stone stairs",
+  "asset": "stairs",
+  "price": 30,
+  "stairs": {
+   "dir": "up"
+  }
+ },
  "stall": {
   "name": "Merchant stall",
   "asset": "stall",
@@ -101,5 +109,57 @@
   "asset": "stone",
   "price": 0,
   "fixed": true
+ },
+ "workbench": {
+  "name": "Workbench",
+  "asset": "workbench",
+  "price": 80
+ },
+ "noticeboard": {
+  "name": "Project board",
+  "asset": "noticeboard",
+  "price": 0,
+  "fixed": true
+ },
+ "scaffold": {
+  "name": "Scaffolding",
+  "asset": "scaffold",
+  "price": 0,
+  "fixed": true
+ },
+ "kakei": {
+  "name": "Bamboo water pipe",
+  "asset": "kakei",
+  "price": 60,
+  "tags": [
+   "farm",
+   "water"
+  ]
+ },
+ "mill": {
+  "name": "Stone mill",
+  "asset": "mill",
+  "price": 400,
+  "unlock": "daikoku",
+  "tags": [
+   "daikoku"
+  ]
+ },
+ "kitchen": {
+  "name": "Kitchen",
+  "asset": "kitchen",
+  "price": 500,
+  "unlock": "daikoku",
+  "tags": [
+   "daikoku"
+  ]
+ },
+ "scarecrow": {
+  "name": "Scarecrow",
+  "asset": "scarecrow",
+  "price": 70,
+  "tags": [
+   "farm"
+  ]
  }
 }

@@ -5,6 +5,7 @@ import vegetation from './vegetation.js';
 import merchant from './merchant.js';
 import fishingView from './fishing-view.js';
 import ghost from './ghost-view.js';
+import villagersView from './villagers.js';
 
-export const views = [gear, crops, vegetation, merchant, fishingView, ghost];
+export const views = [gear, crops, vegetation, merchant, fishingView, ghost, villagersView];
 export default views;

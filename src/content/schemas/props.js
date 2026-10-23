@@ -13,5 +13,6 @@ schema.define('props', {
   icon: 'icon?',
   tags: { array: 'id', optional: true },
   set: 'id?',
+  unlock: { ref: 'fortunes', optional: true },
   stairs: { fields: { dir: 'string' }, open: true, optional: true },
 });

@@ -202,5 +202,143 @@
     "by": "codex",
     "attempts": 1,
     "last": "2026-10-23T00:26:34.122Z"
+  },
+  "stairs_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T07:40:40.201Z"
+  },
+  "stairs_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T07:40:53.131Z"
+  },
+  "icons3": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T07:41:21.133Z"
+  },
+  "gather": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:17:57.300Z"
+  },
+  "noticeboard_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:25:20.439Z"
+  },
+  "noticeboard_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:25:30.581Z"
+  },
+  "workbench_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:25:41.146Z"
+  },
+  "scaffold_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:26:37.543Z"
+  },
+  "workbench_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:26:44.120Z"
+  },
+  "scaffold_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:26:52.418Z"
+  },
+  "crops2": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:37:33.974Z"
+  },
+  "crops3": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:37:50.233Z"
+  },
+  "icons4": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:38:00.846Z"
+  },
+  "icons5": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T08:47:02.545Z"
+  },
+  "char_kenji_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:04:48.380Z"
+  },
+  "char_ume_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:04:52.372Z"
+  },
+  "char_ume_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:04:52.477Z"
+  },
+  "visitors": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 2,
+    "last": "2026-10-23T09:07:06.315Z"
+  },
+  "mill_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:11:06.390Z"
+  },
+  "kitchen_a45": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:11:19.486Z"
+  },
+  "kitchen_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:11:28.667Z"
+  },
+  "mill_a225": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:11:47.172Z"
+  },
+  "bugs": {
+    "painted": true,
+    "by": "codex",
+    "attempts": 1,
+    "last": "2026-10-23T09:15:01.216Z"
   }
 }

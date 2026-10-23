@@ -6,6 +6,7 @@ import player from '../../src/systems/player.js';
 import props from '../../src/systems/props.js';
 import { createCore } from '../../src/core/core.js';
 import { World } from '../../src/game/world.js';
+import { LEGACY_OFF as O } from '../../src/world/coords.js';
 
 function boot() {
   const world = new World();
@@ -32,29 +33,29 @@ function state() {
   const b = boot();
   assert.equal(b.core.systems.get('player').spec.needs.join(), 'props');
   assert.ok(b.st.pos instanceof THREE.Vector3);
-  assert.deepEqual([b.st.pos.x, b.st.pos.y, b.st.pos.z], [17.5, 0, 22.5]);
+  assert.deepEqual([b.st.pos.x, b.st.pos.y, b.st.pos.z], [17.5 + O, 0, 22.5 + O]);
   assert.deepEqual({ ...b.st, pos: null }, { pos: null, facing: Math.PI * 0.25, path: null, pending: null, swing: 0, swingT: 0, moving: false });
   assert.equal(b.pl.state, b.st);
-  assert.deepEqual(b.pl.cell(), { x: 17, z: 22 });
-  assert.deepEqual(b.pl.playerCell(), { x: 17, z: 22 });
+  assert.deepEqual(b.pl.cell(), { x: 17 + O, z: 22 + O });
+  assert.deepEqual(b.pl.playerCell(), { x: 17 + O, z: 22 + O });
   b.pl.warp(3.2, 4.9);
   assert.deepEqual([b.st.pos.x, b.st.pos.y, b.st.pos.z], [3.2, 0, 4.9]);
   // two cores, two players
   const other = boot();
   assert.notEqual(other.st, b.st);
-  assert.equal(other.st.pos.x, 17.5);
+  assert.equal(other.st.pos.x, 17.5 + O);
 }
 
 function facing() {
   const b = boot();
-  stand(b, 10, 10);
+  stand(b, 10 + O, 10 + O);
   for (const [a, dir, tile] of [
-    [0, { x: 0, z: 1 }, { x: 10, z: 11 }],
-    [Math.PI / 2, { x: 1, z: 0 }, { x: 11, z: 10 }],
-    [Math.PI, { x: 0, z: -1 }, { x: 10, z: 9 }],
-    [-Math.PI / 2, { x: -1, z: 0 }, { x: 9, z: 10 }],
-    [Math.PI / 4, null, { x: 11, z: 11 }],
-    [-Math.PI * 0.75, null, { x: 9, z: 9 }],
+    [0, { x: 0, z: 1 }, { x: 10 + O, z: 11 + O }],
+    [Math.PI / 2, { x: 1, z: 0 }, { x: 11 + O, z: 10 + O }],
+    [Math.PI, { x: 0, z: -1 }, { x: 10 + O, z: 9 + O }],
+    [-Math.PI / 2, { x: -1, z: 0 }, { x: 9 + O, z: 10 + O }],
+    [Math.PI / 4, null, { x: 11 + O, z: 11 + O }],
+    [-Math.PI * 0.75, null, { x: 9 + O, z: 9 + O }],
   ]) {
     b.st.facing = a;
     const d = b.pl.facing();
@@ -62,13 +63,13 @@ function facing() {
     assert.deepEqual(b.pl.target(), tile, `target at ${a}`);
   }
   // face(): the angle towards the middle of a tile; a tile under the feet changes nothing
-  b.pl.face({ x: 14, z: 10 });
+  b.pl.face({ x: 14 + O, z: 10 + O });
   assert.ok(Math.abs(b.st.facing - Math.atan2(4, 0)) < 1e-9);
-  b.pl.face({ x: 10, z: 13 });
+  b.pl.face({ x: 10 + O, z: 13 + O });
   assert.ok(Math.abs(b.st.facing - 0) < 1e-9);
   const keep = b.st.facing;
-  b.pl.warp(10.5, 10.5);
-  b.pl.face({ x: 10, z: 10 });
+  b.pl.warp(10.5 + O, 10.5 + O);
+  b.pl.face({ x: 10 + O, z: 10 + O });
   assert.equal(b.st.facing, keep);
 }
 
@@ -87,7 +88,7 @@ function walkable() {
   assert.equal(pl.walkable(open.x, open.z), false, 'a well');
 
   // a bridge is walkable over water
-  const bridge = pr.add('bridge', 25, 15, 0);
+  const bridge = pr.add('bridge', 25 + O, 15 + O, 0);
   const deck = bridge.cells.filter((c) => pr.isBridge(c.x, c.z));
   assert.ok(deck.length >= 3);
   assert.ok(deck.every((c) => pl.walkable(c.x, c.z)), 'deck');
@@ -285,7 +286,7 @@ function arrival() {
   const { pl, st, log } = b;
   pl.arrive();
   assert.deepEqual(names(log), []);
-  st.pending = { kind: 'shop', t: { x: 20, z: 17 } };
+  st.pending = { kind: 'shop', t: { x: 20 + O, z: 17 + O } };
   pl.arrive();
   assert.deepEqual(names(log), ['arrive']);
   assert.equal(st.pending, null);

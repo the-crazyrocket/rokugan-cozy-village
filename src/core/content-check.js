@@ -29,7 +29,7 @@ export function deriveItems(content) {
   // legacy: a deep fish is Ebisu's until the fish names its own `unlock`
   for (const [id, f] of content.fish.all()) put(id, defined(['name', f.name], ['kind', 'fish'], ['icon', f.icon || `icons:${id}`], ['sell', f.sell], ['unlock', f.unlock || (f.deep ? 'ebisu' : undefined)]), `fish.${id}`);
   for (const [id, b] of content.bugs.all()) put(id, defined(['name', b.name], ['kind', 'bug'], ['icon', b.icon], ['sell', b.sell]), `bugs.${id}`);
-  for (const [id, p] of content.props.all()) if (!p.fixed) put(`prop_${id}`, { name: p.name, kind: 'prop', prop: id, icon: p.icon || `asset:${p.asset}`, buy: p.price, sell: Math.floor(p.price / 2) }, `props.${id}`);
+  for (const [id, p] of content.props.all()) if (!p.fixed) put(`prop_${id}`, defined(['name', p.name], ['kind', 'prop'], ['prop', id], ['icon', p.icon || `asset:${p.asset}`], ['buy', p.price], ['sell', Math.floor(p.price / 2)], ['unlock', p.unlock]), `props.${id}`);
   for (const [id, m] of content.materials.all()) put(id, defined(['name', m.name], ['kind', 'material'], ['icon', m.icon], ['sell', m.sell]), `materials.${id}`);
   for (const [id, r] of content.recipes.all()) if (r.kind === 'dish' && r.item) put(id, defined(['name', r.item.name || r.name], ['kind', 'dish'], ['icon', r.item.icon], ['sell', r.item.sell], ['hint', r.item.hint]), `recipes.${id}`);
   return { map, from, conflicts };

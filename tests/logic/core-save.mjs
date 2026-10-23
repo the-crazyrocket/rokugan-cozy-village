@@ -16,8 +16,8 @@ const FIXTURES = ['save-v1.json', 'save-v2.json', 'save-v3-fresh.json', 'save-v3
 function legacyWorld() {
   assert.equal(SAVE_VERSION, 4);
   assert.equal(OLD_VERSION, 3);
-  assert.deepEqual([...LEGACY_HOTBAR], HOTBAR, 'frozen hotbar order still matches the live one');
-  const live = new World();
+  assert.deepEqual([...LEGACY_HOTBAR], HOTBAR.slice(0, LEGACY_HOTBAR.length), 'the frozen hotbar order is still where the live one starts');
+  const live = new World({ w: 40, h: 40 }); // the old island on its own grid
   const old = generateLegacy40();
   assert.deepEqual(old.kind, live.tiles, 'legacy40 generates the live island');
   assert.deepEqual(old.water.map((w) => (w >= 2 ? 1 : 0)), live.fresh, 'fresh water matches');
@@ -30,7 +30,7 @@ function legacyWorld() {
   assert.deepEqual(legacyArrays([]).kind, live.tiles);
   assert.ok(legacyArrays([]).height.every((h) => h === 0));
   // a diff expands exactly like applyDiff
-  const diffed = new World();
+  const diffed = new World({ w: 40, h: 40 });
   const diff = [[1051, T.SOIL], [1052, T.SOIL], [820, T.PATH], [5, T.SAND]];
   diffed.applyDiff(diff);
   const arrays = legacyArrays(diff);

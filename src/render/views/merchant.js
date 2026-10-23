@@ -12,7 +12,7 @@ export default defineSystem({
         this.merchant = buildCharacter({ robe: PALETTE.vermilion, sash: PALETTE.indigo, hat: false, hair: '#4a3a30' });
         this.scene.add(this.merchant.root);
       }
-      this.merchant.root.position.set(x, 0, z);
+      this.merchant.root.position.set(x, this.world.levelY(x, z), z);
       this.merchant.root.rotation.y = th + 0.5;
     },
   },

@@ -12,6 +12,8 @@ import { actionButtonMixin } from '../ui/action-button.js';
 import { buildBarMixin } from '../ui/build-bar.js';
 import { hudMixin } from '../ui/hud/index.js';
 import { dialogsMixin } from '../ui/dialogs.js';
+import { motionMixin } from '../ui/motion.js';
+import { todoMixin } from '../ui/todo.js';
 import { LAZY, loadSheet } from '../ui/sheets/index.js';
 
 export class UI {
@@ -86,7 +88,7 @@ export class UI {
   refresh() {
     const g = this.game;
     if (!g) return;
-    $('#koku').textContent = g.money.toLocaleString();
+    this.tickKoku(g.money);
     this.updateClock();
     document.body.classList.toggle('build-mode', g.mode === 'build');
     $('#mode-label').textContent = g.mode === 'build' ? (this.touch ? 'Build mode' : 'Build mode · R rotate · B done') : '';
@@ -125,7 +127,7 @@ export class UI {
       return true;
     });
     this.actionT -= dt;
-    if (this.actionT <= 0) { this.updateAction(); this.updateBuildBar(); this.renderHud(); this.actionT = 0.15; }
+    if (this.actionT <= 0) { this.updateAction(); this.updateBuildBar(); this.renderHud(); this.renderTodo(); this.actionT = 0.15; }
     this.clockT -= dt;
     if (this.clockT <= 0) { this.updateClock(); this.clockT = 1; }
   }
@@ -270,4 +272,4 @@ export class UI {
   }
 }
 
-Object.assign(UI.prototype, iconMixin, fasttapMixin, toastMixin, fxMixin, dialogsMixin, hotbarMixin, actionButtonMixin, buildBarMixin, hudMixin);
+Object.assign(UI.prototype, iconMixin, fasttapMixin, toastMixin, fxMixin, dialogsMixin, hotbarMixin, actionButtonMixin, buildBarMixin, hudMixin, motionMixin, todoMixin);

@@ -8,6 +8,7 @@ import { hash2 } from '../core/rng.js';
 import { T } from '../world/kinds.js';
 import { spanOk } from '../world/bridge.js';
 import { deckY } from '../world/surface.js';
+import { LEGACY_OFF } from '../world/coords.js';
 
 const PROPS = content.props.view();
 const HALF_PI = Math.PI / 2;
@@ -81,12 +82,13 @@ export class PropIndex {
     this.nextId = Math.max(this.nextId, prop.id + 1);
     const { cells, cx, cz } = propCells(type, x, z, rot);
     prop.cells = cells; prop.cx = cx; prop.cz = cz;
-    prop.seed = hash2(x, z, prop.id);
+    prop.seed = hash2(x - LEGACY_OFF, z - LEGACY_OFF, prop.id); // the old island's frame: a tree keeps its look
     for (const c of cells) {
       const i = c.z * this.w + c.x;
       this.occ[i] = prop.id;
       if (c.block) this.blocked[i] = 1;
       if (BLOCKOUTS[PROPS[type].asset]?.walkable) this.bridge[i] = 1;
+      if (PROPS[type].stairs) this.world.setStairs(c.x, c.z, (rot & 3) + 1);
     }
     this.list.push(prop);
     this.byId.set(prop.id, prop);
@@ -98,6 +100,7 @@ export class PropIndex {
     for (const c of prop.cells) {
       const i = c.z * this.w + c.x;
       if (this.occ[i] === prop.id) { this.occ[i] = 0; this.blocked[i] = 0; this.bridge[i] = 0; }
+      if (PROPS[prop.type].stairs) this.world.setStairs(c.x, c.z, 0);
     }
     this.list = this.list.filter((p) => p !== prop);
     this.byId.delete(prop.id);

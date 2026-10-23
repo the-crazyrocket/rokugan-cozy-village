@@ -8,9 +8,9 @@ const taste = { fields: { items, tags: { array: 'id', optional: true } }, option
 schema.define('villagers', {
   name: 'string',
   title: 'string?',
-  body: { fields: { blockout: 'asset', rig: { enum: ['biped', 'quad', 'bird'] }, height: 'number?' } },
+  body: { fields: { blockout: 'asset?', rig: { enum: ['biped', 'quad', 'bird'] }, height: 'number?' } },
   look: { type: 'object', optional: true },
-  home: { fields: { project: { ref: 'projects' }, door: tile }, optional: true },
+  home: { fields: { project: { ref: 'projects' }, door: { ...tile, optional: true } }, optional: true },
   wish: 'cond?',
   likes: taste,
   dislikes: taste,

@@ -22,7 +22,7 @@ export class BillboardLayer {
     g.setAttribute('iUV', this.aUV);
     g.setAttribute('iParam', this.aParam);
     g.instanceCount = 0;
-    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(20, 0, 20), 80);
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(32, 0, 32), 80);
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uMap: { value: sheet.tex },

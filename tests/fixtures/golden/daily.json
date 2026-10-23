@@ -43,45 +43,45 @@
      }
     }
    ],
-   "demand": "koi",
+   "demand": "funa",
    "specials": [
-    "prop_pine",
-    "prop_fence"
+    "prop_kakei",
+    "prop_workbench"
    ],
    "forage": [
     {
-     "x": 19,
-     "z": 24,
+     "x": 38,
+     "z": 39,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 38,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 34,
      "item": "wildflower",
      "taken": false
     },
     {
      "x": 26,
-     "z": 28,
+     "z": 34,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 31,
-     "z": 16,
+     "x": 43,
+     "z": 33,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 23,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 19,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 12,
-     "z": 26,
+     "x": 34,
+     "z": 24,
      "item": "warabi",
      "taken": false
     }
@@ -128,45 +128,45 @@
      }
     }
    ],
-   "demand": "wildflower",
+   "demand": "wasabi",
    "specials": [
-    "prop_well",
-    "prop_fence"
+    "prop_minka",
+    "prop_crate"
    ],
    "forage": [
     {
-     "x": 22,
-     "z": 13,
+     "x": 28,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 25,
+     "x": 38,
+     "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 14,
-     "z": 27,
+     "x": 31,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 9,
+     "x": 42,
+     "z": 30,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 28,
+     "x": 27,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 13,
+     "x": 33,
+     "z": 20,
      "item": "warabi",
      "taken": false
     }
@@ -217,45 +217,45 @@
      }
     }
    ],
-   "demand": "koi",
+   "demand": "namazu",
    "specials": [
-    "prop_toro",
-    "prop_fence"
+    "prop_torii",
+    "prop_well"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 19,
+     "x": 28,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 30,
+     "x": 31,
+     "z": 24,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 26,
-     "z": 17,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 17,
+     "x": 37,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 28,
+     "x": 23,
+     "z": 34,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 11,
+     "x": 36,
+     "z": 39,
      "item": "warabi",
      "taken": false
     }
@@ -298,45 +298,45 @@
      }
     }
    ],
-   "demand": "daikon",
+   "demand": "edamame",
    "specials": [
-    "prop_bridge",
-    "prop_fence"
+    "prop_scarecrow",
+    "prop_bridge"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 18,
+     "x": 38,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 30,
+     "x": 24,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 27,
+     "x": 34,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 11,
+     "x": 21,
+     "z": 33,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 27,
+     "x": 35,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 27,
+     "x": 43,
+     "z": 31,
      "item": "warabi",
      "taken": false
     }
@@ -383,45 +383,45 @@
      }
     }
    ],
-   "demand": "tea",
+   "demand": "satsuma_imo",
    "specials": [
-    "prop_bridge",
-    "prop_pot"
+    "prop_torii",
+    "prop_kakei"
    ],
    "forage": [
     {
-     "x": 29,
-     "z": 17,
+     "x": 26,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 25,
+     "x": 30,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 17,
+     "x": 41,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 40,
      "z": 29,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 9,
-     "z": 12,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 26,
+     "x": 29,
+     "z": 31,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 28,
+     "x": 31,
+     "z": 21,
      "item": "warabi",
      "taken": false
     }
@@ -468,45 +468,45 @@
      "reward": 115
     }
    ],
-   "demand": "warabi",
+   "demand": "koi",
    "specials": [
-    "prop_well",
-    "prop_pine"
+    "prop_scarecrow",
+    "prop_toro"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 17,
+     "x": 35,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 28,
-     "z": 26,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 17,
-     "z": 18,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 22,
+     "x": 38,
      "z": 24,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 27,
+     "x": 31,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 11,
+     "x": 21,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 40,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 19,
      "item": "warabi",
      "taken": false
     }
@@ -553,45 +553,45 @@
      }
     }
    ],
-   "demand": "ayu",
+   "demand": "yamame",
    "specials": [
-    "prop_sakura",
-    "prop_crate"
+    "prop_bamboo",
+    "prop_sakura"
    ],
    "forage": [
     {
-     "x": 11,
-     "z": 10,
+     "x": 22,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 10,
+     "x": 31,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 22,
+     "x": 29,
+     "z": 44,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 25,
+     "x": 28,
+     "z": 36,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 27,
+     "x": 34,
+     "z": 24,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 21,
-     "z": 10,
+     "x": 39,
+     "z": 35,
      "item": "warabi",
      "taken": false
     }
@@ -634,45 +634,45 @@
      "reward": 60
     }
    ],
-   "demand": "ayu",
+   "demand": "unagi",
    "specials": [
-    "prop_crate",
-    "prop_bridge"
+    "prop_workbench",
+    "prop_pot"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 12,
+     "x": 29,
+     "z": 20,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 23,
+     "x": 43,
+     "z": 30,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 8,
+     "x": 27,
+     "z": 41,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 22,
+     "x": 36,
+     "z": 42,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 8,
+     "x": 31,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 19,
+     "x": 40,
+     "z": 30,
      "item": "warabi",
      "taken": false
     }
@@ -719,45 +719,45 @@
      "reward": 440
     }
    ],
-   "demand": "daikon",
+   "demand": "warabi",
    "specials": [
-    "prop_torii",
+    "prop_well",
     "prop_pot"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 9,
+     "x": 33,
+     "z": 22,
      "item": "wildflower",
      "taken": false
     },
     {
      "x": 24,
-     "z": 25,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 17,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 28,
+     "x": 25,
      "z": 21,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 21,
-     "z": 11,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 11,
-     "z": 19,
+     "x": 41,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 35,
+     "z": 38,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 20,
      "item": "warabi",
      "taken": false
     }
@@ -800,45 +800,45 @@
      }
     }
    ],
-   "demand": "koi",
+   "demand": "namazu",
    "specials": [
-    "prop_minka",
-    "prop_pine"
+    "prop_bridge",
+    "prop_pot"
    ],
    "forage": [
     {
-     "x": 25,
-     "z": 21,
+     "x": 23,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 22,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 16,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 25,
-     "z": 29,
+     "x": 27,
+     "z": 19,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 23,
-     "z": 15,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 7,
+     "x": 39,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 34,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 40,
+     "z": 37,
      "item": "warabi",
      "taken": false
     }
@@ -881,45 +881,45 @@
      }
     }
    ],
-   "demand": "rice",
+   "demand": "daikon",
    "specials": [
-    "prop_bamboo",
-    "prop_torii"
+    "prop_toro",
+    "prop_stairs"
    ],
    "forage": [
     {
-     "x": 22,
+     "x": 23,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 30,
+     "z": 36,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 38,
      "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 14,
+     "x": 24,
+     "z": 41,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 25,
-     "z": 11,
+     "x": 28,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 26,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 13,
-     "z": 24,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 18,
-     "z": 24,
+     "x": 38,
+     "z": 33,
      "item": "warabi",
      "taken": false
     }
@@ -958,45 +958,45 @@
      "reward": 105
     }
    ],
-   "demand": "wildflower",
+   "demand": "wasabi",
    "specials": [
-    "prop_bamboo",
-    "prop_well"
+    "prop_scarecrow",
+    "prop_toro"
    ],
    "forage": [
     {
-     "x": 19,
-     "z": 23,
+     "x": 30,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 20,
-     "z": 15,
+     "x": 30,
+     "z": 37,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 22,
+     "x": 24,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 28,
+     "x": 21,
+     "z": 29,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 9,
+     "x": 39,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 32,
-     "z": 24,
+     "x": 28,
+     "z": 41,
      "item": "warabi",
      "taken": false
     }
@@ -1039,45 +1039,45 @@
      "reward": 225
     }
    ],
-   "demand": "rice",
+   "demand": "daikon",
    "specials": [
-    "prop_sakura",
-    "prop_bridge"
+    "prop_workbench",
+    "prop_kakei"
    ],
    "forage": [
     {
-     "x": 27,
-     "z": 18,
+     "x": 26,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 30,
-     "z": 20,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 22,
-     "z": 18,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 11,
+     "x": 38,
      "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 27,
+     "x": 35,
+     "z": 20,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 11,
+     "x": 44,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 35,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 31,
      "item": "warabi",
      "taken": false
     }
@@ -1116,45 +1116,45 @@
      "reward": 60
     }
    ],
-   "demand": "warabi",
+   "demand": "iwana",
    "specials": [
-    "prop_torii",
-    "prop_pine"
+    "prop_well",
+    "prop_pot"
    ],
    "forage": [
     {
-     "x": 14,
-     "z": 29,
+     "x": 35,
+     "z": 24,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 11,
+     "x": 29,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 25,
+     "x": 22,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 32,
+     "x": 36,
+     "z": 38,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 12,
+     "x": 29,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 9,
+     "x": 26,
+     "z": 20,
      "item": "warabi",
      "taken": false
     }
@@ -1201,45 +1201,45 @@
      }
     }
    ],
-   "demand": "tea",
+   "demand": "kabocha",
    "specials": [
-    "prop_fence",
-    "prop_minka"
+    "prop_kakei",
+    "prop_torii"
    ],
    "forage": [
     {
-     "x": 25,
-     "z": 21,
+     "x": 28,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 14,
+     "x": 20,
+     "z": 36,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 13,
+     "x": 37,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 25,
-     "z": 29,
+     "x": 42,
+     "z": 30,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 10,
+     "x": 26,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 24,
+     "x": 20,
+     "z": 40,
      "item": "warabi",
      "taken": false
     }
@@ -1282,45 +1282,45 @@
      }
     }
    ],
-   "demand": "ayu",
+   "demand": "unagi",
    "specials": [
-    "prop_minka",
-    "prop_bridge"
+    "prop_sakura",
+    "prop_fence"
    ],
    "forage": [
     {
-     "x": 27,
-     "z": 17,
+     "x": 26,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 11,
+     "x": 22,
+     "z": 38,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 25,
+     "x": 21,
+     "z": 34,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 11,
-     "z": 19,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 28,
+     "x": 31,
      "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 33,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 26,
+     "x": 38,
+     "z": 34,
      "item": "warabi",
      "taken": false
     }
@@ -1359,45 +1359,45 @@
      "reward": 225
     }
    ],
-   "demand": "warabi",
+   "demand": "fugu",
    "specials": [
-    "prop_pot",
-    "prop_pine"
+    "prop_pine",
+    "prop_crate"
    ],
    "forage": [
     {
-     "x": 25,
-     "z": 27,
+     "x": 26,
+     "z": 38,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 37,
+     "z": 35,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 35,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
      "x": 32,
-     "z": 20,
+     "z": 24,
      "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 21,
+     "item": "wildflower",
      "taken": false
     },
     {
      "x": 26,
-     "z": 23,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 16,
-     "z": 9,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 14,
-     "z": 26,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 17,
-     "z": 23,
+     "z": 43,
      "item": "warabi",
      "taken": false
     }
@@ -1440,45 +1440,45 @@
      "reward": 155
     }
    ],
-   "demand": "tai",
+   "demand": "haze",
    "specials": [
-    "prop_fence",
-    "prop_bridge"
+    "prop_stairs",
+    "prop_workbench"
    ],
    "forage": [
     {
+     "x": 44,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
      "x": 26,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 29,
-     "z": 18,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 18,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 11,
+     "x": 34,
      "z": 22,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 12,
-     "z": 19,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 8,
+     "x": 40,
+     "z": 39,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 40,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 22,
      "item": "warabi",
      "taken": false
     }
@@ -1525,45 +1525,45 @@
      "reward": 140
     }
    ],
-   "demand": "warabi",
+   "demand": "koi",
    "specials": [
-    "prop_crate",
-    "prop_well"
+    "prop_pot",
+    "prop_stairs"
    ],
    "forage": [
     {
-     "x": 8,
-     "z": 25,
+     "x": 25,
+     "z": 42,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 29,
-     "z": 24,
+     "x": 38,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 14,
+     "x": 26,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 30,
-     "z": 18,
+     "x": 21,
+     "z": 29,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 30,
+     "x": 20,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 19,
+     "x": 22,
+     "z": 23,
      "item": "warabi",
      "taken": false
     }
@@ -1610,45 +1610,45 @@
      "reward": 95
     }
    ],
-   "demand": "tai",
+   "demand": "kingyo",
    "specials": [
-    "prop_crate",
-    "prop_bamboo"
+    "prop_pot",
+    "prop_stairs"
    ],
    "forage": [
     {
-     "x": 31,
-     "z": 19,
+     "x": 32,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 9,
+     "x": 20,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 8,
-     "z": 26,
+     "x": 24,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 9,
+     "x": 24,
+     "z": 42,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 26,
-     "z": 13,
+     "x": 30,
+     "z": 27,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 28,
+     "x": 42,
+     "z": 37,
      "item": "warabi",
      "taken": false
     }
@@ -1691,45 +1691,45 @@
      "reward": 125
     }
    ],
-   "demand": "tea",
+   "demand": "kabocha",
    "specials": [
-    "prop_crate",
-    "prop_pot"
+    "prop_pot",
+    "prop_minka"
    ],
    "forage": [
     {
-     "x": 12,
-     "z": 22,
+     "x": 37,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 25,
-     "z": 13,
+     "x": 26,
+     "z": 42,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 17,
+     "x": 30,
+     "z": 19,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 9,
+     "x": 21,
+     "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 29,
+     "x": 35,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 30,
+     "x": 34,
+     "z": 23,
      "item": "warabi",
      "taken": false
     }
@@ -1772,45 +1772,45 @@
      "reward": 165
     }
    ],
-   "demand": "koi",
+   "demand": "funa",
    "specials": [
-    "prop_torii",
-    "prop_well"
+    "prop_crate",
+    "prop_workbench"
    ],
    "forage": [
     {
-     "x": 28,
-     "z": 17,
+     "x": 45,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 26,
+     "x": 23,
+     "z": 41,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 32,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 39,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 28,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 17,
      "z": 30,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 24,
-     "z": 22,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 27,
+     "x": 42,
+     "z": 30,
      "item": "warabi",
      "taken": false
     }
@@ -1853,45 +1853,45 @@
      }
     }
    ],
-   "demand": "wildflower",
+   "demand": "wasabi",
    "specials": [
-    "prop_well",
+    "prop_workbench",
     "prop_crate"
    ],
    "forage": [
     {
-     "x": 15,
-     "z": 20,
+     "x": 26,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 15,
+     "x": 37,
+     "z": 37,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 14,
-     "z": 31,
+     "x": 34,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 28,
-     "z": 13,
+     "x": 21,
+     "z": 23,
      "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 15,
-     "z": 25,
-     "item": "wildflower",
      "taken": false
     },
     {
      "x": 24,
-     "z": 25,
+     "z": 32,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 28,
      "item": "warabi",
      "taken": false
     }
@@ -1934,45 +1934,45 @@
      }
     }
    ],
-   "demand": "daikon",
+   "demand": "nasu",
    "specials": [
-    "prop_minka",
-    "prop_torii"
+    "prop_torii",
+    "prop_sakura"
    ],
    "forage": [
     {
-     "x": 11,
-     "z": 27,
+     "x": 35,
+     "z": 33,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 22,
+     "x": 26,
+     "z": 37,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 22,
+     "x": 36,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 17,
+     "x": 25,
+     "z": 32,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 19,
+     "x": 42,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 25,
+     "x": 41,
+     "z": 33,
      "item": "warabi",
      "taken": false
     }
@@ -2015,45 +2015,45 @@
      "reward": 185
     }
    ],
-   "demand": "rice",
+   "demand": "wildflower",
    "specials": [
-    "prop_bridge",
-    "prop_torii"
+    "prop_pine",
+    "prop_minka"
    ],
    "forage": [
     {
-     "x": 23,
-     "z": 11,
+     "x": 32,
+     "z": 25,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 22,
+     "x": 25,
+     "z": 29,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 18,
+     "x": 31,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 10,
+     "x": 34,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 16,
+     "x": 43,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 18,
+     "x": 36,
+     "z": 29,
      "item": "warabi",
      "taken": false
     }
@@ -2096,45 +2096,45 @@
      "reward": 105
     }
    ],
-   "demand": "rice",
+   "demand": "tea",
    "specials": [
-    "prop_sakura",
-    "prop_toro"
+    "prop_well",
+    "prop_scarecrow"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 15,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
      "x": 24,
-     "z": 19,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 23,
-     "z": 29,
+     "z": 31,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 29,
+     "x": 42,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 29,
-     "z": 18,
+     "x": 21,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 19,
+     "x": 39,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 42,
+     "z": 34,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 39,
      "item": "warabi",
      "taken": false
     }
@@ -2181,45 +2181,45 @@
      "reward": 110
     }
    ],
-   "demand": "tea",
+   "demand": "shiso",
    "specials": [
-    "prop_sakura",
-    "prop_fence"
+    "prop_torii",
+    "prop_minka"
    ],
    "forage": [
     {
-     "x": 15,
-     "z": 18,
+     "x": 21,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 8,
+     "x": 37,
      "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 28,
-     "z": 13,
+     "x": 41,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 30,
+     "x": 24,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 17,
+     "x": 28,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 11,
+     "x": 30,
+     "z": 23,
      "item": "warabi",
      "taken": false
     }
@@ -2266,45 +2266,45 @@
      }
     }
    ],
-   "demand": "rice",
+   "demand": "tea",
    "specials": [
-    "prop_toro",
-    "prop_sakura"
+    "prop_fence",
+    "prop_well"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 16,
+     "x": 36,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 17,
+     "x": 39,
+     "z": 28,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 9,
+     "x": 27,
+     "z": 42,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 17,
+     "x": 45,
+     "z": 34,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 22,
+     "x": 40,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 32,
      "z": 25,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 21,
-     "z": 18,
      "item": "warabi",
      "taken": false
     }
@@ -2355,45 +2355,45 @@
      }
     }
    ],
-   "demand": "koi",
+   "demand": "kingyo",
    "specials": [
-    "prop_pine",
-    "prop_bamboo"
+    "prop_minka",
+    "prop_bridge"
    ],
    "forage": [
     {
-     "x": 24,
-     "z": 23,
+     "x": 42,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 18,
+     "x": 33,
+     "z": 26,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 25,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 18,
-     "z": 18,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 31,
+     "x": 39,
      "z": 24,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 13,
+     "x": 38,
+     "z": 36,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 41,
      "item": "warabi",
      "taken": false
     }
@@ -2436,45 +2436,45 @@
      }
     }
    ],
-   "demand": "koi",
+   "demand": "namazu",
    "specials": [
     "prop_torii",
-    "prop_well"
+    "prop_kakei"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 15,
+     "x": 23,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 34,
-     "z": 20,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 9,
-     "z": 28,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 22,
-     "z": 31,
+     "x": 39,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 31,
-     "z": 17,
+     "z": 41,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 28,
+     "x": 45,
+     "z": 32,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 44,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 36,
      "item": "warabi",
      "taken": false
     }
@@ -2527,45 +2527,45 @@
      }
     }
    ],
-   "demand": "aji",
+   "demand": "namazu",
    "specials": [
-    "prop_pine",
-    "prop_fence"
+    "prop_kakei",
+    "prop_workbench"
    ],
    "forage": [
     {
-     "x": 19,
-     "z": 24,
+     "x": 38,
+     "z": 39,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 38,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 34,
      "item": "wildflower",
      "taken": false
     },
     {
      "x": 26,
-     "z": 28,
+     "z": 34,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 31,
-     "z": 16,
+     "x": 43,
+     "z": 33,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 23,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 19,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 12,
-     "z": 26,
+     "x": 34,
+     "z": 24,
      "item": "warabi",
      "taken": false
     }
@@ -2612,45 +2612,45 @@
      }
     }
    ],
-   "demand": "ayu",
+   "demand": "koi",
    "specials": [
-    "prop_well",
-    "prop_fence"
+    "prop_minka",
+    "prop_crate"
    ],
    "forage": [
     {
-     "x": 22,
-     "z": 13,
+     "x": 28,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 25,
+     "x": 38,
+     "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 14,
-     "z": 27,
+     "x": 31,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 9,
+     "x": 42,
+     "z": 30,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 28,
+     "x": 27,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 13,
+     "x": 33,
+     "z": 20,
      "item": "warabi",
      "taken": false
     }
@@ -2701,45 +2701,45 @@
      }
     }
    ],
-   "demand": "saba",
+   "demand": "kingyo",
    "specials": [
-    "prop_toro",
-    "prop_fence"
+    "prop_torii",
+    "prop_well"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 19,
+     "x": 28,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 30,
+     "x": 31,
+     "z": 24,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 26,
-     "z": 17,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 17,
+     "x": 37,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 28,
+     "x": 23,
+     "z": 34,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 11,
+     "x": 36,
+     "z": 39,
      "item": "warabi",
      "taken": false
     }
@@ -2782,45 +2782,45 @@
      }
     }
    ],
-   "demand": "tea",
+   "demand": "satsuma_imo",
    "specials": [
-    "prop_bridge",
-    "prop_fence"
+    "prop_scarecrow",
+    "prop_bridge"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 18,
+     "x": 38,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 30,
+     "x": 24,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 27,
+     "x": 34,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 11,
+     "x": 21,
+     "z": 33,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 27,
+     "x": 35,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 27,
+     "x": 43,
+     "z": 31,
      "item": "warabi",
      "taken": false
     }
@@ -2867,45 +2867,45 @@
      }
     }
    ],
-   "demand": "wildflower",
+   "demand": "shiso",
    "specials": [
-    "prop_bridge",
-    "prop_pot"
+    "prop_torii",
+    "prop_kakei"
    ],
    "forage": [
     {
-     "x": 29,
-     "z": 17,
+     "x": 26,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 25,
+     "x": 30,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 17,
+     "x": 41,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 40,
      "z": 29,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 9,
-     "z": 12,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 26,
+     "x": 29,
+     "z": 31,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 28,
+     "x": 31,
+     "z": 21,
      "item": "warabi",
      "taken": false
     }
@@ -2952,45 +2952,45 @@
      "reward": 115
     }
    ],
-   "demand": "koi",
+   "demand": "saba",
    "specials": [
-    "prop_well",
-    "prop_pine"
+    "prop_scarecrow",
+    "prop_toro"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 17,
+     "x": 35,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 28,
-     "z": 26,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 17,
-     "z": 18,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 22,
+     "x": 38,
      "z": 24,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 27,
+     "x": 31,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 11,
+     "x": 21,
+     "z": 22,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 25,
+     "z": 40,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 19,
      "item": "warabi",
      "taken": false
     }
@@ -3037,45 +3037,45 @@
      }
     }
    ],
-   "demand": "fugu",
+   "demand": "yamame",
    "specials": [
-    "prop_sakura",
-    "prop_crate"
+    "prop_bamboo",
+    "prop_sakura"
    ],
    "forage": [
     {
-     "x": 11,
-     "z": 10,
+     "x": 22,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 10,
+     "x": 31,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 22,
+     "x": 29,
+     "z": 44,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 25,
+     "x": 28,
+     "z": 36,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 27,
+     "x": 34,
+     "z": 24,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 21,
-     "z": 10,
+     "x": 39,
+     "z": 35,
      "item": "warabi",
      "taken": false
     }
@@ -3118,45 +3118,45 @@
      "reward": 60
     }
    ],
-   "demand": "aji",
+   "demand": "unagi",
    "specials": [
-    "prop_crate",
-    "prop_bridge"
+    "prop_workbench",
+    "prop_pot"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 12,
+     "x": 29,
+     "z": 20,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 23,
+     "x": 43,
+     "z": 30,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 8,
+     "x": 27,
+     "z": 41,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 22,
+     "x": 36,
+     "z": 42,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 8,
+     "x": 31,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 19,
+     "x": 40,
+     "z": 30,
      "item": "warabi",
      "taken": false
     }
@@ -3203,45 +3203,45 @@
      "reward": 440
     }
    ],
-   "demand": "tea",
+   "demand": "edamame",
    "specials": [
-    "prop_torii",
+    "prop_well",
     "prop_pot"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 9,
+     "x": 33,
+     "z": 22,
      "item": "wildflower",
      "taken": false
     },
     {
      "x": 24,
-     "z": 25,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 17,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 28,
+     "x": 25,
      "z": 21,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 21,
-     "z": 11,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 11,
-     "z": 19,
+     "x": 41,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 35,
+     "z": 38,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 29,
+     "z": 20,
      "item": "warabi",
      "taken": false
     }
@@ -3284,45 +3284,45 @@
      }
     }
    ],
-   "demand": "saba",
+   "demand": "kingyo",
    "specials": [
-    "prop_minka",
-    "prop_pine"
+    "prop_bridge",
+    "prop_pot"
    ],
    "forage": [
     {
-     "x": 25,
-     "z": 21,
+     "x": 23,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 22,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 16,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 25,
-     "z": 29,
+     "x": 27,
+     "z": 19,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 23,
-     "z": 15,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 7,
+     "x": 39,
+     "z": 29,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 34,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 40,
+     "z": 37,
      "item": "warabi",
      "taken": false
     }
@@ -3365,45 +3365,45 @@
      }
     }
    ],
-   "demand": "rice",
+   "demand": "daikon",
    "specials": [
-    "prop_bamboo",
-    "prop_torii"
+    "prop_toro",
+    "prop_stairs"
    ],
    "forage": [
     {
-     "x": 22,
+     "x": 23,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 30,
+     "z": 36,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 38,
      "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 14,
+     "x": 24,
+     "z": 41,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 25,
-     "z": 11,
+     "x": 28,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 26,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 13,
-     "z": 24,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 18,
-     "z": 24,
+     "x": 38,
+     "z": 33,
      "item": "warabi",
      "taken": false
     }
@@ -3442,45 +3442,45 @@
      "reward": 105
     }
    ],
-   "demand": "ayu",
+   "demand": "koi",
    "specials": [
-    "prop_bamboo",
-    "prop_well"
+    "prop_scarecrow",
+    "prop_toro"
    ],
    "forage": [
     {
-     "x": 19,
-     "z": 23,
+     "x": 30,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 20,
-     "z": 15,
+     "x": 30,
+     "z": 37,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 22,
+     "x": 24,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 28,
+     "x": 21,
+     "z": 29,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 9,
+     "x": 39,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 32,
-     "z": 24,
+     "x": 28,
+     "z": 41,
      "item": "warabi",
      "taken": false
     }
@@ -3523,45 +3523,45 @@
      "reward": 225
     }
    ],
-   "demand": "rice",
+   "demand": "daikon",
    "specials": [
-    "prop_sakura",
-    "prop_bridge"
+    "prop_workbench",
+    "prop_kakei"
    ],
    "forage": [
     {
-     "x": 27,
-     "z": 18,
+     "x": 26,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 30,
-     "z": 20,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 22,
-     "z": 18,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 11,
+     "x": 38,
      "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 27,
+     "x": 35,
+     "z": 20,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 11,
+     "x": 44,
+     "z": 30,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 35,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 31,
      "item": "warabi",
      "taken": false
     }
@@ -3600,45 +3600,45 @@
      "reward": 60
     }
    ],
-   "demand": "tai",
+   "demand": "kintai",
    "specials": [
-    "prop_torii",
-    "prop_pine"
+    "prop_well",
+    "prop_pot"
    ],
    "forage": [
     {
-     "x": 14,
-     "z": 29,
+     "x": 35,
+     "z": 24,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 11,
+     "x": 29,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 25,
+     "x": 22,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 32,
+     "x": 36,
+     "z": 38,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 12,
+     "x": 29,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 9,
+     "x": 26,
+     "z": 20,
      "item": "warabi",
      "taken": false
     }
@@ -3685,45 +3685,45 @@
      }
     }
    ],
-   "demand": "warabi",
+   "demand": "wasabi",
    "specials": [
-    "prop_fence",
-    "prop_minka"
+    "prop_kakei",
+    "prop_torii"
    ],
    "forage": [
     {
-     "x": 25,
-     "z": 21,
+     "x": 28,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 14,
+     "x": 20,
+     "z": 36,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 13,
+     "x": 37,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 25,
-     "z": 29,
+     "x": 42,
+     "z": 30,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 10,
+     "x": 26,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 24,
+     "x": 20,
+     "z": 40,
      "item": "warabi",
      "taken": false
     }
@@ -3766,45 +3766,45 @@
      }
     }
    ],
-   "demand": "aji",
+   "demand": "sakuramasu",
    "specials": [
-    "prop_minka",
-    "prop_bridge"
+    "prop_sakura",
+    "prop_fence"
    ],
    "forage": [
     {
-     "x": 27,
-     "z": 17,
+     "x": 26,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 11,
+     "x": 22,
+     "z": 38,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 25,
+     "x": 21,
+     "z": 34,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 11,
-     "z": 19,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 28,
+     "x": 31,
      "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 33,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 19,
-     "z": 26,
+     "x": 38,
+     "z": 34,
      "item": "warabi",
      "taken": false
     }
@@ -3843,45 +3843,45 @@
      "reward": 225
     }
    ],
-   "demand": "tai",
+   "demand": "ika",
    "specials": [
-    "prop_pot",
-    "prop_pine"
+    "prop_pine",
+    "prop_crate"
    ],
    "forage": [
     {
-     "x": 25,
-     "z": 27,
+     "x": 26,
+     "z": 38,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 37,
+     "z": 35,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 35,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
      "x": 32,
-     "z": 20,
+     "z": 24,
      "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 21,
+     "item": "wildflower",
      "taken": false
     },
     {
      "x": 26,
-     "z": 23,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 16,
-     "z": 9,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 14,
-     "z": 26,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 17,
-     "z": 23,
+     "z": 43,
      "item": "warabi",
      "taken": false
     }
@@ -3924,45 +3924,45 @@
      "reward": 155
     }
    ],
-   "demand": "ika",
+   "demand": "hirame",
    "specials": [
-    "prop_fence",
-    "prop_bridge"
+    "prop_stairs",
+    "prop_workbench"
    ],
    "forage": [
     {
+     "x": 44,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
      "x": 26,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 29,
-     "z": 18,
+     "z": 21,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 18,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 11,
+     "x": 34,
      "z": 22,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 12,
-     "z": 19,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 8,
+     "x": 40,
+     "z": 39,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 40,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 21,
+     "z": 22,
      "item": "warabi",
      "taken": false
     }
@@ -4009,45 +4009,45 @@
      "reward": 140
     }
    ],
-   "demand": "koi",
+   "demand": "aji",
    "specials": [
-    "prop_crate",
-    "prop_well"
+    "prop_pot",
+    "prop_stairs"
    ],
    "forage": [
     {
-     "x": 8,
-     "z": 25,
+     "x": 25,
+     "z": 42,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 29,
-     "z": 24,
+     "x": 38,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 14,
+     "x": 26,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 30,
-     "z": 18,
+     "x": 21,
+     "z": 29,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 30,
+     "x": 20,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 19,
+     "x": 22,
+     "z": 23,
      "item": "warabi",
      "taken": false
     }
@@ -4094,45 +4094,45 @@
      "reward": 95
     }
    ],
-   "demand": "tako",
+   "demand": "kisu",
    "specials": [
-    "prop_crate",
-    "prop_bamboo"
+    "prop_pot",
+    "prop_stairs"
    ],
    "forage": [
     {
-     "x": 31,
-     "z": 19,
+     "x": 32,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 23,
-     "z": 9,
+     "x": 20,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 8,
-     "z": 26,
+     "x": 24,
+     "z": 21,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 9,
+     "x": 24,
+     "z": 42,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 26,
-     "z": 13,
+     "x": 30,
+     "z": 27,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 28,
+     "x": 42,
+     "z": 37,
      "item": "warabi",
      "taken": false
     }
@@ -4175,45 +4175,45 @@
      "reward": 125
     }
    ],
-   "demand": "wildflower",
+   "demand": "wasabi",
    "specials": [
-    "prop_crate",
-    "prop_pot"
+    "prop_pot",
+    "prop_minka"
    ],
    "forage": [
     {
-     "x": 12,
-     "z": 22,
+     "x": 37,
+     "z": 40,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 25,
-     "z": 13,
+     "x": 26,
+     "z": 42,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 17,
+     "x": 30,
+     "z": 19,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 9,
+     "x": 21,
+     "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 29,
+     "x": 35,
+     "z": 43,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 30,
+     "x": 34,
+     "z": 23,
      "item": "warabi",
      "taken": false
     }
@@ -4256,45 +4256,45 @@
      "reward": 165
     }
    ],
-   "demand": "saba",
+   "demand": "namazu",
    "specials": [
-    "prop_torii",
-    "prop_well"
+    "prop_crate",
+    "prop_workbench"
    ],
    "forage": [
     {
-     "x": 28,
-     "z": 17,
+     "x": 45,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 26,
+     "x": 23,
+     "z": 41,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 32,
+     "z": 24,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 39,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 28,
-     "z": 27,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 17,
      "z": 30,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 24,
-     "z": 22,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 27,
+     "x": 42,
+     "z": 30,
      "item": "warabi",
      "taken": false
     }
@@ -4337,45 +4337,45 @@
      }
     }
    ],
-   "demand": "warabi",
+   "demand": "ayu",
    "specials": [
-    "prop_well",
+    "prop_workbench",
     "prop_crate"
    ],
    "forage": [
     {
-     "x": 15,
-     "z": 20,
+     "x": 26,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 15,
+     "x": 37,
+     "z": 37,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 14,
-     "z": 31,
+     "x": 34,
+     "z": 23,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 28,
-     "z": 13,
+     "x": 21,
+     "z": 23,
      "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 15,
-     "z": 25,
-     "item": "wildflower",
      "taken": false
     },
     {
      "x": 24,
-     "z": 25,
+     "z": 32,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 28,
      "item": "warabi",
      "taken": false
     }
@@ -4418,45 +4418,45 @@
      }
     }
    ],
-   "demand": "tea",
+   "demand": "satsuma_imo",
    "specials": [
-    "prop_minka",
-    "prop_torii"
+    "prop_torii",
+    "prop_sakura"
    ],
    "forage": [
     {
-     "x": 11,
-     "z": 27,
+     "x": 35,
+     "z": 33,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 22,
+     "x": 26,
+     "z": 37,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 22,
+     "x": 36,
+     "z": 38,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 17,
+     "x": 25,
+     "z": 32,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 19,
+     "x": 42,
+     "z": 37,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 25,
+     "x": 41,
+     "z": 33,
      "item": "warabi",
      "taken": false
     }
@@ -4499,45 +4499,45 @@
      "reward": 185
     }
    ],
-   "demand": "daikon",
+   "demand": "wildflower",
    "specials": [
-    "prop_bridge",
-    "prop_torii"
+    "prop_pine",
+    "prop_minka"
    ],
    "forage": [
     {
-     "x": 23,
-     "z": 11,
+     "x": 32,
+     "z": 25,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 22,
+     "x": 25,
+     "z": 29,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 15,
-     "z": 18,
+     "x": 31,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 10,
+     "x": 34,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 10,
-     "z": 16,
+     "x": 43,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 27,
-     "z": 18,
+     "x": 36,
+     "z": 29,
      "item": "warabi",
      "taken": false
     }
@@ -4580,45 +4580,45 @@
      "reward": 105
     }
    ],
-   "demand": "rice",
+   "demand": "tea",
    "specials": [
-    "prop_sakura",
-    "prop_toro"
+    "prop_well",
+    "prop_scarecrow"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 15,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
      "x": 24,
-     "z": 19,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 23,
-     "z": 29,
+     "z": 31,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 29,
+     "x": 42,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 29,
-     "z": 18,
+     "x": 21,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 19,
+     "x": 39,
+     "z": 24,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 42,
+     "z": 34,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 28,
+     "z": 39,
      "item": "warabi",
      "taken": false
     }
@@ -4665,45 +4665,45 @@
      "reward": 110
     }
    ],
-   "demand": "warabi",
+   "demand": "ayu",
    "specials": [
-    "prop_sakura",
-    "prop_fence"
+    "prop_torii",
+    "prop_minka"
    ],
    "forage": [
     {
-     "x": 15,
-     "z": 18,
+     "x": 21,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 8,
+     "x": 37,
      "z": 23,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 28,
-     "z": 13,
+     "x": 41,
+     "z": 35,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 16,
-     "z": 30,
+     "x": 24,
+     "z": 31,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 12,
-     "z": 17,
+     "x": 28,
+     "z": 39,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 11,
+     "x": 30,
+     "z": 23,
      "item": "warabi",
      "taken": false
     }
@@ -4750,45 +4750,45 @@
      }
     }
    ],
-   "demand": "daikon",
+   "demand": "tea",
    "specials": [
-    "prop_toro",
-    "prop_sakura"
+    "prop_fence",
+    "prop_well"
    ],
    "forage": [
     {
-     "x": 30,
-     "z": 16,
+     "x": 36,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 13,
-     "z": 17,
+     "x": 39,
+     "z": 28,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 22,
-     "z": 9,
+     "x": 27,
+     "z": 42,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 24,
-     "z": 17,
+     "x": 45,
+     "z": 34,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 22,
+     "x": 40,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 32,
      "z": 25,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 21,
-     "z": 18,
      "item": "warabi",
      "taken": false
     }
@@ -4839,45 +4839,45 @@
      }
     }
    ],
-   "demand": "saba",
+   "demand": "dojo",
    "specials": [
-    "prop_pine",
-    "prop_bamboo"
+    "prop_minka",
+    "prop_bridge"
    ],
    "forage": [
     {
-     "x": 24,
-     "z": 23,
+     "x": 42,
+     "z": 36,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 9,
-     "z": 18,
+     "x": 33,
+     "z": 26,
      "item": "warabi",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 25,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 18,
-     "z": 18,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 31,
+     "x": 39,
      "z": 24,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 17,
-     "z": 13,
+     "x": 38,
+     "z": 36,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 26,
+     "z": 31,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 22,
+     "z": 41,
      "item": "warabi",
      "taken": false
     }
@@ -4920,45 +4920,45 @@
      }
     }
    ],
-   "demand": "saba",
+   "demand": "kingyo",
    "specials": [
     "prop_torii",
-    "prop_well"
+    "prop_kakei"
    ],
    "forage": [
     {
-     "x": 18,
-     "z": 15,
+     "x": 23,
+     "z": 30,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 34,
-     "z": 20,
-     "item": "warabi",
-     "taken": false
-    },
-    {
-     "x": 9,
-     "z": 28,
-     "item": "wildflower",
-     "taken": false
-    },
-    {
-     "x": 22,
-     "z": 31,
+     "x": 39,
+     "z": 40,
      "item": "warabi",
      "taken": false
     },
     {
      "x": 31,
-     "z": 17,
+     "z": 41,
      "item": "wildflower",
      "taken": false
     },
     {
-     "x": 18,
-     "z": 28,
+     "x": 45,
+     "z": 32,
+     "item": "warabi",
+     "taken": false
+    },
+    {
+     "x": 44,
+     "z": 36,
+     "item": "wildflower",
+     "taken": false
+    },
+    {
+     "x": 27,
+     "z": 36,
      "item": "warabi",
      "taken": false
     }
