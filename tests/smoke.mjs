@@ -17,8 +17,9 @@ const log = (...a) => console.log('[smoke]', ...a);
 const srv = await startServer({ root: ROOT, base: '/rokugan-cozy-village/' });
 const browser = await launchChrome();
 let ok = false;
+let page;
 try {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   page.on('console', (m) => { if (m.type() === 'error') errors.push(`console.error: ${m.text()}`); });
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   page.on('requestfailed', (r) => errors.push(`requestfailed: ${r.url()}`));
@@ -30,6 +31,16 @@ try {
   await page.reload();
   await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 5, null, { timeout: 120000 });
   const G = (fn, arg) => page.evaluate(fn, arg);
+  /** Wait until the follow-camera has stopped moving (screen positions are stable). */
+  const settled = async () => {
+    let prev = null;
+    for (let i = 0; i < 60; i++) {
+      const p = await G(() => __game.tileToScreen(20, 20));
+      if (prev && Math.hypot(p.x - prev.x, p.y - prev.y) < 0.5) return;
+      prev = p;
+      await page.waitForTimeout(250);
+    }
+  };
 
   // welcome card is shown on a new game; close it
   assert.equal(await G(() => !document.getElementById('help').classList.contains('hidden')), true, 'welcome card visible');
@@ -54,7 +65,7 @@ try {
   const target = await G(() => {
     const g = __game.game, c = g.playerCell();
     for (let r = 2; r < 6; r++) for (const [dx, dz] of [[-r, 0], [0, -r], [r, 0], [0, r]]) {
-      if (g.walkable(c.x + dx, c.z + dz) && !g.props.at(c.x + dx, c.z + dz) && !g.crop(c.x + dx, c.z + dz)) return { x: c.x + dx, z: c.z + dz };
+      if (g.walkable(c.x + dx, c.z + dz) && !g.props.at(c.x + dx, c.z + dz) && !g.crop(c.x + dx, c.z + dz) && !g.daily.forageAt(c.x + dx, c.z + dz)) return { x: c.x + dx, z: c.z + dz };
     }
     return null;
   });
@@ -118,7 +129,7 @@ try {
   const field = await G(() => {
     const g = __game.game;
     for (const [x, z] of [[15, 27], [15, 28], [10, 26], [10, 27], [15, 26], [12, 25]]) {
-      if (g.world.get(x, z) === 1 && !g.props.at(x, z)) return { x, z };
+      if (g.world.get(x, z) === 1 && !g.props.at(x, z) && !g.daily.forageAt(x, z)) return { x, z };
     }
     return null;
   });
@@ -143,6 +154,25 @@ try {
   await page.waitForFunction((n) => __game.game.count('daikon') > n, daikonBefore, { timeout: 30000 });
   log('harvested daikon');
 
+  // ---- sweep: drag the mouse along the empty bottom row of the field -> plants each tile
+  await page.waitForFunction(() => !__game.game.isBusy() && !__game.game.player.moving, null, { timeout: 30000 });
+  await settled();
+  const seeds0 = await G(() => __game.game.count('seed_rice'));
+  const row = await G(() => [11, 12, 13, 14].map((x) => __game.tileToScreen(x, 28)));
+  await page.mouse.move(row[0].x, row[0].y);
+  await page.mouse.down();
+  for (let i = 1; i <= 12; i++) { const k = i / 12; await page.mouse.move(row[0].x + (row[3].x - row[0].x) * k, row[0].y + (row[3].y - row[0].y) * k); await page.waitForTimeout(30); }
+  await page.mouse.up();
+  const expected = Math.min(seeds0, 4);
+  await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x, 28)).length >= n, expected, { timeout: 60000 });
+  log(`sweep planted ${expected} tiles`);
+
+  // ---- real-time growth: skip the clock 40 min -> the new rice is ripe (watered one sooner)
+  assert.ok(await G(() => __game.game.timeToRipe(__game.game.crop(11, 28)) > 30 * 60e3), 'rice takes ~36 min');
+  await G(() => __game.skip(40 * 60e3));
+  assert.equal(await G(() => __game.game.stage(__game.game.crop(11, 28))), 3, 'rice ripe after 40 minutes');
+  log('time skip ripened the rice');
+
   // ---- fishing: click a nearby water tile with the rod, wait for the bite, press Space
   await page.keyboard.press('Digit4');
   const water = await G(() => {
@@ -158,6 +188,8 @@ try {
   });
   let caught = false;
   for (let attempt = 1; attempt <= 4 && !caught; attempt++) {
+    // a Space that arrived after the fish got away starts a new cast; clear it so the click casts
+    await G(() => __game.game.cancelFishing());
     const before = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
     s = await G((t) => __game.tileToScreen(t.x, t.z, -0.32), water);
     await page.mouse.click(s.x, s.y);
@@ -178,26 +210,90 @@ try {
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(SCREENS, '04-catch.png') });
 
-  // ---- sell at the merchant + save round trip
+  // ---- sell at the merchant
   await G(() => __game.ui.openShop());
   await page.click('.btn.big');
-  const money = await G(() => __game.game.money);
-  log('koku after selling', money);
+  log('koku after selling', await G(() => __game.game.money));
   await G(() => __game.ui.closeModal());
+
+  // ---- daily requests: Today sheet (T), finish one, claim it
+  await page.keyboard.press('KeyT');
+  await page.waitForFunction(() => __game.ui.modal === 'today', null, { timeout: 5000 });
+  assert.equal(await page.locator('#panel .req').count(), 3, 'three requests today');
+  const req = await G(() => { const d = __game.game.daily, r = d.state.requests.find((q) => q.kind !== 'deliver'); r.have = r.n; __game.ui.refresh(); return { i: d.state.requests.indexOf(r), reward: r.reward }; });
+  const m0 = await G(() => __game.game.money);
+  await page.click(`#panel .req[data-req="${req.i}"] .claim`);
+  await page.waitForFunction((m) => __game.game.money === m, m0 + req.reward, { timeout: 5000 });
+  log('claimed a request for', req.reward, 'koku');
+  await page.keyboard.press('KeyT');
+
+  // ---- a new day: skip a day -> fresh requests, wild greens and a "welcome back" card
+  const day0 = await G(() => __game.game.daily.key);
+  await G(() => { const a = __game.skip(24 * 3600e3); __game.ui.openToday(a); });
+  assert.notEqual(await G(() => __game.game.daily.key), day0, 'day rolled over');
+  await page.waitForSelector('#panel .away', { timeout: 5000 });
+  assert.ok(await G(() => __game.game.daily.forageLeft()) > 0, 'wild greens spawned');
+  await page.screenshot({ path: path.join(SCREENS, '05-today.png') });
+  await G(() => __game.ui.closeModal());
+
+  // ---- save v2 + reload round trip
+  const money = await G(() => __game.game.money);
   await G(() => __game.game.save());
   const saved = await G(() => JSON.parse(localStorage.getItem('rokugan-cozy-village/save/v1')));
-  assert.ok(saved && saved.props.length > 10 && saved.farm.length > 0, 'saved to localStorage');
+  assert.ok(saved && saved.v === 2 && saved.props.length > 10 && saved.farm.length > 0 && saved.daily?.requests?.length === 3, 'saved v2 to localStorage');
   assert.ok(!JSON.stringify(saved).match(/stamina|energy|fatigue/i), 'no energy system in the save');
   await page.reload();
   await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2, null, { timeout: 120000 });
   assert.equal(await G(() => __game.game.money), money, 'money restored from save');
   assert.equal(await G(() => document.getElementById('help').classList.contains('hidden')), true, 'no welcome card when loading a save');
 
+  // ---- backup code -> restore round trip
+  await G(() => __game.ui.openBackup());
+  await page.waitForSelector('#panel textarea.code[data-ready="1"]', { timeout: 10000 });
+  const code = await page.locator('#panel textarea.code').inputValue();
+  assert.match(code, /^RCV2z?:/, 'backup code');
+  await G(() => { __game.game.money = 7; __game.game.save(); __game.ui.closeModal(); __game.ui.openRestore(); });
+  await page.fill('#panel textarea.code', code);
+  await page.click('#panel .restore');
+  await page.click('#dialog .dlg-ok');
+  await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2 && __game.game.money !== 7, null, { timeout: 120000 });
+  assert.equal(await G(() => __game.game.money), money, 'village restored from the backup code');
+  log('backup code restored', code.length, 'chars');
+
+  // ---- an old v1 save still loads (crop growth converted to stages)
+  await G(() => {
+    __game.game.frozen = true;
+    const s = JSON.parse(localStorage.getItem('rokugan-cozy-village/save/v1'));
+    const v1 = { ...s, v: 1, farm: [{ type: 'rice', x: 11, z: 26, growth: 150000, last: Date.now(), wet: false }] };
+    delete v1.daily; delete v1.timeOffset; delete v1.stats;
+    localStorage.setItem('rokugan-cozy-village/save/v1', JSON.stringify(v1));
+    localStorage.removeItem('rokugan-cozy-village/save/backup');
+  });
+  await page.reload();
+  await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2, null, { timeout: 120000 });
+  assert.equal(await G(() => __game.game.stage(__game.game.crop(11, 26))), 2, 'v1 crop migrated (2.5 of 3 stages)');
+  log('v1 save migrated');
+
+  // ---- offline: the service worker serves the cached game
+  await page.waitForFunction(() => navigator.serviceWorker?.controller, null, { timeout: 20000 });
+  assert.deepEqual(errors, [], 'no console/page errors before going offline');
+  await page.context().setOffline(true);
+  await page.reload();
+  await page.waitForFunction(() => window.__game?.ready && window.__game.frames > 2, null, { timeout: 120000 });
+  await page.context().setOffline(false);
+  log('loaded offline from the service worker cache');
+
   assert.deepEqual(errors, [], 'no console/page errors');
   ok = true;
 } catch (e) {
   console.error('[smoke] FAILED:', e.message);
   if (errors.length) console.error('[smoke] errors:', errors);
+  const state = await page?.evaluate(() => ({
+    toasts: [...document.querySelectorAll('.toast')].map((t) => t.textContent),
+    player: __game.game.playerCell(), busy: __game.game.isBusy(), queue: __game.game.queue.map((a) => `${a.kind}@${a.t.x},${a.t.z}`),
+  })).catch(() => null);
+  if (state) console.error('[smoke] state:', JSON.stringify(state));
+  await page?.screenshot({ path: path.join(SCREENS, 'smoke-fail.png') }).catch(() => {});
 } finally {
   await browser.close();
   await srv.close();

@@ -38,10 +38,15 @@ export class PostFX {
         uRes: { value: new THREE.Vector2(size.x, size.y) },
         uEdge: { value: 1.0 },
         uTime: { value: 0 },
+        // time-of-day grade (driven by Daylight)
+        uTint: { value: new THREE.Vector3(1, 1, 1) },
+        uExposure: { value: 1 },
+        uSat: { value: 1.06 },
+        uNight: { value: 0 },
       },
       vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
       fragmentShader: /* glsl */`
-uniform sampler2D tColor, tDepth, tPaper; uniform vec2 uRes; uniform float uEdge, uTime;
+uniform sampler2D tColor, tDepth, tPaper; uniform vec2 uRes; uniform float uEdge, uTime, uExposure, uSat, uNight; uniform vec3 uTint;
 varying vec2 vUv;
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float D(vec2 uv){ return texture2D(tDepth, uv).x; }
@@ -65,11 +70,13 @@ void main(){
   col.rgb *= 1.0 + (paper - 0.5) * 0.16 + grain * 0.035;
   // warm grade: lift shadows toward warm brown, slight saturation
   float l = dot(col.rgb, vec3(0.299, 0.587, 0.114));
-  col.rgb = mix(vec3(l), col.rgb, 1.06);
+  col.rgb = mix(vec3(l), col.rgb, uSat);
   col.rgb = col.rgb * 0.95 + vec3(0.03, 0.022, 0.012);
-  // vignette
+  // time of day: tint + exposure (lantern glows are HDR, so they stay bright at night)
+  col.rgb *= uTint * uExposure;
+  // vignette, a little deeper at night
   vec2 v = vUv - 0.5;
-  col.rgb *= mix(1.0, 0.8, smoothstep(0.35, 0.85, length(v * vec2(1.1, 1.0))));
+  col.rgb *= mix(1.0, mix(0.8, 0.66, uNight), smoothstep(0.35, 0.85, length(v * vec2(1.1, 1.0))));
   gl_FragColor = vec4(col.rgb, 1.0);
   #include <colorspace_fragment>
 }`,

@@ -7,6 +7,20 @@ import { Game } from './game/game.js';
 import { UI } from './game/ui.js';
 import { W, H } from './game/world.js';
 import { setupInput } from './game/input.js';
+import { Daylight } from './render/daylight.js';
+import { Sound } from './audio/sound.js';
+import { MIN, clockText } from './game/clock.js';
+
+const params = new URLSearchParams(location.search);
+
+// Offline + installable: cache the game after the first visit (?nosw to opt out).
+if ('serviceWorker' in navigator && !params.has('nosw')) {
+  navigator.serviceWorker.register('./sw.js').catch(() => { /* file:// or blocked */ });
+}
+// Ask the browser not to evict the village when storage gets tight / after a long break.
+navigator.storage?.persist?.().catch(() => {});
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; if (window.__game) window.__game.ui.installPrompt = e; });
 
 const canvas = document.getElementById('game');
 const loading = document.getElementById('loading');
@@ -59,6 +73,7 @@ const view = {
     lastPan = performance.now();
   },
   get panOffset() { return panOffset; },
+  hold: false, // true while sweeping the field: the world must not slide under the finger
 };
 updateCamera();
 
@@ -73,7 +88,6 @@ sun.shadow.bias = -0.0006;
 sun.shadow.normalBias = 0.03;
 sun.shadow.radius = 3;
 scene.add(sun, sun.target);
-const SUN_OFFSET = new THREE.Vector3(-9, 18, 5);
 
 const post = new PostFX(renderer);
 
@@ -89,20 +103,62 @@ resize();
 
 // ------------------------------------------------------------------ boot
 const painted = await loadPaintedAssets((p) => (bar.style.width = `${Math.round(p * 100)}%`));
+const sound = new Sound();
 const ui = new UI(painted);
-const game = new Game({ scene, painted, ui });
+ui.sound = sound;
+ui.installPrompt = installPrompt;
+const game = new Game({ scene, painted, ui, sound });
 const firstVisit = !Game.hasSave() || !game.load();
 if (firstVisit) game.newGame();
 ui.attach(game);
 ui.onZoom = (d) => view.setZoom(zoom * (d > 0 ? 1.15 : 1 / 1.15));
 if (firstVisit) ui.showHelp();
+else if (game.away) { ui.openToday(game.away); game.away = null; }
 camTarget.copy(game.player.pos);
 placeCamera();
 const input = setupInput({ canvas, camera, game, ui, view });
 ui.toScreen = input.toScreen;
+const daylight = new Daylight({ scene, sun, hemi, post, game });
+if (params.has('hour')) daylight.override = Number(params.get('hour'));
+daylight.update(game.now());
 
-document.addEventListener('visibilitychange', () => { if (document.hidden) game.save(); });
+// audio may only start from a user gesture
+for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => sound.unlock(), { capture: true, passive: true });
+
+// leaving: save; coming back after a while (phone app resumed): catch up and show what happened
+let hidden = null;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { game.save(); hidden = { at: game.now(), farm: game.farmSnapshot() }; return; }
+  if (!hidden) return;
+  const away = game.resume(hidden.at, hidden.farm);
+  hidden = null;
+  if (away && !ui.modalOpen()) ui.openToday(away);
+});
 window.addEventListener('pagehide', () => game.save());
+
+// ?dev: a little panel to jump the clock forward (crops, days) and preview times of day
+if (params.has('dev')) {
+  const dev = document.createElement('div');
+  dev.id = 'dev';
+  dev.innerHTML = '<b></b><button data-skip="600000">+10m</button><button data-skip="3600000">+1h</button><button data-skip="86400000">+1d</button><button data-hour="cycle">☀/☾</button>';
+  document.body.appendChild(dev);
+  const label = dev.querySelector('b');
+  const show = () => { label.textContent = `${clockText(game.now())}${game.timeOffset ? ` (+${Math.round(game.timeOffset / MIN)}m)` : ''}${daylight.override != null ? ` · ${daylight.override}h` : ''}`; };
+  dev.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.skip) {
+      const away = game.skipTime(Number(b.dataset.skip));
+      if (away) ui.openToday(away);
+    } else {
+      const hours = [null, 6, 9, 13, 17.8, 19.2, 21, 1];
+      daylight.override = hours[(hours.indexOf(daylight.override) + 1) % hours.length];
+    }
+    show();
+  });
+  show();
+  setInterval(show, 5000);
+}
 
 // ------------------------------------------------------------------ loop
 const clock = new THREE.Clock();
@@ -111,13 +167,15 @@ function frame() {
   const dt = Math.min(clock.getDelta(), 0.1);
   t += dt;
   game.update(dt, t);
+  daylight.update(game.now());
+  sound.update(daylight.night);
   // two-finger / build-mode pan drifts back to the player once they walk (or after a while)
   const idlePan = performance.now() - lastPan > (game.mode === 'build' ? 1e9 : 4000);
   if ((game.player.moving && game.mode === 'play') || idlePan) panOffset.multiplyScalar(Math.exp(-dt * 3));
-  camTarget.lerp(new THREE.Vector3().copy(game.player.pos).add(panOffset), 1 - Math.exp(-dt * 6));
+  if (!view.hold) camTarget.lerp(new THREE.Vector3().copy(game.player.pos).add(panOffset), 1 - Math.exp(-dt * 6));
   placeCamera();
   sun.target.position.copy(camTarget);
-  sun.position.copy(camTarget).add(SUN_OFFSET);
+  sun.position.copy(camTarget).add(daylight.sunOffset);
   game.particles.mat.uniforms.uScale.value = renderer.getPixelRatio() * (viewH() / 800) * (11 / (camera.top - camera.bottom));
   post.render(scene, camera, t);
   ui.update(camera, game.player.pos.clone().add(new THREE.Vector3(0, 1.45, 0)), canvas, dt);
@@ -130,10 +188,12 @@ setTimeout(() => loading.remove(), 800);
 
 // test / debug hook
 window.__game = {
-  game, ui, camera, renderer, scene,
+  game, ui, camera, renderer, scene, daylight, sound,
+  skip: (ms) => game.skipTime(ms),
   get frames() { return frames; },
   view,
   tileAt: (x, y) => input.pick(x, y).tile,
+  input: input.debug,
   pick: input.pick,
   ready: true,
   tileToScreen(x, z, y = 0) {

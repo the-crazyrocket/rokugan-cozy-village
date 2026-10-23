@@ -7,6 +7,12 @@
 <meta name="format-detection" content="telephone=no">
 <title>Rokugan Cozy Village</title>
 <meta name="description" content="A cosy hand-painted isometric village sandbox in Rokugan: farm, fish, decorate.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Village">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='8' width='22' height='4' fill='%23c8452f'/%3E%3Crect x='3' y='5' width='26' height='3' fill='%232a2420'/%3E%3Crect x='8' y='8' width='3' height='20' fill='%23c8452f'/%3E%3Crect x='21' y='8' width='3' height='20' fill='%23c8452f'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./style.css">
 <script type="importmap">
@@ -21,6 +27,7 @@
 
 <div id="hud-top">
   <div class="purse-box"><span class="coin"></span><b id="koku">0</b><small>koku</small></div>
+  <button id="btn-today" class="clock-pill" title="Today" aria-label="Today"><span class="sky"></span><b id="clock"></b><span id="today-dot" class="hidden"></span></button>
   <div id="mode-label"></div>
   <div class="top-buttons">
     <button id="btn-zoom-in" title="Zoom in">＋</button>
@@ -62,11 +69,12 @@
 <div id="help" class="hidden">
   <div class="card">
     <div class="card-head"><h2>Welcome to the village</h2><button id="help-close" class="close">✕</button></div>
-    <p>A quiet island in Rokugan. Grow rice, daikon and tea, fish in the river and the sea, and decorate as you like. There is no energy bar — take your time.</p>
+    <p>A quiet island in Rokugan that follows your real clock. Grow daikon (minutes), rice (half an hour) and tea (a few hours), fish in the river and the sea, find wild greens and help Hana with her daily requests. There is no energy bar and nothing withers — take your time.</p>
     <ul class="controls help-touch">
       <li><b>Drag</b> anywhere to walk — a little stick appears under your finger</li>
       <li><b>Tap</b> things to do the obvious: ripe crops get harvested, dry ones watered, soil gets seeds, water to fish, Hana to shop</li>
-      <li>Tap several things in a row — they're done in turn</li>
+      <li><b>Swipe across your field</b> to harvest, water or plant every tile you pass over</li>
+      <li>Tap the <b>clock</b> for today's requests and what's ready</li>
       <li><b>Pinch</b> to zoom · <b>two fingers</b> to look around · <b>hold</b> to inspect</li>
       <li>Fishing: when the <b>!</b> pops up, tap anywhere (or <b>Reel!</b>)</li>
       <li>Build: pick a decoration, tap to preview, drag it, tap again or ✓ to place · tap a placed one to move / rotate / store</li>
@@ -75,10 +83,16 @@
       <li><kbd>WASD</kbd>/<kbd>Arrows</kbd> walk · <b>click/tap</b> to walk or use a tool on a tile</li>
       <li><kbd>1</kbd>–<kbd>7</kbd> hand, hoe, watering can, rod, seeds · <kbd>Space</kbd>/<kbd>E</kbd> use tool</li>
       <li><kbd>B</kbd> build mode · <kbd>R</kbd> rotate · click to place / pick up</li>
-      <li><kbd>I</kbd> bag · talk to Hana at the stall to sell and buy · mouse wheel to zoom</li>
+      <li><kbd>I</kbd> bag · <kbd>T</kbd> today · talk to Hana at the stall to sell and buy · mouse wheel to zoom</li>
+      <li>Drag the mouse across your field to harvest / water / plant every tile</li>
       <li>Fishing: face water with the rod, press <kbd>Space</kbd> when the <b>!</b> appears</li>
     </ul>
-    <p class="muted">Progress is saved automatically in this browser. <button id="btn-reset" class="link">Start a new village</button></p>
+    <div class="settings">
+      <div class="set-row"><button id="set-music" class="btn toggle">Music on</button><button id="set-sfx" class="btn toggle">Sounds on</button><button id="btn-install" class="btn hidden">Install app</button></div>
+      <div class="set-row"><button id="btn-export" class="btn">Back up village</button><button id="btn-import" class="btn">Restore</button></div>
+      <p id="storage-note" class="muted"></p>
+    </div>
+    <p class="muted">Progress is saved automatically. <button id="btn-reset" class="link">Start a new village</button></p>
   </div>
 </div>
 

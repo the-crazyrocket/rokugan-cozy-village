@@ -1,16 +1,18 @@
 // Input: keyboard, mouse and touch gestures + screen -> tile picking.
 //
 // Touch (per pointer id):
-//   tap        < 10 px movement and < 400 ms        -> smart context action
+//   tap        < 10 px movement, released before the hold -> smart context action
 //   long-press < 10 px, held >= 500 ms              -> inspect (play) / prop menu (build)
 //   drag       >= 10 px                             -> floating joystick (play), camera pan or
-//                                                      ghost drag (build)
+//                                                      ghost drag (build); starting on the
+//                                                      field: sweep (harvest/water/plant each tile)
 //   2 fingers  any time                             -> pinch zoom + two-finger pan
-// Mouse: click = smart action / build, hover = cursor, wheel = zoom.
+// Mouse: click = smart action / build, drag across the field = sweep, hover = cursor, wheel = zoom.
 import * as THREE from 'three';
 import { CROPS, PROPS, RIPE } from './data.js';
 import { TREE_CANOPIES } from '../assets/blockouts.js';
 import { WATER_Y } from '../render/ground.js';
+import { T } from './world.js';
 
 const TAP_SLOP = 10;
 const TAP_MS = 400;
@@ -19,6 +21,7 @@ const JOY_DEAD = 10;
 const JOY_FULL = 50;
 const GHOST_LIFT = 70; // px: dragged build preview sits above the finger
 const SNAP_PX = 28;
+const SWEEP_STEP_PX = 10; // fast swipes are sampled along the segment so no tile is skipped
 
 export function setupInput({ canvas, camera, game, ui, view }) {
   const raycaster = new THREE.Raycaster();
@@ -136,6 +139,7 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     else if (e.code === 'KeyB') { ui.closeModal(); game.toggleBuild(); }
     else if (e.code === 'KeyR') game.rotate();
     else if (e.code === 'KeyI') (ui.modal === 'bag' ? ui.closeModal() : ui.openBag());
+    else if (e.code === 'KeyT') (ui.modal === 'today' ? ui.closeModal() : ui.openToday());
     else if (e.code === 'Escape') {
       if (ui.dialogOpen()) ui.closeDialog(false);
       else if (ui.modalOpen()) ui.closeModal();
@@ -148,7 +152,7 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     }
   });
   window.addEventListener('keyup', (e) => game.setKey(e.code, false));
-  window.addEventListener('blur', () => { game.keys.clear(); endJoystick(); });
+  window.addEventListener('blur', () => { game.keys.clear(); endJoystick(); view.hold = false; });
 
   // ------------------------------------------------------------------ pointers
   const pointers = new Map();
@@ -159,17 +163,22 @@ export function setupInput({ canvas, camera, game, ui, view }) {
   function startPinch() {
     if (g?.timer) clearTimeout(g.timer);
     endJoystick();
+    view.hold = false;
     const [a, b] = [...pointers.values()];
     g = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: view.getZoom(), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
     ui.closePropMenu();
   }
 
+  const trace = []; // last few gesture outcomes (debug hook for tests)
+  const note = (o) => { trace.push(o); if (trace.length > 8) trace.shift(); };
+
   function onTap(x, y, touch) {
     ui.ripple(x, y);
-    if (ui.modalOpen() || ui.dialogOpen()) return;
+    if (ui.modalOpen() || ui.dialogOpen()) { note({ tap: 'modal' }); return; }
     ui.closeSeedPicker();
     if (game.fishing) { game.reel(); return; }
     const pk = pick(x, y, { fuzzy: touch });
+    note({ tap: pk.tile, x: Math.round(x), y: Math.round(y) });
     if (game.mode === 'build') {
       if (!touch) {
         // desktop: click places / picks up directly
@@ -204,6 +213,34 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     else ui.toast('Tap a decoration to move, rotate or store it — or pick one below.');
   }
 
+  /** Does a drag starting here sweep the field instead of walking? */
+  // A fence or tree in front of the field can cover its tiles on screen, so a
+  // sweep also considers the ground tile under the finger, not just what's picked.
+  const isField = (t) => !!t && (!!game.crop(t.x, t.z) || game.world.get(t.x, t.z) === T.SOIL);
+
+  function onField(x, y) {
+    if (game.mode !== 'play' || game.fishing || ui.modalOpen()) return false;
+    const pk = pick(x, y);
+    return isField(pk.tile) || isField(pk.ground);
+  }
+
+  function sweepAt(x, y) {
+    const pk = pick(x, y);
+    for (const t of [pk.tile, pk.ground]) {
+      if (!isField(t)) continue;
+      const k = t.z * 1000 + t.x;
+      if (g.visited.has(k)) return;
+      g.visited.add(k);
+      if (game.sweepTile(t)) { ui.ripple(x, y); game.haptic(6); }
+      return;
+    }
+  }
+
+  function sweepTo(x, y) {
+    const d = Math.hypot(x - g.lx, y - g.ly), n = Math.max(1, Math.ceil(d / SWEEP_STEP_PX));
+    for (let i = 1; i <= n; i++) sweepAt(g.lx + ((x - g.lx) * i) / n, g.ly + ((y - g.ly) * i) / n);
+  }
+
   function onLongPress(x, y) {
     const pk = pick(x, y, { fuzzy: true });
     ui.ripple(x, y, true);
@@ -225,7 +262,7 @@ export function setupInput({ canvas, camera, game, ui, view }) {
       game.reel(); g = { type: 'dead', id: e.pointerId }; return;
     }
     // timings use the events' own timestamps: a slow frame must not turn a tap into a hold
-    g = { type: 'pending', id: e.pointerId, touch, x0: e.clientX, y0: e.clientY, lx: e.clientX, ly: e.clientY, t0: e.timeStamp };
+    g = { type: 'pending', id: e.pointerId, touch, x0: e.clientX, y0: e.clientY, lx: e.clientX, ly: e.clientY, t0: e.timeStamp, field: onField(e.clientX, e.clientY) };
     if (touch) {
       const gg = g;
       g.timer = setTimeout(() => {
@@ -257,7 +294,13 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
     if (g.type === 'pending' && Math.hypot(dx, dy) >= TAP_SLOP) {
       clearTimeout(g.timer);
-      if (!g.touch) { g.type = 'mousedrag'; }
+      if (g.field && game.mode === 'play') {
+        g.type = 'sweep'; g.visited = new Set();
+        view.hold = true;
+        ui.closePropMenu(); ui.closeSeedPicker();
+        sweepAt(g.x0, g.y0);
+        g.lx = g.x0; g.ly = g.y0;
+      } else if (!g.touch) { g.type = 'mousedrag'; }
       else if (game.mode === 'build') {
         g.type = inGhost(groundTile(g.x0, g.y0)) ? 'ghost' : 'pan';
         ui.closePropMenu();
@@ -275,6 +318,8 @@ export function setupInput({ canvas, camera, game, ui, view }) {
       const m = len < JOY_DEAD ? 0 : Math.min(1, 0.3 + 0.7 * (len - JOY_DEAD) / (JOY_FULL - JOY_DEAD));
       game.setAnalog(m ? { x: vx / len, y: vy / len, m } : null);
       ui.joystick({ ox: g.ox, oy: g.oy, x: e.clientX, y: e.clientY });
+    } else if (g.type === 'sweep') {
+      sweepTo(e.clientX, e.clientY);
     } else if (g.type === 'pan') {
       view.pan(e.clientX - g.lx, e.clientY - g.ly);
     } else if (g.type === 'ghost') {
@@ -294,10 +339,16 @@ export function setupInput({ canvas, camera, game, ui, view }) {
     else if (e.pointerId === g.id) {
       clearTimeout(g.timer);
       const dt = e.timeStamp - g.t0;
-      // 'long' with a short real duration = the hold timer fired during a stalled frame
-      const isTap = (g.type === 'pending' || (g.type === 'long' && dt < TAP_MS)) && !cancelled && (dt < TAP_MS || !g.touch);
+      // No dead zone between tap and long-press: released before the hold fired = tap.
+      // 'long' with a short real duration = the hold timer fired during a stalled frame;
+      // 'pending' with a long real duration = the timer was starved, so it's a hold after all.
+      const starved = g.type === 'pending' && g.touch && dt >= LONG_MS;
+      const isTap = !cancelled && ((g.type === 'pending' && !starved) || (g.type === 'long' && dt < TAP_MS));
+      note({ release: g.type, dt: Math.round(dt), cancelled, isTap, ev: e.type });
       if (isTap) onTap(e.clientX, e.clientY, g.touch);
+      else if (starved && !cancelled) onLongPress(g.x0, g.y0);
       if (g.type === 'joy') endJoystick();
+      if (g.type === 'sweep') view.hold = false;
       if (g.type === 'ghost') ui.refresh();
       g = { type: 'dead' };
     }
@@ -312,7 +363,7 @@ export function setupInput({ canvas, camera, game, ui, view }) {
   for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); view.setZoom(view.getZoom() * (e.deltaY > 0 ? 1.12 : 1 / 1.12)); }, { passive: false });
 
-  return { pick, groundTile, toScreen };
+  return { pick, groundTile, toScreen, debug: () => ({ pointers: [...pointers.keys()], gesture: g?.type ?? null, trace }) };
 }
 
 function cheb(a, b) { return Math.max(Math.abs(a.x - b.x), Math.abs(a.z - b.z)); }

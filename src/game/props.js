@@ -44,6 +44,7 @@ export class PropManager {
     this.bridge = new Uint8Array(W * H); // walkable deck over water
     this.geos = {};
     this.mats = {};
+    this.version = 0; // bumped on every add/remove (lantern glows etc. resync)
     this.onChange = () => {};
   }
 
@@ -108,6 +109,7 @@ export class PropManager {
     this.group.add(mesh);
     prop.mesh = mesh;
     this.list.push(prop);
+    this.version++;
     this.onChange();
     return prop;
   }
@@ -119,6 +121,7 @@ export class PropManager {
     }
     this.group.remove(prop.mesh);
     this.list = this.list.filter((p) => p !== prop);
+    this.version++;
     this.onChange();
   }
 

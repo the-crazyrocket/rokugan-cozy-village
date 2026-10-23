@@ -1,0 +1,16 @@
+{
+  "name": "Rokugan Cozy Village",
+  "short_name": "Village",
+  "description": "A cosy hand-painted island village in Rokugan: farm, fish, forage and decorate on your own clock.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4ead2",
+  "theme_color": "#2f6f8f",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -3,8 +3,11 @@
 import * as THREE from 'three';
 import { World, W, H, T, hash2 } from './world.js';
 import { PropManager, Ghost, propCells } from './props.js';
-import { ITEMS, PROPS, CROPS, RIPE, FISH, HOTBAR, START_INVENTORY, START_MONEY } from './data.js';
+import { ITEMS, PROPS, CROPS, RIPE, FISH, FORAGE, HOTBAR, START_INVENTORY, START_MONEY, SELLABLE_KINDS } from './data.js';
 import { findPath } from './pathfind.js';
+import { Daily } from './daily.js';
+import { SAVE_VERSION, readSave, writeSave, hasSave, clearSave } from './save.js';
+import { MIN, duration } from './clock.js';
 import { Ground, WATER_Y } from '../render/ground.js';
 import { BillboardLayer, BlobShadows } from '../render/vegetation.js';
 import { buildCharacter, animateCharacter } from '../render/character.js';
@@ -12,21 +15,25 @@ import { makeBrushMaterial } from '../render/materials.js';
 import { Particles } from '../render/particles.js';
 import { PALETTE } from '../assets/palette.js';
 
-const SAVE_KEY = 'rokugan-cozy-village/save/v1';
 const SPEED = 3.6;
 const RADIUS = 0.24;
 const DIRS = { up: [-1, -1], down: [1, 1], left: [-1, 1], right: [1, -1] }; // screen -> world (camera at +x+z)
 const SIN_EL = Math.sin((35.264 * Math.PI) / 180); // screen-vertical foreshortening of the ground
-const ACTIONS = new Set(['shop', 'harvest', 'water', 'plant', 'till', 'fish']);
-const QUEUE_MAX = 8;
+const ACTIONS = new Set(['shop', 'harvest', 'water', 'plant', 'till', 'fish', 'forage']);
+const SWEEP_KINDS = new Set(['harvest', 'water', 'plant', 'forage']);
+const QUEUE_MAX = 24; // a swipe across a whole field queues one action per tile
+const AWAY_MS = 10 * MIN; // gone at least this long -> "while you were away" summary
 const cheb = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.z - b.z));
 
 export class Game {
-  constructor({ scene, painted, ui, now = () => Date.now() }) {
+  constructor({ scene, painted, ui, now = () => Date.now(), sound = null }) {
     this.scene = scene;
     this.painted = painted;
     this.ui = ui;
-    this.now = now;
+    this.sound = sound;
+    // real local time, plus an offset that only the dev time-skip changes
+    this.timeOffset = 0;
+    this.now = () => now() + this.timeOffset;
     this.world = new World();
     this.ground = new Ground(this.world, painted.sheets);
     scene.add(this.ground.group);
@@ -38,6 +45,9 @@ export class Game {
     this.blobs = new BlobShadows(400);
     scene.add(this.veg.mesh, this.cropLayer.mesh, this.canopy.mesh, this.blobs.mesh);
     this.particles = new Particles(scene);
+    for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
+      if (this.world.isLand(x, z) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => this.world.isFresh(x + dx, z + dz))) this.particles.fireflySources.push({ x, z });
+    }
 
     this.farm = new Map(); // tile index -> crop
     this.wetSoil = new Map(); // tile index -> wet until (ms) for empty soil
@@ -58,6 +68,10 @@ export class Game {
     this.touchInput = false; // last input came from a touch screen
     this.buildCursor = null; // touch build preview tile
     this.moving = null; // prop being moved (touch build mode), restored on cancel
+    this.daily = new Daily(this);
+    this.stats = { harvested: {}, caught: {}, foraged: {}, requests: 0, earned: 0 };
+    this.away = null; // summary of what happened since the last visit (shown once)
+    this.sparkleT = 0;
 
     this.player = {
       pos: new THREE.Vector3(17.5, 0, 22.5), facing: Math.PI * 0.25, path: null, pending: null,
@@ -154,34 +168,43 @@ export class Game {
     // starter field
     const t0 = this.now();
     for (let x = 11; x <= 14; x++) for (let z = 26; z <= 28; z++) this.world.set(x, z, T.SOIL);
+    // progress is in stages; the starter field has some ready, some growing
     const crop = (type, x, z, stage) => {
-      this.farm.set(z * W + x, { type, x, z, growth: stage * CROPS[type].stageMs + 1000, last: t0, wet: false });
+      this.farm.set(z * W + x, { type, x, z, progress: stage + 0.02, last: t0, wet: false });
     };
     crop('rice', 11, 26, 2); crop('rice', 12, 26, 2); crop('daikon', 13, 26, 3); crop('daikon', 14, 26, 3);
     crop('tea', 11, 27, 1); crop('rice', 12, 27, 1);
     this.player.pos.set(17.5, 0, 23.5);
+    this.placeMerchant();
+    this.daily.ensure();
     this.dirty.veg = this.dirty.crops = this.dirty.ground = true;
     this.save();
   }
 
   serialize() {
     return {
-      v: 1, savedAt: this.now(), money: this.money, inv: [...this.inv], slot: this.slot,
+      v: SAVE_VERSION, savedAt: this.now(), timeOffset: this.timeOffset,
+      money: this.money, inv: [...this.inv], slot: this.slot,
       player: [this.player.pos.x, this.player.pos.z, this.player.facing],
       props: this.props.serialize(), tiles: this.world.diff(),
-      farm: [...this.farm.values()].map((c) => ({ type: c.type, x: c.x, z: c.z, growth: c.growth, last: c.last, wet: c.wet })),
+      farm: [...this.farm.values()].map((c) => ({ type: c.type, x: c.x, z: c.z, progress: c.progress, last: c.last, wet: c.wet })),
       wetSoil: [...this.wetSoil],
+      daily: this.daily.serialize(), stats: this.stats,
     };
   }
 
   save() {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.serialize())); this.lastSave = this.now(); } catch (e) { /* storage full / private mode */ }
+    if (this.frozen) return; // a reset / restore is reloading the page
+    // the backup slot is refreshed every half hour, so a damaged save loses little
+    const backup = !this.lastBackup || this.now() - this.lastBackup > 30 * MIN;
+    if (writeSave(this.serialize(), { backup }) && backup) this.lastBackup = this.now();
+    this.lastSave = this.now();
   }
 
-  load() {
-    let s;
-    try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch { s = null; }
-    if (!s || s.v !== 1) return false;
+  /** Restore from localStorage (or from given save data, e.g. an imported code). */
+  load(s = readSave()) {
+    if (!s) return false;
+    this.timeOffset = s.timeOffset || 0;
     this.money = s.money; this.inv = new Map(s.inv); this.slot = s.slot || 0;
     this.world.applyDiff(s.tiles);
     for (const p of s.props) {
@@ -190,14 +213,69 @@ export class Game {
     }
     for (const c of s.farm) this.farm.set(c.z * W + c.x, { ...c });
     this.wetSoil = new Map(s.wetSoil || []);
+    this.stats = { ...this.stats, ...(s.stats || {}) };
     this.player.pos.set(s.player[0], 0, s.player[1]); this.player.facing = s.player[2];
+    this.placeMerchant();
+    const before = this.farmSnapshot();
     this.tickCrops(true);
+    this.daily.load(s.daily);
+    const newDay = this.daily.ensure();
+    const awayMs = this.now() - (s.savedAt || this.now());
+    if (awayMs > AWAY_MS || newDay) this.away = this.awaySummary(before, awayMs, newDay);
     this.dirty.veg = this.dirty.crops = this.dirty.ground = true;
     return true;
   }
 
-  static clearSave() { localStorage.removeItem(SAVE_KEY); }
-  static hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch { return false; } }
+  static clearSave() { clearSave(); }
+  static hasSave() { return hasSave(); }
+
+  /** Crop stages right now (compare after time passes with awaySummary). */
+  farmSnapshot() { return new Map([...this.farm].map(([i, c]) => [i, this.stage(c)])); }
+
+  awaySummary(before, awayMs, newDay) {
+    const ripe = {};
+    let grew = 0;
+    for (const [i, c] of this.farm) {
+      const s0 = before.get(i), s = this.stage(c);
+      if (s0 == null) continue;
+      if (s > s0) grew++;
+      if (s >= RIPE && s0 < RIPE) ripe[c.type] = (ripe[c.type] || 0) + 1;
+    }
+    return { awayMs, ripe, grew, newDay, forage: newDay ? this.daily.forageLeft() : 0 };
+  }
+
+  /** Back from a long break without reloading (phone app resumed): catch up + summary. */
+  resume(hiddenAt, before) {
+    this.tickCrops(true);
+    const newDay = this.daily.ensure();
+    if (newDay) this.dirty.veg = true;
+    const awayMs = this.now() - hiddenAt;
+    return awayMs > AWAY_MS || newDay ? this.awaySummary(before, awayMs, newDay) : null;
+  }
+
+  /** Dev: jump the village clock forward (crops grow, days roll over). */
+  skipTime(ms) {
+    const before = this.farmSnapshot();
+    this.timeOffset += ms;
+    const away = this.resume(this.now() - ms, before);
+    this.save();
+    this.ui.refresh();
+    return away;
+  }
+
+  sfx(name, opts) { this.sound?.play(name, opts); }
+  haptic(ms = 15) {
+    if (this.touchInput && navigator.vibrate) { try { navigator.vibrate(ms); } catch { /* not allowed */ } }
+  }
+  bump(table, id, n = 1) { this.stats[table][id] = (this.stats[table][id] || 0) + n; }
+
+  /** A daily request was completed by what just happened. */
+  requestsDone(done) {
+    if (!done.length) return;
+    this.ui.toast(done.length > 1 ? 'Requests ready to hand in!' : `Request ready: ${this.daily.describe(done[0]).text}`, 'icons:koku');
+    this.sfx('ready');
+    this.ui.refresh();
+  }
 
   // ------------------------------------------------------------------ inventory
   count(id) { return this.inv.get(id) || 0; }
@@ -238,7 +316,14 @@ export class Game {
   }
   isMerchant(x, z) { return !!this.merchantCell && this.merchantCell.x === x && this.merchantCell.z === z; }
   crop(x, z) { return this.farm.get(z * W + x); }
-  stage(c) { return Math.min(RIPE, Math.floor(c.growth / CROPS[c.type].stageMs)); }
+  stage(c) { return Math.min(RIPE, Math.floor(c.progress + 1e-9)); }
+  /** Real time until the crop is ripe (watering speeds up only the current stage). */
+  timeToRipe(c) {
+    const sp = CROPS[c.type].stageMs, s = this.stage(c);
+    if (s >= RIPE) return 0;
+    const cur = (s + 1 - c.progress) * sp;
+    return (c.wet ? cur / 2 : cur) + (RIPE - s - 1) * sp;
+  }
 
   // ------------------------------------------------------------------ input-driven
   setKey(code, down) { if (down) this.keys.add(code); else this.keys.delete(code); }
@@ -281,6 +366,8 @@ export class Game {
     const { x, z } = t;
     const p = this.props.at(x, z), c = this.crop(x, z), tile = this.world.get(x, z), tool = this.tool;
     if (this.isMerchant(x, z) || (p && p.type === 'stall')) return { kind: 'shop', t, icon: 'icons:koku', label: 'Shop' };
+    const f = this.daily.forageAt(x, z);
+    if (f) return { kind: 'forage', t, icon: ITEMS[f.item].icon, label: 'Pick' };
     if (c) {
       if (this.stage(c) >= RIPE) return { kind: 'harvest', t, icon: ITEMS[c.type].icon, label: 'Harvest' };
       if (!c.wet) return { kind: 'water', t, icon: 'icons:can', label: 'Water' };
@@ -334,11 +421,25 @@ export class Game {
   }
 
   enqueue(a) {
-    if (!this.isBusy()) { this.startAction(a); return; }
+    if (!this.isBusy()) { this.startAction(a); return true; }
     const same = (b) => b.t.x === a.t.x && b.t.z === a.t.z;
-    if ((this.player.pending && same(this.player.pending)) || this.queue.some(same)) return;
-    if (this.queue.length >= QUEUE_MAX) { this.ui.toast('That’s plenty to do for now!'); return; }
+    if ((this.player.pending && same(this.player.pending)) || this.queue.some(same)) return false;
+    if (this.queue.length >= QUEUE_MAX) { this.ui.toast('That’s plenty to do for now!'); return false; }
     this.queue.push(a);
+    return true;
+  }
+
+  /** Swipe across the field: queue the obvious farm action on each tile passed over. */
+  sweepTile(t) {
+    if (this.mode !== 'play' || this.fishing || this.ui.modalOpen()) return null;
+    const a = this.resolve(t);
+    if (!SWEEP_KINDS.has(a.kind)) return null;
+    if (a.kind === 'plant') {
+      // don't queue more plantings than there are seeds
+      const planned = [this.player.pending, ...this.queue].filter((q) => q?.kind === 'plant' && q.seed === a.seed).length;
+      if (planned >= this.count(a.seed)) return null;
+    }
+    return this.enqueue(a) ? a : null;
   }
 
   inspect(a) {
@@ -346,12 +447,13 @@ export class Game {
     if (a.kind === 'noseed') { this.ui.floatLabel('No seeds — Hana sells them', x, z); return; }
     const c = a.crop || this.crop(x, z);
     if (c) {
-      const s = this.stage(c), def = CROPS[c.type];
-      if (s >= RIPE) { this.ui.floatLabel(`${def.name} · ready!`, x, z); return; }
-      const pct = Math.floor(((c.growth % def.stageMs) / def.stageMs) * 100);
-      this.ui.floatLabel(`${def.name} · stage ${s}/${RIPE} · ${pct}%${c.wet ? ' · watered' : ''}`, x, z);
+      const def = CROPS[c.type];
+      if (this.stage(c) >= RIPE) { this.ui.floatLabel(`${def.name} · ready!`, x, z); return; }
+      this.ui.floatLabel(`${def.name} · ready in ${duration(this.timeToRipe(c))}${c.wet ? ' · watered' : ' · thirsty'}`, x, z);
       return;
     }
+    const f = this.daily.forageAt(x, z);
+    if (f) { this.ui.floatLabel(`${ITEMS[f.item].name} · tap to pick`, x, z); return; }
     const p = a.prop || this.props.at(x, z);
     if (p) {
       const msg = p.type === 'well' ? 'The well water is cool and clear.' : PROPS[p.type].name;
@@ -396,6 +498,7 @@ export class Game {
       case 'water': this.useTool(a.t, 'can'); break;
       case 'plant': this.lastSeed = a.seed; this.useTool(a.t, a.seed); break;
       case 'till': this.useTool(a.t, 'hoe'); break;
+      case 'forage': this.pickForage(x, z); break;
       case 'fish':
         if (this.tool !== 'rod') { this.slot = HOTBAR.indexOf('rod'); this.ui.refresh(); }
         this.startFishing(a.t);
@@ -458,16 +561,18 @@ export class Game {
     switch (tool) {
       case 'hand':
         if (c) {
-          const s = this.stage(c), def = CROPS[c.type];
-          const pct = Math.floor(((c.growth % def.stageMs) / def.stageMs) * 100);
-          this.ui.toast(`${def.name}: stage ${s}/${RIPE} (${pct}%)${c.wet ? ' · watered' : ' · water me!'}`);
-        } else if (p) this.ui.toast(`${PROPS[p.type].name}. Use build mode (B) to move it.`);
+          const def = CROPS[c.type];
+          this.ui.toast(`${def.name}: ready in ${duration(this.timeToRipe(c))}${c.wet ? ' · watered' : ' · water me!'}`);
+        } else if (this.daily.forageAt(x, z)) this.pickForage(x, z);
+        else if (p) this.ui.toast(`${PROPS[p.type].name}. Use build mode (B) to move it.`);
         break;
       case 'hoe':
         if (p) { this.ui.toast('Something is in the way.'); break; }
         if (tile === T.GRASS || tile === T.SAND) {
+          if (this.daily.forageAt(x, z)) this.pickForage(x, z); // don't dig the greens under
           this.world.set(x, z, T.SOIL);
           this.swing();
+          this.sfx('till');
           this.particles.burst(x + 0.5, 0.1, z + 0.5, { color: '#7a5537', n: 14 });
           this.dirty.ground = this.dirty.veg = true;
           this.ui.toast('Tilled the earth.');
@@ -477,8 +582,9 @@ export class Game {
       case 'can':
         if (p && p.type === 'well') { this.ui.toast('Your watering can never runs dry here. ♪'); break; }
         if (tile === T.SOIL) {
-          if (c) c.wet = true; else this.wetSoil.set(z * W + x, this.now() + 120_000);
+          if (c) c.wet = true; else this.wetSoil.set(z * W + x, this.now() + 30 * MIN);
           this.swing();
+          this.sfx('water');
           this.particles.burst(x + 0.5, 0.5, z + 0.5, { color: '#9fd3e6', n: 16, up: 0.5 });
           this.dirty.ground = true;
           this.ui.toast(c ? 'Watered! It will grow twice as fast this stage.' : 'Watered the soil.');
@@ -496,8 +602,9 @@ export class Game {
         const idx = z * W + x;
         const wet = (this.wetSoil.get(idx) || 0) > this.now();
         this.wetSoil.delete(idx);
-        this.farm.set(idx, { type: it.crop, x, z, growth: 0, last: this.now(), wet });
+        this.farm.set(idx, { type: it.crop, x, z, progress: 0, last: this.now(), wet });
         this.swing();
+        this.sfx('plant');
         this.particles.burst(x + 0.5, 0.1, z + 0.5, { color: '#c9a45c', n: 8 });
         this.dirty.crops = this.dirty.ground = true;
         this.ui.toast(`Planted ${CROPS[it.crop].name.toLowerCase()}.`);
@@ -509,12 +616,31 @@ export class Game {
     const def = CROPS[c.type];
     const n = def.yield[0] + Math.floor(hash2(c.x, c.z, Math.floor(this.now() / 1000)) * (def.yield[1] - def.yield[0] + 1));
     this.give(c.type, n);
-    if (def.regrow) { c.growth = 2 * def.stageMs; c.last = this.now(); c.wet = false; }
+    if (def.regrow) { c.progress = 2; c.last = this.now(); c.wet = false; }
     else this.farm.delete(c.z * W + c.x);
     this.swing();
+    this.sfx('harvest');
+    this.haptic(12);
     this.particles.burst(c.x + 0.5, 0.5, c.z + 0.5, { color: '#ffe08a', n: 18, up: 1.2 });
     this.dirty.crops = this.dirty.ground = true;
     this.ui.toast(`Harvested ${n} ${ITEMS[c.type].name.toLowerCase()}!`, ITEMS[c.type].icon);
+    this.bump('harvested', c.type, n);
+    this.requestsDone(this.daily.note('harvest', c.type, n));
+  }
+
+  pickForage(x, z) {
+    const f = this.daily.forageAt(x, z);
+    if (!f) return;
+    f.taken = true;
+    this.give(f.item);
+    this.swing();
+    this.sfx('forage');
+    this.haptic(10);
+    this.particles.burst(x + 0.5, 0.4, z + 0.5, { color: f.item === 'warabi' ? '#b8d67a' : '#f6c3cf', n: 14, up: 0.9 });
+    this.dirty.veg = true;
+    this.ui.toast(`Found ${ITEMS[f.item].name.toLowerCase()}!`, ITEMS[f.item].icon);
+    this.bump('foraged', f.item);
+    this.requestsDone(this.daily.note('forage', f.item));
   }
 
   /** Real-time growth from timestamps (also catches up after the tab was closed). */
@@ -522,17 +648,17 @@ export class Game {
     const now = this.now();
     let changed = false;
     for (const c of this.farm.values()) {
-      const def = CROPS[c.type];
-      const max = RIPE * def.stageMs;
+      const sp = CROPS[c.type].stageMs;
       let dt = Math.max(0, now - c.last);
       c.last = now;
-      if (c.growth >= max) continue;
+      if (c.progress >= RIPE) continue;
       const before = this.stage(c);
       if (c.wet) {
-        const toNext = (before + 1) * def.stageMs - c.growth;
-        if (dt * 2 >= toNext) { c.growth += toNext; dt -= toNext / 2; c.wet = false; changed = true; } else { c.growth += dt * 2; dt = 0; }
+        // watered: the current stage runs at double speed, then the soil dries
+        const wetMs = ((before + 1 - c.progress) * sp) / 2;
+        if (dt >= wetMs) { c.progress = before + 1; dt -= wetMs; c.wet = false; changed = true; } else { c.progress += (dt * 2) / sp; dt = 0; }
       }
-      c.growth = Math.min(max, c.growth + dt);
+      c.progress = Math.min(RIPE, c.progress + dt / sp);
       if (this.stage(c) !== before) changed = true;
     }
     for (const [i, until] of this.wetSoil) if (until < now) { this.wetSoil.delete(i); changed = true; }
@@ -557,11 +683,12 @@ export class Game {
     let r = Math.random() * pool.reduce((s, [, f]) => s + f.weight, 0);
     let fish = pool[0][0];
     for (const [k, f] of pool) { r -= f.weight; if (r <= 0) { fish = k; break; } }
-    const wait = 1500 + Math.random() * 3000;
+    const wait = 2000 + Math.random() * 4000;
     this.fishing = { phase: 'wait', t0: performance.now(), biteAt: performance.now() + wait, fish, spot, x: spot.x + 0.5 + d.x * 0.1, z: spot.z + 0.5 + d.z * 0.1 };
     this.face(spot);
     this.player.path = null;
     this.swing();
+    this.sfx('cast');
     this.bobber.visible = this.line.visible = true;
     this.bobber.position.set(this.fishing.x, WATER_Y + 0.02, this.fishing.z);
     this.particles.burst(this.fishing.x, WATER_Y + 0.05, this.fishing.z, { color: '#e8f4f0', n: 10, up: 0.6 });
@@ -575,11 +702,18 @@ export class Game {
     if (f.phase === 'bite') {
       this.give(f.fish);
       this.particles.burst(f.x, WATER_Y + 0.1, f.z, { color: '#bfe6ff', n: 22, up: 1.4 });
-      this.ui.toast(`You caught a ${FISH[f.fish].name}!`, ITEMS[f.fish].icon);
+      const first = !this.stats.caught[f.fish];
+      this.ui.toast(first ? `Your first ${FISH[f.fish].name}!` : `You caught a ${FISH[f.fish].name}!`, ITEMS[f.fish].icon);
+      this.sfx(first ? 'fanfare' : 'catch');
+      this.haptic(30);
       this.lastCatch = f.fish;
-    } else {
-      this.ui.toast('Too early — the fish swam away.');
+      this.bump('caught', f.fish);
+      this.cancelFishing();
+      this.requestsDone(this.daily.note('catch', f.fish));
+      return;
     }
+    this.ui.toast('Too early — the fish swam away.');
+    this.sfx('miss');
     this.cancelFishing();
   }
 
@@ -601,7 +735,8 @@ export class Game {
       // touch screens get a little grace for tap latency
       f.phase = 'bite'; f.window = FISH[f.fish].window + (this.touchInput ? 150 : 0); f.biteEnd = now + f.window;
       this.ui.bubble('!');
-      if (this.touchInput && navigator.vibrate) { try { navigator.vibrate(40); } catch { /* not allowed */ } }
+      this.sfx('bite');
+      this.haptic(40);
       this.particles.burst(f.x, WATER_Y + 0.05, f.z, { color: '#ffffff', n: 8, up: 0.5 });
     }
     if (f.phase === 'bite') {
@@ -609,7 +744,7 @@ export class Game {
       const k = 1 - (f.biteEnd - now) / f.window;
       this.ripple.material.opacity = 0.7 * (1 - k);
       this.ripple.scale.setScalar(1 + k * 3);
-      if (now > f.biteEnd) { this.ui.toast('It got away...'); this.cancelFishing(); return; }
+      if (now > f.biteEnd) { this.ui.toast('It got away...'); this.sfx('miss'); this.cancelFishing(); return; }
     } else {
       const k = ((now - f.t0) % 1600) / 1600;
       this.ripple.material.opacity = 0.35 * (1 - k);
@@ -648,6 +783,7 @@ export class Game {
     if (p.type === 'bridge' && p.cells.some((c) => c.x === pc.x && c.z === pc.z)) { this.ui.toast('Step off the bridge first.'); return false; }
     this.props.remove(p);
     this.give(`prop_${p.type}`);
+    this.sfx('pickup');
     this.particles.burst(p.cx, 0.4, p.cz, { color: '#f4ead2', n: 14, up: 0.8 });
     if (!quiet) this.ui.toast(`Picked up ${PROPS[p.type].name.toLowerCase()}.`, ITEMS[`prop_${p.type}`].icon);
     return true;
@@ -710,6 +846,8 @@ export class Game {
     if (!this.props.canPlace(type, x, z, this.buildRot, { playerCell: this.playerCell(), farm: this.farm })) { this.ui.toast("Can't place that here."); return false; }
     this.take(id);
     const p = this.props.add(type, x, z, this.buildRot);
+    this.sfx('place');
+    this.haptic(12);
     this.particles.burst(p.cx, 0.2, p.cz, { color: '#fff1c4', n: 16, up: 0.7 });
     this.ui.toast(`Placed ${PROPS[type].name.toLowerCase()}.`);
     if (this.count(id) <= 0) { this.buildSel = 'pickup'; this.ui.refresh(); }
@@ -734,28 +872,52 @@ export class Game {
   cursorColor(c) { this.cursor.material.color.setHex(c); }
 
   // ------------------------------------------------------------------ economy
+  sellPrice(id) { return this.daily.sellPrice(id); }
+  buyPrice(id) { return this.daily.buyPrice(id); }
+
   sell(id, n = this.count(id)) {
     const it = ITEMS[id];
     if (!it.sell || n <= 0) return;
+    const total = this.sellPrice(id) * n;
     this.take(id, n);
-    this.money += it.sell * n;
-    this.ui.toast(`Sold ${n} ${it.name.toLowerCase()} for ${it.sell * n} koku.`, 'icons:koku');
+    this.money += total;
+    this.stats.earned += total;
+    this.sfx('coin');
+    this.ui.toast(`Sold ${n} ${it.name.toLowerCase()} for ${total} koku.`, 'icons:koku');
   }
   sellAll() {
     let total = 0;
     for (const [id, n] of [...this.inv]) {
       const it = ITEMS[id];
-      if (it && (it.kind === 'produce' || it.kind === 'fish')) { total += it.sell * n; this.take(id, n); }
+      if (it && SELLABLE_KINDS.has(it.kind)) { total += this.sellPrice(id) * n; this.take(id, n); }
     }
     this.money += total;
+    this.stats.earned += total;
+    if (total) this.sfx('coin');
     this.ui.toast(total ? `Sold the harvest for ${total} koku!` : 'Nothing to sell yet.', 'icons:koku');
   }
   buy(id) {
-    const it = ITEMS[id];
-    if (this.money < it.buy) { this.ui.toast('Not enough koku.'); return; }
-    this.money -= it.buy;
+    const it = ITEMS[id], price = this.buyPrice(id);
+    if (this.money < price) { this.ui.toast('Not enough koku.'); return; }
+    this.money -= price;
     this.give(id);
+    this.sfx('coin');
     this.ui.toast(`Bought ${it.name.toLowerCase()}.`, it.icon);
+  }
+
+  claimRequest(i) {
+    const res = this.daily.claim(i);
+    if (!res) return null;
+    this.stats.requests++;
+    this.stats.earned += res.reward;
+    this.sfx(res.gift ? 'fanfare' : 'claim');
+    this.haptic(25);
+    const bonus = res.bonus ? ` + ${res.bonus.n > 1 ? `${res.bonus.n} ` : ''}${ITEMS[res.bonus.item].name.toLowerCase()}` : '';
+    this.ui.toast(`Hana thanks you: ${res.reward} koku${bonus}!`, 'icons:koku');
+    if (res.gift) this.ui.toast(`All done for today! Hana gives you a ${ITEMS[res.gift].name.toLowerCase()}.`, ITEMS[res.gift].icon);
+    this.save();
+    this.ui.refresh();
+    return res;
   }
 
   // ------------------------------------------------------------------ per-frame
@@ -818,7 +980,27 @@ export class Game {
       dm.scale.setScalar(1 + Math.sin(t * 6) * 0.08);
     }
 
-    if (!this.nextCropTick || t > this.nextCropTick) { this.tickCrops(); this.nextCropTick = t + 0.5; }
+    if (!this.nextCropTick || t > this.nextCropTick) {
+      this.tickCrops();
+      this.nextCropTick = t + 0.5;
+      if (this.daily.ensure()) {
+        // the clock passed 5:00 while playing
+        this.dirty.veg = true;
+        this.ui.toast('A new day in the village. Hana has fresh requests.', 'icons:koku');
+        this.sfx('ready');
+        this.ui.refresh();
+      }
+    }
+    // little glints so ripe crops and wild greens are easy to spot on a quick look
+    this.sparkleT -= dt;
+    if (this.sparkleT <= 0) {
+      this.sparkleT = 0.35;
+      const spots = [...[...this.farm.values()].filter((c) => this.stage(c) >= RIPE), ...this.daily.visibleForage()];
+      if (spots.length) {
+        const s = spots[Math.floor(Math.random() * spots.length)];
+        this.particles.sparkle(s.x + 0.3 + Math.random() * 0.4, 0.35 + Math.random() * 0.4, s.z + 0.3 + Math.random() * 0.4);
+      }
+    }
     if (this.dirty.ground) { this.ground.wet = new Set([...[...this.farm.values()].filter((c) => c.wet).map((c) => c.z * W + c.x), ...this.wetSoil.keys()]); this.ground.updateTypes(); this.dirty.ground = false; }
     if (this.dirty.crops) { this.rebuildCrops(); this.dirty.crops = false; }
     if (this.dirty.veg) { this.rebuildVegetation(); this.dirty.veg = false; }
@@ -867,6 +1049,12 @@ export class Game {
         let nearFresh = false;
         for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (this.world.isFresh(x + dx, z + dz)) nearFresh = true;
         if (nearFresh && hash2(x, z, 6) < 0.45) items.push({ x: x + 0.3 + hash2(x, z, 7) * 0.4, z: z + 0.3 + hash2(x, z, 8) * 0.4, sprite: 'reeds', height: 0.95, sway: 0.1, shade: 1 });
+      }
+    }
+    for (const f of this.daily.visibleForage()) {
+      const def = FORAGE[f.item];
+      for (let k = 0; k < 2; k++) {
+        items.push({ x: f.x + 0.38 + k * 0.24, z: f.z + 0.5 - k * 0.12, sprite: def.sprite, height: def.height * (1 - k * 0.15), sway: 0.07, phase: k * 2, shade: 1.15, flip: k === 1 });
       }
     }
     const pb = this.props.billboards();

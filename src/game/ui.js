@@ -1,7 +1,11 @@
-// DOM HUD: koku, hotbar / build bar, context action button, toasts, shop + bag
-// sheets, prop menu, confirm dialog, touch feedback (ripples, joystick, queue chips).
-import { ITEMS, HOTBAR, PROPS } from './data.js';
+// DOM HUD: koku, clock, hotbar / build bar, context action button, toasts,
+// shop / bag / today / backup sheets, prop menu, confirm dialog, settings and
+// touch feedback (ripples, joystick, queue chips).
+import { ITEMS, HOTBAR, PROPS, RIPE, CROPS } from './data.js';
 import { assetUrl } from '../render/assets.js';
+import { DEMAND_BONUS, SPECIAL_DISCOUNT } from './daily.js';
+import { clockText, dateText, partOfDay, hourOf, duration } from './clock.js';
+import { encodeSave, decodeSave, writeSave } from './save.js';
 
 const $ = (sel) => document.querySelector(sel);
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
@@ -26,17 +30,22 @@ export class UI {
     this.touch = false;
     this.setTouch(matchMedia('(pointer: coarse)').matches);
     this.dialogResolve = null;
+    this.sound = null;
+    this.awayInfo = null;
+    this.clockT = 0;
+    this.installPrompt = null; // Android "add to home screen" event
     this.installFastTap();
   }
 
   /**
    * Touch buttons fire on pointerup instead of waiting for the browser's click
    * (instant, and it still works when a slow frame stretches the tap past the
-   * browser's long-press threshold). The native click that may follow is eaten.
+   * browser's long-press threshold). The native click that may follow is eaten,
+   * wherever it lands: a sheet the tap just opened may now be under the finger.
    */
   installFastTap() {
     const SEL = 'button:not(#btn-action), .row.tappable, .bag-item.clickable';
-    let down = null, eat = null, eatUntil = 0;
+    let down = null, eat = null, eatUntil = 0, eatX = 0, eatY = 0;
     document.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'mouse') { down = null; return; }
       const t = e.target.closest?.(SEL);
@@ -47,13 +56,14 @@ export class UI {
       if (!d || e.pointerId !== d.id || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) return;
       const t = document.elementFromPoint(e.clientX, e.clientY)?.closest(SEL);
       if (t !== d.el) return;
-      eat = d.el; eatUntil = performance.now() + 1500;
+      eat = d.el; eatUntil = performance.now() + 1500; eatX = e.clientX; eatY = e.clientY;
       d.el.click();
     }, true);
     document.addEventListener('pointercancel', () => { down = null; }, true);
     document.addEventListener('click', (e) => {
       if (!e.isTrusted || !eat || performance.now() > eatUntil) return;
-      if (e.target === eat || eat.contains(e.target) || !eat.isConnected) { e.stopPropagation(); e.preventDefault(); eat = null; }
+      const here = Math.hypot(e.clientX - eatX, e.clientY - eatY) < 24;
+      if (here || e.target === eat || eat.contains(e.target) || !eat.isConnected) { e.stopPropagation(); e.preventDefault(); eat = null; }
     }, true);
   }
 
@@ -74,7 +84,20 @@ export class UI {
     $('#btn-zoom-in').onclick = () => this.onZoom?.(-1);
     $('#btn-zoom-out').onclick = () => this.onZoom?.(1);
     $('#btn-reset').onclick = async () => {
-      if (await this.confirm('Start a new village? Your current save will be erased.', 'Start over')) { game.constructor.clearSave(); location.reload(); }
+      if (await this.confirm('Start a new village? Your current save will be erased.', 'Start over')) { game.frozen = true; game.constructor.clearSave(); location.reload(); }
+    };
+    $('#btn-today').onclick = () => (this.modal === 'today' ? this.closeModal() : this.openToday());
+    $('#set-music').onclick = () => { this.sound?.set('music', !this.sound.settings.music); this.refreshSettings(); };
+    $('#set-sfx').onclick = () => { this.sound?.set('sfx', !this.sound.settings.sfx); this.refreshSettings(); };
+    $('#btn-export').onclick = () => { this.hideHelp(); this.openBackup(); };
+    $('#btn-import').onclick = () => { this.hideHelp(); this.openRestore(); };
+    $('#btn-install').onclick = async () => {
+      const p = this.installPrompt;
+      if (!p) return;
+      this.installPrompt = null;
+      p.prompt();
+      try { await p.userChoice; } catch { /* dismissed */ }
+      this.refreshSettings();
     };
     this.panel.addEventListener('click', (e) => { if (e.target === this.panel) this.closeModal(); });
     window.addEventListener('resize', () => this.refresh());
@@ -107,6 +130,7 @@ export class UI {
     const g = this.game;
     if (!g) return;
     $('#koku').textContent = g.money.toLocaleString();
+    this.updateClock();
     document.body.classList.toggle('build-mode', g.mode === 'build');
     $('#mode-label').textContent = g.mode === 'build' ? (this.touch ? 'Build mode' : 'Build mode · R rotate · B done') : '';
     this.hotbar.innerHTML = '';
@@ -161,6 +185,17 @@ export class UI {
     this.updateBuildBar();
     if (this.modal === 'shop') this.renderShop();
     if (this.modal === 'bag') this.renderBag();
+    if (this.modal === 'today') this.renderToday();
+  }
+
+  /** HUD clock pill: local time, sun / moon, and a dot when something waits in Today. */
+  updateClock() {
+    const g = this.game, now = g.now(), h = hourOf(now);
+    $('#clock').textContent = clockText(now);
+    const sky = h < 5.5 || h >= 19.5 ? 'moon' : h < 7 || h >= 17.5 ? 'dusk' : 'sun';
+    $('#btn-today').dataset.sky = sky;
+    const st = g.daily.state;
+    $('#today-dot').classList.toggle('hidden', !st || (st.seen && !g.daily.claimable()));
   }
 
   /** Compact hotbar: one slot for all seeds; tap again to choose which. */
@@ -316,6 +351,8 @@ export class UI {
     });
     this.actionT -= dt;
     if (this.actionT <= 0) { this.updateAction(); this.updateBuildBar(); this.actionT = 0.15; }
+    this.clockT -= dt;
+    if (this.clockT <= 0) { this.updateClock(); this.clockT = 1; }
   }
 
   // ------------------------------------------------------------------ prop menu (touch build)
@@ -353,15 +390,49 @@ export class UI {
   dialogOpen() { return !$('#dialog').classList.contains('hidden'); }
   closeDialog(v) { $('#dialog').classList.add('hidden'); const r = this.dialogResolve; this.dialogResolve = null; r?.(v); }
 
-  showHelp() { $('#help').classList.remove('hidden'); }
+  showHelp() { this.refreshSettings(); $('#help').classList.remove('hidden'); }
+
+  async refreshSettings() {
+    const st = this.sound?.settings || { music: true, sfx: true };
+    $('#set-music').textContent = `Music ${st.music ? 'on' : 'off'}`;
+    $('#set-music').classList.toggle('off', !st.music);
+    $('#set-sfx').textContent = `Sounds ${st.sfx ? 'on' : 'off'}`;
+    $('#set-sfx').classList.toggle('off', !st.sfx);
+    $('#btn-install').classList.toggle('hidden', !this.installPrompt);
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let persisted = false;
+    try { persisted = !!(await navigator.storage?.persisted?.()); } catch { /* unsupported */ }
+    $('#storage-note').textContent = standalone || persisted
+      ? 'Your village is kept safely on this device. A backup code never hurts.'
+      : ios
+        ? 'Safari may clear a site’s data after a week away. Add the game to your Home Screen (Share → Add to Home Screen) and keep a backup code.'
+        : 'Your browser may clear site data after a long break. Install the app or keep a backup code.';
+  }
   hideHelp() { $('#help').classList.add('hidden'); }
 
   // ------------------------------------------------------------------ sheets (shop / bag)
   modalOpen() { return !!this.modal; }
   closeModal() { this.modal = null; this.panel.classList.add('hidden'); this.panel.innerHTML = ''; }
 
-  openShop() { this.closeSeedPicker(); this.closePropMenu(); this.modal = 'shop'; this.panel.classList.remove('hidden'); this.renderShop(); }
-  openBag() { this.closeSeedPicker(); this.closePropMenu(); this.modal = 'bag'; this.panel.classList.remove('hidden'); this.renderBag(); }
+  openModal(name, render) {
+    this.closeSeedPicker(); this.closePropMenu();
+    if (this.modal !== name) this.sound?.play('page');
+    this.modal = name;
+    this.panel.classList.remove('hidden');
+    render.call(this);
+  }
+  openShop() { this.openModal('shop', this.renderShop); }
+  openBag() { this.openModal('bag', this.renderBag); }
+  /** Today sheet; `away` adds a "while you were away" summary on top. */
+  openToday(away = null) {
+    this.awayInfo = away;
+    if (this.game.daily.state) this.game.daily.state.seen = true;
+    this.openModal('today', this.renderToday);
+    this.updateClock();
+  }
+  openBackup() { this.openModal('backup', this.renderBackup); }
+  openRestore() { this.openModal('restore', this.renderRestore); }
 
   card(title, body) {
     const prev = this.panel.querySelector('.card');
@@ -422,7 +493,10 @@ export class UI {
       b.onclick = () => { this.shopTab = k; this.renderShop(); };
       tabs.appendChild(b);
     }
-    body.appendChild(el('p', 'npc', 'Merchant Hana: <i>“Welcome, friend! Fresh daikon and a good koi always find a buyer here.”</i>'));
+    const dem = g.daily.state?.demand;
+    body.appendChild(el('p', 'npc', dem
+      ? `Merchant Hana: <i>“Welcome, friend! I’m paying extra for ${ITEMS[dem].name.toLowerCase()} today.”</i>`
+      : 'Merchant Hana: <i>“Welcome, friend! Fresh daikon and a good koi always find a buyer here.”</i>'));
     body.appendChild(tabs);
     const list = el('div', 'list');
     if (this.shopTab === 'sell') {
@@ -433,7 +507,8 @@ export class UI {
       if (!sellables.length) list.appendChild(el('p', 'muted', 'Nothing to sell yet — harvest crops or go fishing!'));
       for (const id of sellables) {
         const right = el('span', 'right');
-        right.innerHTML = `<span class="qty">×${g.count(id)}</span><span class="price">${ITEMS[id].sell} koku</span>`;
+        const hot = g.daily.state?.demand === id ? `<span class="tag">×${DEMAND_BONUS} today</span>` : '';
+        right.innerHTML = `<span class="qty">×${g.count(id)}</span>${hot}<span class="price">${g.sellPrice(id)} koku</span>`;
         const b1 = el('button', 'btn', 'Sell 1'); b1.onclick = (e) => { e.stopPropagation(); g.sell(id, 1); };
         const ba = el('button', 'btn', 'All'); ba.onclick = (e) => { e.stopPropagation(); g.sell(id); };
         right.append(b1, ba);
@@ -444,11 +519,15 @@ export class UI {
       }
     } else {
       const ids = Object.keys(ITEMS).filter((id) => (this.shopTab === 'seeds' ? ITEMS[id].kind === 'seed' : ITEMS[id].kind === 'prop'));
+      // today's specials first
+      if (this.shopTab === 'decor') ids.sort((a, b) => (g.buyPrice(b) < ITEMS[b].buy) - (g.buyPrice(a) < ITEMS[a].buy));
       for (const id of ids) {
         const right = el('span', 'right');
-        right.innerHTML = `<span class="qty">own ${g.count(id)}</span><span class="price">${ITEMS[id].buy} koku</span>`;
+        const price = g.buyPrice(id);
+        const sale = price < ITEMS[id].buy ? `<span class="tag">−${Math.round((1 - SPECIAL_DISCOUNT) * 100)}%</span>` : '';
+        right.innerHTML = `<span class="qty">own ${g.count(id)}</span>${sale}<span class="price">${price} koku</span>`;
         const b = el('button', 'btn', 'Buy');
-        b.disabled = g.money < ITEMS[id].buy;
+        b.disabled = g.money < price;
         b.onclick = () => g.buy(id);
         right.appendChild(b);
         list.appendChild(this.row(id, right));
@@ -482,5 +561,127 @@ export class UI {
       ? 'Tip: tap a decoration to place it, or seeds to plant them. Sell produce and fish at Hana’s stall.'
       : 'Tip: click a decoration to place it. Sell produce and fish at Hana’s stall in the plaza.'));
     this.card('Bag', body);
+  }
+
+  // ------------------------------------------------------------------ today
+  renderToday() {
+    const g = this.game, d = g.daily, st = d.state, now = g.now();
+    if (!st) return;
+    const body = el('div', 'today');
+    body.appendChild(el('p', 'today-date', `${dateText(now)} · ${partOfDay(hourOf(now))}`));
+    const a = this.awayInfo;
+    if (a) {
+      const box = el('div', 'away');
+      const lines = [];
+      if (a.awayMs > 60_000) lines.push(`You were away for ${duration(a.awayMs)}.`);
+      const ripe = Object.entries(a.ripe).map(([k, n]) => `${n} ${CROPS[k].name.toLowerCase()}`);
+      if (ripe.length) lines.push(`Ready to harvest: ${ripe.join(', ')}.`);
+      else if (a.grew) lines.push('Your crops grew while you were away.');
+      if (a.newDay) lines.push('A new day: Hana has fresh requests.');
+      if (a.forage) lines.push(`Wild greens have sprung up around the island (${a.forage}).`);
+      box.innerHTML = `<b>Welcome back!</b>${lines.map((l) => `<span>${l}</span>`).join('')}`;
+      body.appendChild(box);
+    }
+
+    body.appendChild(el('h3', null, 'Hana’s requests'));
+    const list = el('div', 'list requests');
+    st.requests.forEach((r, i) => {
+      const { text, icon } = d.describe(r);
+      const prog = d.progress(r);
+      const reward = `${r.reward} koku${r.bonus ? ` + ${r.bonus.n > 1 ? `${r.bonus.n} ` : ''}${ITEMS[r.bonus.item].name.toLowerCase()}` : ''}`;
+      const row = el('div', 'row req' + (r.claimed ? ' done' : ''));
+      row.dataset.req = String(i);
+      row.innerHTML = `${this.iconHTML(icon)}<span class="name">${text}<span class="bar"><i style="width:${(prog / r.n) * 100}%"></i></span><small>${reward}</small></span>`;
+      const right = el('span', 'right');
+      if (r.claimed) right.appendChild(el('span', 'done-mark', '✓ Done'));
+      else if (d.ready(r)) {
+        const b = el('button', 'btn big claim', r.kind === 'deliver' ? 'Give' : 'Claim');
+        b.onclick = () => g.claimRequest(i);
+        right.appendChild(b);
+      } else right.appendChild(el('span', 'prog', `${prog}/${r.n}`));
+      row.appendChild(right);
+      list.appendChild(row);
+    });
+    body.appendChild(list);
+    body.appendChild(el('p', 'muted', st.gift
+      ? `Hana’s thank-you gift today: ${ITEMS[st.gift].name.toLowerCase()} ♪`
+      : 'Finish all three for a thank-you gift. New requests arrive every morning at 5.'));
+
+    body.appendChild(el('h3', null, 'At the stall today'));
+    const market = el('div', 'market');
+    market.innerHTML = `<span>${this.iconHTML(ITEMS[st.demand].icon, 'icon small')} Hana pays ×${DEMAND_BONUS} for <b>${ITEMS[st.demand].name.toLowerCase()}</b></span>`
+      + st.specials.map((id) => `<span>${this.iconHTML(ITEMS[id].icon, 'icon small')} <b>${ITEMS[id].name}</b> on special: ${g.buyPrice(id)} koku</span>`).join('');
+    body.appendChild(market);
+
+    body.appendChild(el('h3', null, 'Around the village'));
+    const crops = [...g.farm.values()];
+    const ready = crops.filter((c) => g.stage(c) >= RIPE).length;
+    const thirsty = crops.filter((c) => g.stage(c) < RIPE && !c.wet).length;
+    const next = crops.filter((c) => g.stage(c) < RIPE).sort((p, q) => g.timeToRipe(p) - g.timeToRipe(q))[0];
+    const facts = [];
+    facts.push(ready ? `<b>${ready}</b> ${ready === 1 ? 'crop is' : 'crops are'} ready to harvest` : 'Nothing is ripe yet');
+    if (thirsty) facts.push(`<b>${thirsty}</b> ${thirsty === 1 ? 'plant would' : 'plants would'} love some water`);
+    if (next) facts.push(`Next up: ${CROPS[next.type].name.toLowerCase()} in ${duration(g.timeToRipe(next))}`);
+    const left = d.forageLeft();
+    facts.push(left ? `<b>${left}</b> wild ${left === 1 ? 'green' : 'greens'} still to find (look for the glints)` : 'You found all of today’s wild greens');
+    body.appendChild(el('ul', 'facts', facts.map((f) => `<li>${f}</li>`).join('')));
+    this.card('Today', body);
+  }
+
+  // ------------------------------------------------------------------ backup / restore
+  async renderBackup() {
+    const g = this.game;
+    const body = el('div', 'backup');
+    body.appendChild(el('p', null, 'This code holds your whole village. Keep it somewhere safe, like a note or a message to yourself. Paste it into <b>Restore</b> in any browser (or the installed app) to carry on there.'));
+    const ta = el('textarea', 'code');
+    ta.readOnly = true;
+    ta.value = 'Packing your village…';
+    body.appendChild(ta);
+    const row = el('div', 'set-row');
+    const copy = el('button', 'btn big', 'Copy code');
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(ta.value); this.toast('Village code copied.'); } catch { ta.select(); this.toast('Select the code and copy it.'); }
+    };
+    row.appendChild(copy);
+    if (navigator.share) {
+      const share = el('button', 'btn', 'Share…');
+      share.onclick = () => navigator.share({ title: 'Rokugan Cozy Village backup', text: ta.value }).catch(() => {});
+      row.appendChild(share);
+    }
+    const dl = el('button', 'btn', 'Save as file');
+    dl.onclick = () => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([ta.value], { type: 'text/plain' }));
+      a.download = `rokugan-village-${new Date().toISOString().slice(0, 10)}.txt`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    row.appendChild(dl);
+    body.appendChild(row);
+    this.card('Back up your village', body);
+    g.save();
+    const code = await encodeSave(g.serialize());
+    ta.value = code;
+    ta.dataset.ready = '1';
+  }
+
+  renderRestore() {
+    const g = this.game;
+    const body = el('div', 'backup');
+    body.appendChild(el('p', null, 'Paste a village code from <b>Back up</b>. It replaces the village in this browser.'));
+    const ta = el('textarea', 'code');
+    ta.placeholder = 'RCV2z:…';
+    body.appendChild(ta);
+    const ok = el('button', 'btn big restore', 'Restore village');
+    ok.onclick = async () => {
+      let data;
+      try { data = await decodeSave(ta.value); } catch (e) { this.toast(e.message || 'That code didn’t work.'); return; }
+      if (!(await this.confirm('Replace the village in this browser with the one from the code?', 'Restore'))) return;
+      g.frozen = true; // don't let the unload save overwrite the restored village
+      writeSave(data, { backup: true });
+      location.reload();
+    };
+    body.appendChild(ok);
+    this.card('Restore a village', body);
   }
 }

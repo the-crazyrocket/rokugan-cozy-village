@@ -17,6 +17,7 @@ float rcvBrush(vec3 p){ return rcvNoise(vec3(p.x * 9.0, p.y * 2.5, p.z * 9.0)) *
 export const paintUniforms = {
   uLightMix: { value: 0.55 },
   uPaintGain: { value: 1.0 },
+  uUnlit: { value: new THREE.Color(1, 1, 1) }, // tint of the unlit (baked-light) share, set by Daylight
 };
 
 /**
@@ -48,7 +49,7 @@ export function makePaintedMaterial(asset) {
 varying vec3 vAssetPos; varying vec3 vAssetNormal;
 uniform sampler2D uPaint0, uPaint1, uDepth0, uDepth1;
 uniform mat4 uVP0, uVP1; uniform vec3 uDir0, uDir1; uniform float uRange0, uRange1;
-uniform float uLightMix, uPaintGain;
+uniform float uLightMix, uPaintGain; uniform vec3 uUnlit;
 vec3 rcvPainted; float rcvCover;
 ${NOISE_GLSL}
 vec4 paintSample(sampler2D tex, sampler2D dep, mat4 vp, vec3 dir, float range, vec3 n){
@@ -76,10 +77,10 @@ vec4 paintSample(sampler2D tex, sampler2D dep, mat4 vp, vec3 dir, float range, v
 }`)
       .replace('#include <opaque_fragment>', `
 // painted texels already contain lighting: blend lit and unlit result
-outgoingLight = mix(diffuseColor.rgb * 1.02, outgoingLight, uLightMix);
+outgoingLight = mix(diffuseColor.rgb * 1.02 * uUnlit, outgoingLight, uLightMix);
 #include <opaque_fragment>`);
   };
-  mat.customProgramCacheKey = () => 'painted-projection-v1';
+  mat.customProgramCacheKey = () => 'painted-projection-v2';
   return mat;
 }
 

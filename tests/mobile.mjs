@@ -63,6 +63,11 @@ async function runViewport(browser, base, vp) {
     await page.screenshot({ path: `/tmp/mobile-fail-${vp.name}.png` }).catch(() => {});
     log('errors at failure:', errors);
     log('toasts at failure:', await G(() => [...document.querySelectorAll('.toast')].map((t) => t.textContent)).catch(() => []));
+    log('state at failure:', JSON.stringify(await G(() => ({
+      player: __game.game.playerCell(), busy: __game.game.isBusy(), pending: __game.game.player.pending?.kind, path: __game.game.player.path?.length,
+      queue: __game.game.queue.map((a) => `${a.kind}@${a.t.x},${a.t.z}`), modal: __game.ui.modal, mode: __game.game.mode, fishing: !!__game.game.fishing, hold: __game.view.hold, input: __game.input(),
+      labels: [...document.querySelectorAll('.float-label')].map((e) => e.textContent),
+    })).catch(() => null)));
     throw e;
   }
   async function steps() {
@@ -148,6 +153,26 @@ async function runViewport(browser, base, vp) {
   log('long-press label:', await page.locator('.float-label').last().textContent());
   await shot('02-farm');
 
+  // ---- swipe across the empty bottom row of the field: every tile passed over gets planted
+  const seeds = await G(() => __game.game.count(__game.game.pickSeed()));
+  const a0 = await aim(11, 28, [0, 0.05, 0.15]);
+  const a1 = await screen(14, 28, 0.05);
+  await touch('touchStart', [{ x: a0.x, y: a0.y }]);
+  for (let i = 1; i <= 10; i++) { await touch('touchMove', [{ x: a0.x + ((a1.x - a0.x) * i) / 10, y: a0.y + ((a1.y - a0.y) * i) / 10 }]); await sleep(40); }
+  await touch('touchEnd', []);
+  assert.equal(await page.locator('#joy').isHidden(), true, 'a field swipe is not a joystick');
+  const want = Math.min(seeds, 4);
+  await page.waitForFunction((n) => [11, 12, 13, 14].filter((x) => __game.game.crop(x, 28)).length >= n, want, { timeout: 60000 });
+  log(`swipe planted ${want} tiles`);
+
+  // ---- clock pill opens Today: three requests from Hana
+  await tapEl('#btn-today');
+  await page.waitForFunction(() => __game.ui.modal === 'today', null, { timeout: 5000 });
+  assert.equal(await page.locator('#panel .req').count(), 3, 'three requests today');
+  await shot('03-today');
+  await tapEl('#panel .close');
+  await page.waitForFunction(() => __game.ui.modal === null, null, { timeout: 5000 });
+
   // ---- fishing: tap water -> walk to the shore, auto-select the rod, cast; reel on touch-down
   const water = await G(() => {
     const g = __game.game, c = g.playerCell();
@@ -169,12 +194,13 @@ async function runViewport(browser, base, vp) {
   assert.ok(target, 'a water tile on screen');
   let caught = false;
   for (let attempt = 1; attempt <= 4 && !caught; attempt++) {
+    await G(() => __game.game.cancelFishing());
     const before = await G(() => ['ayu', 'koi', 'tai', 'fugu'].reduce((n, f) => n + __game.game.count(f), 0));
     const sc = await aim(target.x, target.z, [-0.32]);
     await tap(sc.x, sc.y);
     await page.waitForFunction(() => !!__game.game.fishing, null, { timeout: 40000 });
     assert.equal(await G(() => __game.game.tool), 'rod', 'rod auto-selected');
-    if (attempt === 1) { await sleep(400); await shot('03-fishing'); }
+    if (attempt === 1) { await sleep(400); await shot('04-fishing'); }
     await page.waitForFunction(() => !__game.game.fishing || __game.game.fishing.phase === 'bite', null, { timeout: 15000 });
     await touch('touchStart', [{ x: vp.width / 2, y: vp.height / 3 }]); // reel on touch-DOWN, anywhere
     const reeledOnDown = await G(() => !__game.game.fishing);
@@ -223,8 +249,10 @@ async function runViewport(browser, base, vp) {
     const sc = await screen(f.x, f.z);
     if (!onScreen(sc, 60)) continue;
     const pk = await G((p) => __game.pick(p.x, p.y, { fuzzy: true }), sc);
-    const hi = await G((p) => __game.pick(p.x, p.y), await screen(f.x, f.z, 0.6)); // nothing in front of the lantern
-    if (pk.ground && pk.ground.x === f.x && pk.ground.z === f.z && !pk.prop && !hi.prop) { spot = f; break; }
+    // nothing (tree canopy, roof...) in front of the lantern, here or one tile over where it gets dragged
+    const hi = await G((p) => __game.pick(p.x, p.y), await screen(f.x, f.z, 0.6));
+    const hi2 = await G((p) => __game.pick(p.x, p.y), await screen(f.x + 1, f.z, 0.6));
+    if (pk.ground && pk.ground.x === f.x && pk.ground.z === f.z && !pk.prop && !hi.prop && !hi2.prop) { spot = f; break; }
   }
   assert.ok(spot, 'free spot on screen');
   s = await screen(spot.x, spot.z);
@@ -251,7 +279,7 @@ async function runViewport(browser, base, vp) {
   log('placed lantern', placed);
   assert.equal(placed.rot, 1);
   await sleep(300);
-  await shot('04-build');
+  await shot('05-build');
   // tap the placed lantern -> prop menu -> rotate
   s = await aim(placed.x, placed.z, [0.6, 0.9, 0.4, 0.2, 1.1]);
   await tap(s.x, s.y);
@@ -272,8 +300,9 @@ async function runViewport(browser, base, vp) {
   await settle();
   const mc = await G(() => __game.game.merchantCell);
   s = await aim(mc.x, mc.z, [0.6, 0.8, 0.4, 0.2]);
+  await G(() => { const g = __game.game, t = g.tap.bind(g); g.tap = (x) => { window.__lastTap = { t: x, r: g.resolve(x).kind }; return t(x); }; });
   await tap(s.x, s.y);
-  await page.waitForFunction(() => __game.ui.modal === 'shop', null, { timeout: 30000 });
+  try { await page.waitForFunction(() => __game.ui.modal === 'shop', null, { timeout: 30000 }); } catch (e) { log('last tap', JSON.stringify(await G(() => window.__lastTap || null)), 'aimed', JSON.stringify(s)); throw e; }
   await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running' || !a.effect?.target?.classList?.contains('card')), null, { timeout: 5000 });
   await sleep(100);
   const sheet = await page.locator('#panel .card').boundingBox();
@@ -283,7 +312,7 @@ async function runViewport(browser, base, vp) {
   } else {
     assert.ok(Math.abs(sheet.x + sheet.width - vp.width) < 4 && sheet.height >= vp.height - 2, 'side sheet in landscape');
   }
-  await shot('05-shop');
+  await shot('06-shop');
   const money0 = await G(() => __game.game.money);
   await tapEl('#panel .sell-all');
   await page.waitForFunction((m) => __game.game.money > m, money0, { timeout: 5000 }); // sold by tapping
